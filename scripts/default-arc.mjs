@@ -8,6 +8,10 @@ import { connect, fund, hex, sleep, createdId, submit, submitLoanSet } from './l
 const MPT = { CanLock: 0x2, RequireAuth: 0x4, CanEscrow: 0x8, CanTrade: 0x10, CanTransfer: 0x20, CanClawback: 0x40 }
 const LoanManageFlags = { tfLoanDefault: 65536, tfLoanImpair: 131072, tfLoanUnimpair: 262144 }
 const SUB_IN = 45, INVEST_LEN = 600
+// Agency securities lending is indemnified: the agent covers the whole loan, not a slice of it.
+// CoverRateMinimum is in parts per 100000, so 100000 is 100%.
+const COVER_RATE = Number(process.argv[2] ?? 100000)
+const COVER_AMOUNT = process.argv[3] ?? '2500000'
 const ev = []
 const rec = (step, r, note) => { ev.push({ step, code: r?.code, hash: r?.hash, note }); return r }
 
@@ -65,10 +69,10 @@ const main = async () => {
   rec('VaultDeposit', await submit(client, lender, { TransactionType: 'VaultDeposit', Account: lender.classicAddress, VaultID: vaultID, Amount: { mpt_issuance_id: SEC, value: '5000000' } }, 'lender subscribes 5,000,000 TBL'))
   const lb = rec('LoanBrokerSet', await submit(client, agent, {
     TransactionType: 'LoanBrokerSet', Account: agent.classicAddress, VaultID: vaultID,
-    ManagementFeeRate: 1000, DebtMaximum: '4000000', CoverRateMinimum: 10000, CoverRateLiquidation: 100000,
+    ManagementFeeRate: 1000, DebtMaximum: '4000000', CoverRateMinimum: COVER_RATE, CoverRateLiquidation: 100000,
   }, 'LoanBrokerSet'))
   const brokerID = createdId(lb.meta, 'LoanBroker')
-  rec('CoverDeposit', await submit(client, agent, { TransactionType: 'LoanBrokerCoverDeposit', Account: agent.classicAddress, LoanBrokerID: brokerID, Amount: { mpt_issuance_id: SEC, value: '1000000' } }, 'agent posts 1,000,000 TBL of first-loss cover'))
+  rec('CoverDeposit', await submit(client, agent, { TransactionType: 'LoanBrokerCoverDeposit', Account: agent.classicAddress, LoanBrokerID: brokerID, Amount: { mpt_issuance_id: SEC, value: COVER_AMOUNT } }, `agent posts ${COVER_AMOUNT} TBL of first-loss cover`))
 
   const snapshot = async (label) => {
     const v = (await client.request({ command: 'ledger_entry', index: vaultID, ledger_index: 'validated' })).result.node
@@ -122,7 +126,7 @@ const main = async () => {
   console.log('\n--- EVIDENCE ---')
   for (const e of ev) console.log(`  ${String(e.code).padEnd(22)} ${e.step.padEnd(30)} ${e.hash ?? ''}`)
   fs.mkdirSync('docs/evidence', { recursive: true })
-  fs.writeFileSync('docs/evidence/default-arc.json', JSON.stringify({ network: 't2-public-devnet', SEC, domainID, vaultID, brokerID, loanID, subscriptionDate, redemptionDate, states, events: ev }, null, 2))
+  fs.writeFileSync(`docs/evidence/default-arc-cover${COVER_RATE}.json`, JSON.stringify({ network: 't2-public-devnet', SEC, domainID, vaultID, brokerID, loanID, subscriptionDate, redemptionDate, states, events: ev }, null, 2))
   console.log('\nécrit: docs/evidence/default-arc.json')
   await client.disconnect()
 }

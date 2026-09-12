@@ -60,6 +60,9 @@ export type VaultView = {
   phase: Phase
   assetsTotal: number
   assetsAvailable: number
+  lossUnrealized: number
+  /** What the lenders actually own: the ledger uses this as the withdrawal denominator. */
+  nav: number
   sharesOutstanding: number
   pricePerShare: number | null
   utilisation: number | null
@@ -108,13 +111,20 @@ export async function readVault(vaultId: string): Promise<VaultView> {
   // although the specification and the reference pages both say they are always present.
   const assetsTotal = Number(v.AssetsTotal ?? 0)
   const assetsAvailable = Number(v.AssetsAvailable ?? 0)
+  const lossUnrealized = Number(v.LossUnrealized ?? 0)
   const sharesOutstanding = Number(shares?.OutstandingAmount ?? 0)
+
+  // AssetsTotal alone overstates the position: an impaired loan is still counted there and only
+  // shows up in LossUnrealized. The ledger itself withdraws against AssetsTotal - LossUnrealized,
+  // so that is what a share is worth. We learned this by impairing a loan and watching AssetsTotal
+  // not move.
+  const nav = assetsTotal - lossUnrealized
 
   return {
     vault: v, shares, broker, loans, clock,
     phase: phaseOf(v, clock),
-    assetsTotal, assetsAvailable, sharesOutstanding,
-    pricePerShare: sharesOutstanding > 0 ? assetsTotal / sharesOutstanding : null,
+    assetsTotal, assetsAvailable, lossUnrealized, nav, sharesOutstanding,
+    pricePerShare: sharesOutstanding > 0 ? nav / sharesOutstanding : null,
     utilisation: assetsTotal > 0 ? (assetsTotal - assetsAvailable) / assetsTotal : null,
     calls,
   }

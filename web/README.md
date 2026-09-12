@@ -68,8 +68,11 @@ type scale.
 
 ## What the dashboard means
 
-- **Price per share** is `AssetsTotal / OutstandingAmount`, computed client side because the ledger
-  exposes no such field. The shares live on a separate token issuance.
+- **Price per share** is `(AssetsTotal - LossUnrealized) / OutstandingAmount`, computed client side
+  because the ledger exposes no such field, and the shares live on a separate token issuance.
+  Subtracting the unrealised loss matters: an impaired loan stays inside `AssetsTotal` and only
+  appears in `LossUnrealized`, so the naive ratio overstates what a lender owns. The ledger itself
+  withdraws against the same difference.
 - **Phase** is derived from the two immutable dates on the vault, compared against the ledger close
   time, never the browser clock.
 - **Refused in this phase** lists what the ledger will reject right now, with the real result code.

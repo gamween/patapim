@@ -280,3 +280,51 @@ brief mentions that creating a vault costs a reserve-scaled fee at all.
 **Proposed fix** Document the vault creation cost as "one incremental owner reserve, network
 dependent" in the `VaultCreate` reference, and have the environment table state the reserve and the
 faucet amount per network.
+
+## F-013 · Impairment leaves `AssetsTotal` untouched, so the obvious share price overstates the position
+**Category** documentation / protocol · **Severity** high · **Track 2**
+
+Walking a loan to default and snapshotting the vault at each step, `scripts/default-arc.mjs`:
+
+| state | AssetsTotal | LossUnrealized | naive `AssetsTotal / shares` | cover | debt |
+|---|---|---|---|---|---|
+| after funding | 5000000 | 0 | 1.00000000 | 1000000 | 0 |
+| loan drawn | 5000000 | 0 | 1.00000000 | 1000000 | 2000000 |
+| **impaired** | **5000000** | **2000000** | **1.00000000** | 1000000 | 2000000 |
+| defaulted | 3200000 | 0 | 0.64000000 | 800000 | 0 |
+
+Impairment writes the loss into `LossUnrealized` and does not touch `AssetsTotal`. A dashboard that
+computes price per share as `AssetsTotal / OutstandingAmount`, which is the only formula anyone can
+derive from the field names, shows 1.00 for a vault whose lenders are carrying a 40% write-down. We
+shipped that bug ourselves and only found it by impairing a loan on chain and reading the snapshot.
+
+The ledger knows better: `VaultWithdraw` settles against `AssetsTotal - LossUnrealized`. The correct
+formula is therefore visible only in the source.
+
+**Proposed fix** State the net asset value formula on the vault concepts page, and either expose it
+as a field or name `AssetsTotal` in a way that does not read as "what the vault is worth".
+
+---
+
+## F-014 · "First-loss capital" absorbs a rate of the debt, not the first loss
+**Category** terminology / protocol · **Severity** high
+
+Same run. The broker posted 1000000 of cover against a 2000000 loan with
+`CoverRateMinimum: 10000`, ten percent in parts per 100000. On default
+(tx `D4F71EBF…F035`):
+
+- vault assets fell 1800000, from 5000000 to 3200000
+- cover fell **200000**, from 1000000 to 800000
+- price per share fell from 1.00 to **0.64**
+
+So the cover absorbed exactly ten percent of the loan, the configured rate, and the lenders took the
+other ninety percent, even though the broker had posted enough cover to absorb half the loan.
+
+The name says the capital takes the first loss. What it takes is `CoverRateMinimum` of the loan.
+For a product whose entire promise to lenders is indemnification, that gap between the name and the
+behaviour is the most expensive misunderstanding available in XLS-66, and nothing in the field
+tables or the concepts page corrects it.
+
+**Proposed fix** Document the settlement arithmetic on default with a worked example, and say
+plainly that the cover pays `min(CoverAvailable, CoverRateMinimum × debt)`. Consider renaming the
+parameter, or accepting a cover rate of 100000 as the documented way to express full indemnity.

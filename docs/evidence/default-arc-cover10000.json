@@ -1,0 +1,94 @@
+{
+  "network": "t2-public-devnet",
+  "SEC": "005038C0E71310C57FCFD1FA4B9E9E12BDE50D97303F1E64",
+  "domainID": "B37A70C16E4DFBAD5D9F30A693213B9EA4B578DBD97D0E8789D412E978DF4F90",
+  "vaultID": "FEC5DB46C0FB8C409523DE20B28F7C6AF0F993DBFC44FA4BC53BBF0F29C2BABA",
+  "brokerID": "F3EE8CF695E95554B7B31F804F423EE11D279D651DBBBA096E2168B032B314AD",
+  "loanID": "670BADA2E83B9D07699FF6B611456674A11D1D3B66D8E8847E721BD3BE927CCC",
+  "subscriptionDate": 842547355,
+  "redemptionDate": 842547955,
+  "states": [
+    {
+      "label": "after funding",
+      "AssetsTotal": "5000000",
+      "AssetsAvailable": "5000000",
+      "LossUnrealized": "0",
+      "shares": "5000000",
+      "pricePerShare": "1.00000000",
+      "CoverAvailable": "1000000",
+      "DebtTotal": "0"
+    },
+    {
+      "label": "loan drawn",
+      "AssetsTotal": "5000000",
+      "AssetsAvailable": "3000000",
+      "LossUnrealized": "0",
+      "shares": "5000000",
+      "pricePerShare": "1.00000000",
+      "CoverAvailable": "1000000",
+      "DebtTotal": "2000000"
+    },
+    {
+      "label": "impaired",
+      "AssetsTotal": "5000000",
+      "AssetsAvailable": "3000000",
+      "LossUnrealized": "2000000",
+      "shares": "5000000",
+      "pricePerShare": "1.00000000",
+      "CoverAvailable": "1000000",
+      "DebtTotal": "2000000"
+    },
+    {
+      "label": "defaulted, cover absorbs",
+      "AssetsTotal": "3200000",
+      "AssetsAvailable": "3200000",
+      "LossUnrealized": "0",
+      "shares": "5000000",
+      "pricePerShare": "0.64000000",
+      "CoverAvailable": "800000",
+      "DebtTotal": "0"
+    }
+  ],
+  "events": [
+    {
+      "step": "VaultCreate",
+      "code": "tesSUCCESS",
+      "hash": "FB588544CE04535428FED827935E197D653212082ED764997DCBB3301DB5153B"
+    },
+    {
+      "step": "VaultDeposit",
+      "code": "tesSUCCESS",
+      "hash": "E97777138928FF9974011571C7BDEE8EF604664231A7A7571D26A6997BD10E2E"
+    },
+    {
+      "step": "LoanBrokerSet",
+      "code": "tesSUCCESS",
+      "hash": "256A7812CAF116A89AB53BFF3A857F2C6BDEB853C1ED8DEB49B93EF783FA183C"
+    },
+    {
+      "step": "CoverDeposit",
+      "code": "tesSUCCESS",
+      "hash": "EC170D81726570C01306A7B9CAAF56E551C353012A2EF8A3A6C2ACAB745B2D47"
+    },
+    {
+      "step": "LoanSet",
+      "code": "tesSUCCESS",
+      "hash": "5C65F0A51F7EE7A992DA1B296D77C5E2893B8FDEC86A5E75E4895FE45D86CD05"
+    },
+    {
+      "step": "LoanManage impair (too early)",
+      "code": "tesSUCCESS",
+      "hash": "A3734858DD8D5DF2E19384B882682083BA338FC1EECED00E3E7A3357DD62F55D"
+    },
+    {
+      "step": "LoanManage impair",
+      "code": "tecNO_PERMISSION",
+      "hash": "C9F009890DB54D8D0DC464403A6893FF95CE461FD71CC04C1E068044638BA649"
+    },
+    {
+      "step": "LoanManage default",
+      "code": "tesSUCCESS",
+      "hash": "D4F71EBF5F3234A8C47D2DBC16E7C17AA1A4C12E7858D6EDF392E7FF62F7F035"
+    }
+  ]
+}

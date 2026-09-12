@@ -128,9 +128,16 @@ export default async function VaultPage({
             <div className="sub">AssetsAvailable</div>
           </div>
           <div className="tile">
+            <div className="label">Unrealised loss</div>
+            <div className="value" style={view.lossUnrealized > 0 ? { color: 'var(--danger)' } : undefined}>
+              {n(view.lossUnrealized)}
+            </div>
+            <div className="sub">LossUnrealized, impaired loans</div>
+          </div>
+          <div className="tile">
             <div className="label">Price per share</div>
             <div className="value">{n(view.pricePerShare, 6)}</div>
-            <div className="sub">AssetsTotal / OutstandingAmount</div>
+            <div className="sub">(AssetsTotal − LossUnrealized) / OutstandingAmount</div>
           </div>
           <div className="tile">
             <div className="label">Utilisation</div>
@@ -286,7 +293,7 @@ export default async function VaultPage({
               <div className="label">Value in securities</div>
               <div className="value">
                 {view.sharesOutstanding > 0
-                  ? n((positionShares / view.sharesOutstanding) * view.assetsTotal)
+                  ? n((positionShares / view.sharesOutstanding) * view.nav)
                   : '—'}
               </div>
               <div className="sub">shares / outstanding × assets</div>
