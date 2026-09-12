@@ -32,7 +32,14 @@ const LoanManageFlags = { tfLoanDefault: 65536, tfLoanImpair: 131072 }
 const KYC = hex('patapim.eligible.v1')
 
 const ledgerNow = async (c) => (await c.request({ command: 'ledger', ledger_index: 'validated' })).result.ledger.close_time
+const EVIDENCE = 'docs/evidence/standing-demo.json'
 const load = () => JSON.parse(fs.readFileSync(STATE, 'utf8'))
+const publish = (s) => fs.writeFileSync(EVIDENCE, JSON.stringify({ network: 'XRPL Devnet', ...s, events: [] }, null, 2) + '\n')
+const republish = (s) => {
+  const prev = fs.existsSync(EVIDENCE) ? JSON.parse(fs.readFileSync(EVIDENCE, 'utf8')) : { events: [] }
+  const { seeds, ...rest } = s
+  fs.writeFileSync(EVIDENCE, JSON.stringify({ ...prev, ...rest, events: prev.events ?? [] }, null, 2) + '\n')
+}
 const save = (s) => { fs.mkdirSync('.demo', { recursive: true }); fs.writeFileSync(STATE, JSON.stringify(s, null, 2)) }
 const wallets = (s) => Object.fromEntries(Object.entries(s.seeds).map(([k, v]) => [k, Wallet.fromSeed(v)]))
 const clock = (t) => new Date((t + 946684800) * 1000).toLocaleTimeString('en-GB')
@@ -75,7 +82,7 @@ async function provision(minutes, investmentMinutes) {
     TransactionType: 'VaultCreate', Account: agent.classicAddress,
     Asset: { mpt_issuance_id: SEC }, WithdrawalPolicy: 1, DomainID: domainID, Flags: 0x00010000,
     VaultKind: 1, SubscriptionDate: subscriptionDate, RedemptionDate: redemptionDate,
-    Data: hex('patapim'),
+    Data: hex(JSON.stringify({ n: 'patapim', term_days: 90, note: 'demo compresses a 90 day term' })),
   }, 'VaultCreate')
   const vaultID = createdId(vc.meta, 'Vault')
   const lb = await submit(client, agent, {
@@ -93,6 +100,9 @@ async function provision(minutes, investmentMinutes) {
     seeds: { issuer: issuer.seed, agent: agent.seed, lender: lender.seed, mm: mm.seed, outsider: outsider.seed },
     SEC, domainID, vaultID, brokerID, subscriptionDate, redemptionDate, loanID: null,
   })
+  // The same record without the seeds, so gen-onchain-inventory.mjs can put the vault the landing
+  // page advertises into docs/ON-CHAIN.md with a link a judge can follow.
+  publish({ SEC, domainID, vaultID, brokerID, subscriptionDate, redemptionDate, loanID: null })
 
   console.log(`\n${'='.repeat(78)}\nRUNBOOK\n${'='.repeat(78)}`)
   console.log(`  dashboard   http://localhost:3000/vault/${vaultID}`)
@@ -133,7 +143,7 @@ async function act(step, arg, arg2) {
       PaymentInterval: Number(arg ?? 60), PaymentTotal: Number(arg2 ?? 2), GracePeriod: 60, Data: hex('patapim demo loan'),
     }, 'loan of securities, two signatures')
     const loanID = r.meta && createdId(r.meta, 'Loan')
-    if (loanID) { s.loanID = loanID; save(s); console.log(`       LoanID ${loanID}`) }
+    if (loanID) { s.loanID = loanID; save(s); republish(s); console.log(`       LoanID ${loanID}`) }
   } else if (step === 'impair') await submit(client, w.agent, { TransactionType: 'LoanManage', Account: w.agent.classicAddress, LoanID: s.loanID, Flags: LoanManageFlags.tfLoanImpair }, 'agent impairs')
   else if (step === 'default') await submit(client, w.agent, { TransactionType: 'LoanManage', Account: w.agent.classicAddress, LoanID: s.loanID, Flags: LoanManageFlags.tfLoanDefault }, 'agent declares default')
   else if (step === 'withdraw') {

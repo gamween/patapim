@@ -146,6 +146,42 @@ Loan: flags `196608`, outstanding `0`.
 | LoanManage impair | `tecNO_PERMISSION` | yes, `LoanManage` | [`C9F00989`](https://devnet.xrpl.org/transactions/C9F009890DB54D8D0DC464403A6893FF95CE461FD71CC04C1E068044638BA649) |
 | LoanManage default | `tesSUCCESS` | yes, `LoanManage` | [`D4F71EBF`](https://devnet.xrpl.org/transactions/D4F71EBF5F3234A8C47D2DBC16E7C17AA1A4C12E7858D6EDF392E7FF62F7F035) |
 
+## Standing demo vault
+
+the live vault the landing page advertises, left in Investment with a drawn loan. Evidence: [`docs/evidence/standing-demo.json`](./evidence/standing-demo.json).
+
+### Accounts
+
+| Role | Address |
+|---|---|
+| Transfer agent, issues the security | [`rBwU7PvT…rnHq`](https://devnet.xrpl.org/accounts/rBwU7PvTSWx9rAFmRLf5xyhVhccuudrnHq) |
+| Lending agent, owns the vault and the broker | [`r9RrYWqq…Am2N`](https://devnet.xrpl.org/accounts/r9RrYWqqANVqaGNTTs9j7eeYiHWrf9Am2N) |
+| Borrower, the market maker | [`rKoM6ZPW…7S5n`](https://devnet.xrpl.org/accounts/rKoM6ZPW8P5gZv384cU4ScfdVwqArW7S5n) |
+| Vault pseudo-account, holds the pooled securities | [`rn4t6dRC…VcRH`](https://devnet.xrpl.org/accounts/rn4t6dRCShGLvz36hnXmqZGqC7gjzPVcRH) |
+| Loan broker pseudo-account, holds the loans | [`rPXmPeUg…8e3g`](https://devnet.xrpl.org/accounts/rPXmPeUgV3Z32o98CGL5upUYNC63xd8e3g) |
+
+### Ledger objects
+
+| Object | Id | What it is |
+|---|---|---|
+| Tokenised security, MPT | `005047816F6E93FF4027878DF0E68EDE3564DE25547C5051` | the vault asset, require-auth |
+| Permissioned domain | `9200CA563850C11940BB7666344C98E411F4AEC33E4E35E825DBC3CF5C96A908` | the eligibility gate |
+| Vault | [`FAB518C7FC61…0132`](https://devnet.xrpl.org/vault/FAB518C7FC616F2BEAE22537F94B53C33AF9138FC472FAF0043057B6C3020132) | closed-ended, `VaultKind 1` |
+| Vault shares, MPT | `000000013004654E139759B62C0AE3AEEA33401D2184838A` | the lender position, 5000000 outstanding |
+| Loan broker | `794653A2DFABC2811C9E2748109AECB50384F9B9C9A39E7BACE7E47177F1DEA9` | the lending agent |
+| Loan | `1D4630153B6EA3E59E1ACF621171C4B288DFB66BE30BD338E47DD73791B95BB8` | the loan of securities |
+
+Vault state now: assets `5000000`, available `3000000`, unrealised loss `0`. Subscription closes `842559790`, redemption opens `842624590`, Ripple epoch.
+
+Broker: cover `2500000`, debt `2000000`, ceiling `4000000`, cover rate `100000` parts per 100000.
+
+Loan: flags `0`, outstanding `2000183`.
+
+### Transactions
+
+| Step | Result | Verified on chain | Link |
+|---|---|---|---|
+
 ---
 
 31 transactions re-verified against the ledger, 0 mismatches.

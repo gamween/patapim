@@ -10,6 +10,7 @@ const RUNS = [
   ['recall-t2.json', 'Flagship lifecycle', 'subscription, gated deposit, loan of securities, the three phase rejections, redemption'],
   ['default-arc-cover100000.json', 'Default arc, full indemnity', 'the cover absorbs the whole loan, the lenders are untouched'],
   ['default-arc-cover10000.json', 'Default arc, ten percent cover', 'the same default at a ten percent cover rate, where the lenders take the loss'],
+  ['standing-demo.json', 'Standing demo vault', 'the live vault the landing page advertises, left in Investment with a drawn loan'],
 ]
 
 const short = (s, n = 10) => (s ? `${s.slice(0, n)}…${s.slice(-4)}` : '')
