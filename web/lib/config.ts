@@ -12,4 +12,4 @@ export const LIBRARY = 'xrpl.js@5.2.0-beta.0'
 export const REPO = 'https://github.com/gamween/patapim'
 
 /** The vault provisioned by scripts/recall-spine.mjs, filled in after each demo run. */
-export const DEMO_VAULT = '6B79B084F9EA00FB3B8B368D5710F50A871D488DE43095500B38C9FAD6D2C13C'
+export const DEMO_VAULT = '1D5C0C8EA8BEB028EB4AD5507F0BCFCA7D3D0977712C09B96D21E3DB54372687'

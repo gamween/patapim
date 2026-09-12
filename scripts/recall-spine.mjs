@@ -44,7 +44,8 @@ const main = async () => {
     Flags: MPT.CanTransfer | MPT.CanTrade | MPT.CanEscrow | MPT.CanClawback | MPT.CanLock | MPT.RequireAuth,
     MPTokenMetadata: hex(JSON.stringify({
       ticker: 'TBL', name: 'patapim demo T-Bill', desc: 'Demo tokenised treasury bill for the XRPL lending hackathon',
-      icon: 'https://patapim.example/tbl.png', asset_class: 'rwa', issuer_name: 'patapim demo transfer agent',
+      icon: 'https://patapim.example/tbl.png', asset_class: 'rwa', asset_subclass: 'treasury',
+      issuer_name: 'patapim demo transfer agent',
     })),
   }, 'MPTokenIssuanceCreate TBL'))
   const SEC = iss.meta?.mpt_issuance_id
@@ -75,7 +76,9 @@ const main = async () => {
     TransactionType: 'VaultCreate', Account: agent.classicAddress,
     Asset: { mpt_issuance_id: SEC }, WithdrawalPolicy: 1, DomainID: domainID, Flags: 0x00010000,
     VaultKind: 1, SubscriptionDate: subscriptionDate, RedemptionDate: redemptionDate,
-    Data: hex('patapim demo vault'),
+    // The brief asks for the real-world duration to be modelled in the UI or the narrative. It is
+    // modelled on chain instead, so the dashboard reads it from the vault rather than inventing it.
+    Data: hex(JSON.stringify({ n: 'patapim', term_days: 90, note: 'demo compresses a 90 day term' })),
   }, 'VaultCreate closed + MPT + domain'))
   const vaultID = createdId(vc.meta, 'Vault')
   console.log(`       VaultID = ${vaultID}   Subscription closes t+${SUB_IN}s, Redemption opens t+${SUB_IN + INVEST_LEN}s`)
@@ -102,9 +105,13 @@ const main = async () => {
   rec('VaultWithdraw during Investment', await submit(client, lender, { TransactionType: 'VaultWithdraw', Account: lender.classicAddress, VaultID: vaultID, Amount: { mpt_issuance_id: shareIdEarly, value: '1000' } }, 'VaultWithdraw before Redemption opens', 'tecTOO_SOON'))
   const loan = rec('LoanSet', await submitLoanSet(client, agent, mm, {
     TransactionType: 'LoanSet', Account: agent.classicAddress, Counterparty: mm.classicAddress,
-    LoanBrokerID: brokerID, PrincipalRequested: '2000000', InterestRate: 5000,
+    LoanBrokerID: brokerID, PrincipalRequested: '2000000',
+    // The lending fee is the whole point for the lender. An interest rate over a two minute loan
+    // rounds to nothing, so the fee is where the yield shows up, exactly as a securities lending
+    // fee works: the borrower pays for the loan of the security.
+    LoanOriginationFee: '100000', InterestRate: 5000,
     PaymentInterval: 60, PaymentTotal: 2, GracePeriod: 60, Data: hex('patapim demo loan'),
-  }, 'LoanSet securities, 2 signatures'))
+  }, 'LoanSet securities + 100,000 TBL lending fee, 2 signatures'))
   const loanID = loan.meta && createdId(loan.meta, 'Loan')
   console.log(`       LoanID = ${loanID}`)
 

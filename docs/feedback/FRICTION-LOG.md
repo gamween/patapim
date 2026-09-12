@@ -363,3 +363,38 @@ one the ledger implements, so we established it by firing the transaction at thr
 **Proposed fix** State the precondition for `tfLoanImpair` on the `LoanManage` reference page, one
 sentence: impairment is available once a payment is past due, independently of `GracePeriod`. If the
 intent is that grace protects standing as well as payment, the check belongs in the transactor.
+
+## F-016 · `LoanOriginationFee` is charged to the borrower and kept by the broker, and the lender's only yield is interest
+**Category** documentation / protocol · **Severity** high
+
+We added `LoanOriginationFee: '100000'` to a 2000000 loan expecting the lender's position to rise,
+because a securities lending fee is what the lender is paid. Reading the metadata of
+tx `784DA553…A72A` shows where it actually goes:
+
+| account | before | after | delta |
+|---|---|---|---|
+| borrower | 10000000 | 11900000 | **+1900000**, the principal minus the fee |
+| broker owner | 9500000 | 9600000 | **+100000**, the entire fee |
+| vault `AssetsTotal` | 5000000 | 5000000 | **unchanged** |
+
+and the `Loan` still records `PrincipalOutstanding: 2000000`. So the fee is deducted from the
+drawdown, credited to the broker's own account, and the borrower still owes the full principal. The
+vault never sees it. None of that is stated anywhere: the field name says origination fee, the
+concepts page says the broker "collects fees", and a reader building a lender-facing product will
+assume, as we did, that the fee is yield.
+
+The consequence is sharper than a naming complaint. **A lender's only source of return is
+`InterestRate`**, and on a schedule compressed to fit a devnet that cannot be fast-forwarded,
+interest rounds to nothing: our 2000000 loan over two minutes repaid 2000001, one unit.
+`TotalValueOutstanding` confirms it. So on a closed-ended vault there is no way to demonstrate
+"withdraw capital plus accrued yield", which the minimum bar asks for, in the time the event allows.
+
+The mechanism that would solve it is the one the workshop deck teaches: "Interest injected via
+`tfVaultDonation`. PPS rises without minting new shares." That flag does not exist, in the source or
+in `server_definitions` (finding F-006). So the documented way to put yield into a closed-ended vault
+is missing from the implementation, and that is why nobody can show yield on a compressed timeline.
+
+**Proposed fix** Three things. State on the `LoanSet` reference page who pays each fee and who
+receives it, with the drawdown arithmetic. State the time basis of `InterestRate`. And either ship
+the donation flag the workshop teaches, or correct the deck and give closed-ended vaults another way
+to recognise yield inside a demonstrable window.
