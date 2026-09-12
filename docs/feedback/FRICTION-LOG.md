@@ -341,3 +341,25 @@ and `default-arc-cover100000` in `docs/evidence/`, identical but for that one nu
 **Proposed fix** Document the settlement arithmetic on default with a worked example, and say
 plainly that the cover pays `min(CoverAvailable, CoverRateMinimum × debt)`. Consider renaming the
 parameter, or documenting a cover rate of 100000 as the way to express full indemnity.
+
+## F-015 · The grace period protects the borrower's payment, not their standing
+**Category** protocol · **Severity** medium
+
+Three runs pin the boundary exactly. `LoanManage` with `tfLoanImpair`:
+
+| when | result | tx |
+|---|---|---|
+| before `NextPaymentDueDate` | `tecTOO_SOON` | `9DD4F5C8…F2F3` |
+| 11 seconds after due, 49 seconds of grace left | `tesSUCCESS` | `A3734858…F55D`, reproduced `5227A096…5F48` |
+| after the grace period, already impaired | `tecNO_PERMISSION` | `C9F00989…A649` |
+
+So impairment unlocks at the payment due date and ignores the grace period entirely. A borrower who
+is one second late can be marked down while still holding the full grace window the loan granted
+them, and the mark-down is what moves `LossUnrealized` and therefore what a lender sees.
+
+Both directions are defensible, and that is the point: nothing in the reference pages states which
+one the ledger implements, so we established it by firing the transaction at three different moments.
+
+**Proposed fix** State the precondition for `tfLoanImpair` on the `LoanManage` reference page, one
+sentence: impairment is available once a payment is past due, independently of `GracePeriod`. If the
+intent is that grace protects standing as well as payment, the check belongs in the transactor.

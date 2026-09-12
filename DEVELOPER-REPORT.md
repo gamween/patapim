@@ -125,6 +125,16 @@ funds for that loan must be reserved". *Proposal: a `tfLoanCall` flag on `LoanMa
 `LendingProtocolV1_2`, letting the broker call a loan before term against the borrower's grace
 period, so a fixed-term vault can guarantee liquidity at its own maturity.*
 
+**The grace period protects the borrower's payment, not their standing.** Firing `tfLoanImpair` at
+three different moments pins the boundary: `tecTOO_SOON` before the payment falls due, `tesSUCCESS`
+eleven seconds after it falls due with forty nine seconds of grace still running, and
+`tecNO_PERMISSION` once already impaired. Impairment unlocks at the due date and ignores
+`GracePeriod` entirely, so a borrower who is one second late can be marked down while still holding
+the whole window the loan granted them, and that mark-down is what moves `LossUnrealized` and what
+the lender sees. Both designs are defensible; nothing states which one ships. *Proposal: one sentence
+on the `LoanManage` page saying impairment is available once a payment is past due, independently of
+`GracePeriod`.*
+
 **A permissioned domain gates lenders, not borrowers.** Same vault, same minute: a non-member
 `VaultDeposit` is refused `tecNO_AUTH`, then a `LoanSet` naming that same account as counterparty
 succeeds. There is no `checkVaultDomain` anywhere under the lending transactors. A market described

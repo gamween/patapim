@@ -19,9 +19,9 @@ Submission Sunday 13 September, 13:00 CEST. Code freeze 12:30.
 
 | # | What | Who | Why it matters |
 |---|---|---|---|
-| 1 | **Default arc on chain**: originate, miss the payment, `LoanManage` impair, `LoanManage` default, first-loss cover repays the vault, lender position unchanged | me | the half of the story we have not yet proven, and the most convincing 120 seconds of the demo |
+| ~~1~~ | ~~Default arc on chain~~ **done**: proven twice, at a ten percent and a hundred percent cover rate, `docs/evidence/default-arc-cover*.json` | me | the contrast between the two runs became finding F-014 |
 | 2 | **Design pass** on the landing and the dashboard | Armand | 10% of the score, and the dashboard is the demo surface |
-| 3 | **Demo provisioning script**: a vault whose phase boundary falls inside the pitch slot, so a rejection fires live on screen | me | the phases run on wall clock and cannot be fast forwarded |
+| ~~3~~ | ~~Demo provisioning script~~ **done and rehearsed**: `scripts/demo.mjs`, every step of the runbook fired against Devnet once | me | an untested demo script is a promise to fail on stage |
 | 4 | **Slide deck**, ten slides maximum | Armand | required |
 | 5 | **Report the borrower eligibility gap privately to a mentor** | Fianso | required by the brief before presenting |
 | 6 | **DevEx form**, once the organizers publish the link | Fianso | required, blocked on them |

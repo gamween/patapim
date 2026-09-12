@@ -97,7 +97,7 @@ async function provision(minutes) {
   console.log(`\n  after the boundary, the page flips on its own`)
   console.log(`    node scripts/demo.mjs deposit-late      tecEXPIRED`)
   console.log(`    node scripts/demo.mjs loan              the loan of securities`)
-  console.log(`    node scripts/demo.mjs impair            after the grace period`)
+  console.log(`    node scripts/demo.mjs impair            once the payment falls due, grace not required`)
   console.log(`    node scripts/demo.mjs default           the cover repays the vault`)
   console.log(`\n  node scripts/demo.mjs state             at any point`)
   await client.disconnect()
