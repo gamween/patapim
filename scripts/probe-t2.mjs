@@ -1,7 +1,13 @@
 // Full closed-ended (Lending Protocol V1.1) lifecycle probe on the public XRPL Devnet.
 // Walks Subscription -> Investment -> Redemption in real wall-clock time and records
 // exactly which transactions the ledger accepts or rejects in each phase.
-import { connect, fund, hex, sleep, nowRipple, createdId, submit, submitLoanSet } from './lib/lending.mjs'
+import { connect, fund, hex, sleep, createdId, submit, submitLoanSet } from './lib/lending.mjs'
+
+// Phases are judged against the parent ledger close time, never the clock of the machine
+// submitting. Deriving the dates from one clock and waiting on another is how you end up
+// submitting into the phase you thought you had left, which cost us a full run.
+const ledgerNow = async (client) =>
+  (await client.request({ command: 'ledger', ledger_index: 'validated' })).result.ledger.close_time
 
 const SUB_SECONDS = 150   // subscription window length
 const RED_SECONDS = 540   // redemption starts here
@@ -17,7 +23,7 @@ const main = async () => {
   const borrower = await fund(net, 'borrower')
   await sleep(5000)
 
-  const base = nowRipple()
+  const base = await ledgerNow(client)
   const subscriptionDate = base + SUB_SECONDS
   const redemptionDate = base + RED_SECONDS
   console.log(`  SubscriptionDate=${subscriptionDate} RedemptionDate=${redemptionDate} (ripple epoch, +${SUB_SECONDS}s / +${RED_SECONDS}s)`)
@@ -53,13 +59,14 @@ const main = async () => {
   })
   rec('subscription', 'LoanSet', await submitLoanSet(client, broker, borrower, loanTx(2, 60), 'LoanSet during Subscription', 'REJECT'), 'rejected: lending blocked')
 
-  const waitUntil = async (sec, label) => {
-    const target = t0 + sec * 1000
-    while (Date.now() < target) { await sleep(5000) }
-    console.log(`\n--- ${label} (t+${el()}s) ---`)
+  const waitUntil = async (target, label) => {
+    let t = await ledgerNow(client)
+    while (t < target) { await sleep(4000); t = await ledgerNow(client) }
+    console.log(`\n--- ${label} (ledger ${t}) ---`)
   }
 
-  await waitUntil(SUB_SECONDS + 20, 'PHASE 2 INVESTMENT')
+
+  await waitUntil(subscriptionDate + 8, 'PHASE 2 INVESTMENT')
   rec('investment', 'VaultDeposit', await submit(client, lender, {
     TransactionType: 'VaultDeposit', Account: lender.classicAddress, VaultID: vaultId, Amount: '5000000',
   }, 'VaultDeposit during Investment', 'REJECT'), 'rejected: deposits blocked')
@@ -86,7 +93,7 @@ const main = async () => {
     }, 'LoanPay full (tfLoanFullPayment)'), 'accepted')
   }
 
-  await waitUntil(RED_SECONDS + 20, 'PHASE 3 REDEMPTION')
+  await waitUntil(redemptionDate + 8, 'PHASE 3 REDEMPTION')
   rec('redemption', 'LoanSet', await submitLoanSet(client, broker, borrower, loanTx(2, 60), 'LoanSet during Redemption', 'REJECT'), 'rejected: new loans blocked')
   rec('redemption', 'VaultWithdraw', await submit(client, lender, {
     TransactionType: 'VaultWithdraw', Account: lender.classicAddress, VaultID: vaultId, Amount: '40000000',

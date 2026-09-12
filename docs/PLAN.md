@@ -22,10 +22,12 @@ Submission Sunday 13 September, 13:00 CEST. Code freeze 12:30.
 | ~~1~~ | ~~Default arc on chain~~ **done**: proven twice, at a ten percent and a hundred percent cover rate, `docs/evidence/default-arc-cover*.json` | me | the contrast between the two runs became finding F-014 |
 | 2 | **Design pass** on the landing and the dashboard | Armand | 10% of the score, and the dashboard is the demo surface |
 | ~~3~~ | ~~Demo provisioning script~~ **done and rehearsed**: `scripts/demo.mjs`, every step of the runbook fired against Devnet once | me | an untested demo script is a promise to fail on stage |
+| ~~2b~~ | ~~Design pass~~ **merged**: Armand's art direction, live vault rendering and jury deck are on `main` | Armand | the dashboard is the demo surface |
 | 4 | **Slide deck**, ten slides maximum | Armand | required |
 | 5 | **Report the borrower eligibility gap privately to a mentor** | Fianso | required by the brief before presenting |
 | 6 | **DevEx form**, once the organizers publish the link | Fianso | required, blocked on them |
 | 7 | Final pass: refresh the evidence file, the README transaction table and the report from the last run | me | the hashes must match what we demo |
+| 7b | **Repoint `web/lib/config.ts` `DEMO_VAULT`** at the morning's `demo.mjs provision`, then open the landing page and confirm the figures are not all zero | me | the hero button sends a judge straight to that vault; a spine run leaves it drained |
 | 8 | Rehearse the four minutes | all | 10% of the score |
 
 ## The demo, four minutes
@@ -50,4 +52,5 @@ investment period alone is 180 seconds. Whichever is not live is shown from veri
 | the demo vault is in the wrong phase at pitch time | provision it from a script with the boundary set against the ledger clock, and keep a second vault one phase behind as a spare |
 | devnet is slow or unreachable during the pitch | record the run the night before, and keep the explorer pages open in tabs |
 | a late change breaks the front at 12:29 | freeze the front at 11:00 and touch nothing but copy after that |
+| the vault behind the hero button reads zero | `DEMO_VAULT` is item 7b; provision with a long investment window (`demo.mjs provision 3 1080`) so the standing vault outlives the judging, not the pitch |
 | the DevEx form link never arrives | ask a mentor in person during the Sunday morning coaching slot |

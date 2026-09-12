@@ -16,6 +16,7 @@ const ROLE = {
   LoanSet: 'the loan of securities, agent signs, borrower counter-signs',
   'EscrowCreate collateral': 'the borrower posts XRP collateral, held bilaterally',
   'LoanPay full': 'the borrower returns the securities and the fee',
+  'EscrowCancel collateral': 'the collateral is released back to the borrower',
   'LoanSet in redemption': 'new lending refused once redemption opens, the third phase gate',
   'VaultWithdraw by shares': 'the lender redeems, denominated in shares',
 }

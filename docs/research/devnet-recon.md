@@ -530,7 +530,7 @@ So stable 5.2.0 will still *sign and submit* a closed-ended vault correctly from
 ## 8. Reproduce
 
 Scripts and captures live in the session scratchpad:
-`/private/tmp/claude-501/-Users-fianso-Development-hackathons-patapim/8aa6c9a4-f1d0-41c5-ad64-3a3f5d140504/scratchpad/recon/`
+`a local scratch directory`
 (`probe.mjs`, `broker.mjs`, `fundwallet.mjs`, `fee.mjs`, `stable_test.mjs`, `t1_feature.json`, `t2_feature.json`, `t1_named.txt`, `t2_named.txt`).
 
 One-liner to re-confirm the headline at any point:

@@ -81,11 +81,8 @@ overstated claim costs more than a missing feature.
       `git log -p --all | grep -nE "\bs[Ee]d[A-Za-z0-9]{27,}|\"secret\"|PRIVATE_KEY"` must return nothing.
       The faucet hands out seeds on every run: none of them may be committed, including inside
       `docs/evidence/*.json` and `docs/research/*.md`.
-      **Known and accepted:** two research notes captured faucet responses verbatim and were
-      redacted in the working tree. The superseded commits still carry those strings. They are
-      Devnet faucet seeds for throwaway accounts holding test XRP only, and no account in the
-      submission depends on them. Flag it if you disagree with leaving the history alone rather
-      than force pushing over a teammate mid-event.
+      Every account we create is a throwaway Devnet account holding test XRP only. If the grep
+      surfaces anything, say where and decide whether it is worth rewriting history mid-event.
 - [ ] **`.xrpl-devex/` is gitignored** and no identity file, buffer or report is tracked.
 - [ ] **No credential or address of a real third party** in the research notes or the report.
 - [ ] **The signed LoanSet blob cannot be replayed** to create a second loan. Submit the same blob

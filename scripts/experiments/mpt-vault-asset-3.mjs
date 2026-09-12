@@ -5,9 +5,9 @@ import fs from 'node:fs'
 import { Wallet } from 'xrpl'
 import { encode, encodeForSigning } from 'ripple-binary-codec'
 import { sign } from 'ripple-keypairs'
-import { connect, submit, createdId, hex, sleep } from '../lib/lending.mjs'
+import { connect, submit, createdId } from '../lib/lending.mjs'
 
-const CACHE = '/private/tmp/claude-501/-Users-fianso-Development-hackathons-patapim/8aa6c9a4-f1d0-41c5-ad64-3a3f5d140504/scratchpad/mpt-vault-asset-seeds.json'
+const CACHE = new URL('../../.demo/mpt-vault-asset-seeds.json', import.meta.url).pathname
 const IDS = {
   SEC: '00010749431A4B5B17B09D06F551A73EDDBC2C4A824F74AA',
   VAULT: 'CE69EA8055D1EC8A5716167B8D93905D2245EE6A35988A5A8F780365C771599E',

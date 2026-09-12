@@ -1,22 +1,33 @@
 {
   "name": "patapim",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Securities lending on the XRP Ledger: a closed-ended Single Asset Vault lending tokenised securities through an indemnified agent. XRPL Lending Protocol Hackathon, Paris 2026.",
+  "type": "module",
+  "license": "MIT",
   "directories": {
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "spine": "node scripts/recall-spine.mjs",
+    "default-arc": "node scripts/default-arc.mjs",
+    "phases": "node scripts/probe-t2.mjs",
+    "read": "node scripts/read-vault.mjs",
+    "demo": "node scripts/demo.mjs",
+    "evidence": "node scripts/gen-evidence-table.mjs && node scripts/gen-onchain-inventory.mjs"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gamween/patapim.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "module",
+  "keywords": [
+    "xrpl",
+    "xls-65",
+    "xls-66",
+    "lending-protocol",
+    "single-asset-vault",
+    "securities-lending",
+    "rwa"
+  ],
   "bugs": {
     "url": "https://github.com/gamween/patapim/issues"
   },

@@ -116,10 +116,15 @@ const main = async () => {
   console.log(`       LoanID = ${loanID}`)
 
   console.log('\n--- 6. COLLATERAL: market maker escrows XRP to the agent ---')
+  // Tri-party collateral, crudely but honestly: FinishAfter is when the agent may seize it, and
+  // CancelAfter is when the borrower may reclaim it if the agent has not. Without CancelAfter the
+  // collateral could never come back, which is not what the product claims.
   rec('EscrowCreate collateral', await submit(client, mm, {
     TransactionType: 'EscrowCreate', Account: mm.classicAddress, Destination: agent.classicAddress,
-    Amount: '20000000', FinishAfter: base + 120,
-  }, 'EscrowCreate XRP collateral'))
+    Amount: '20000000', FinishAfter: base + 120, CancelAfter: base + 240,
+  }, 'EscrowCreate XRP collateral, reclaimable'))
+  const escrowSeq = (await client.request({ command: 'tx', transaction: ev[ev.length - 1].hash }))
+    .result.tx_json.Sequence
 
   if (loanID) {
     await sleep(20000)
@@ -131,6 +136,12 @@ const main = async () => {
   }
 
   await waitLedger(client, redemptionDate + 8, '7. REDEMPTION: the lender exits')
+  // The securities came back, so the collateral goes back to the borrower.
+  rec('EscrowCancel collateral', await submit(client, mm, {
+    TransactionType: 'EscrowCancel', Account: mm.classicAddress,
+    Owner: mm.classicAddress, OfferSequence: escrowSeq,
+  }, 'EscrowCancel, collateral returns to the borrower'))
+
   rec('LoanSet in redemption', await submitLoanSet(client, agent, mm, {
     TransactionType: 'LoanSet', Account: agent.classicAddress, Counterparty: mm.classicAddress,
     LoanBrokerID: brokerID, PrincipalRequested: '100000', InterestRate: 5000,

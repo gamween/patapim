@@ -134,8 +134,6 @@ Teams rehearse to the wrong clock and may demo the wrong rejection.
 
 ---
 
-<!-- next items appended as they are hit -->
-
 ## F-006 · Phase-gate rejections reuse two generic codes for four different gates
 **Category** UX · **Severity** medium · **Track 2, public devnet, rippled 3.4.0-rc5**
 

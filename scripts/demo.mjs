@@ -1,15 +1,22 @@
 // Demo harness. One file, two verbs.
 //
-//   node scripts/demo.mjs provision [minutesUntilBoundary]
+//   node scripts/demo.mjs provision [minutesUntilBoundary] [investmentMinutes]
 //       Builds the whole world on the public devnet and leaves the vault in Subscription with the
 //       Subscription to Investment boundary set to fall N minutes from now, so a phase gate fires
-//       live on screen during the pitch. Prints a runbook. Default 4 minutes.
+//       live on screen during the pitch. Prints a runbook. Defaults: 4 minutes, then a 10 minute
+//       investment window. Pass a long second argument to leave a populated vault standing (the
+//       one web/lib/config.ts advertises) rather than one that drains inside the pitch.
 //
 //   node scripts/demo.mjs <step>
 //       deposit-ok       an eligible lender subscribes
 //       deposit-blocked  an account with no credential is refused, tecNO_AUTH
 //       deposit-late     a deposit after the boundary, tecEXPIRED
-//       loan             the loan of securities, two signatures
+//       loan [seconds] [payments]
+//                        the loan of securities, two signatures. The optional arguments are the
+//                        payment interval and the number of payments, default 60 and 2, so impair
+//                        and default are reachable inside a pitch. The whole schedule must fit
+//                        inside the vault term: on a standing vault use one payment falling due
+//                        after the demo, so the loan reads as current the whole time.
 //       impair           the agent impairs the unpaid loan
 //       default          the agent declares default, the cover repays the vault
 //       state            print the vault, the broker and the loan as the dashboard sees them
@@ -30,7 +37,7 @@ const save = (s) => { fs.mkdirSync('.demo', { recursive: true }); fs.writeFileSy
 const wallets = (s) => Object.fromEntries(Object.entries(s.seeds).map(([k, v]) => [k, Wallet.fromSeed(v)]))
 const clock = (t) => new Date((t + 946684800) * 1000).toLocaleTimeString('en-GB')
 
-async function provision(minutes) {
+async function provision(minutes, investmentMinutes) {
   const { client, net } = await connect('t2')
   const issuer = await fund(net, 'issuer')
   const agent = await fund(net, 'agent')
@@ -63,7 +70,7 @@ async function provision(minutes) {
 
   const base = await ledgerNow(client)
   const subscriptionDate = base + minutes * 60
-  const redemptionDate = subscriptionDate + 600
+  const redemptionDate = subscriptionDate + investmentMinutes * 60
   const vc = await submit(client, agent, {
     TransactionType: 'VaultCreate', Account: agent.classicAddress,
     Asset: { mpt_issuance_id: SEC }, WithdrawalPolicy: 1, DomainID: domainID, Flags: 0x00010000,
@@ -94,16 +101,20 @@ async function provision(minutes) {
   console.log(`\n  before the boundary`)
   console.log(`    node scripts/demo.mjs deposit-ok        eligible lender subscribes`)
   console.log(`    node scripts/demo.mjs deposit-blocked   no credential, tecNO_AUTH`)
+  console.log(`    node scripts/demo.mjs loan-early        lending blocked before the term, tecTOO_SOON`)
   console.log(`\n  after the boundary, the page flips on its own`)
   console.log(`    node scripts/demo.mjs deposit-late      tecEXPIRED`)
+  console.log(`    node scripts/demo.mjs withdraw-early    capital locked for the term, tecTOO_SOON`)
   console.log(`    node scripts/demo.mjs loan              the loan of securities`)
   console.log(`    node scripts/demo.mjs impair            once the payment falls due, grace not required`)
   console.log(`    node scripts/demo.mjs default           the cover repays the vault`)
+  console.log(`\n  in the redemption phase`)
+  console.log(`    node scripts/demo.mjs withdraw          the lender redeems, by shares`)
   console.log(`\n  node scripts/demo.mjs state             at any point`)
   await client.disconnect()
 }
 
-async function act(step) {
+async function act(step, arg, arg2) {
   const s = load()
   const { client } = await connect('t2')
   const w = wallets(s)
@@ -119,13 +130,40 @@ async function act(step) {
     const r = await submitLoanSet(client, w.agent, w.mm, {
       TransactionType: 'LoanSet', Account: w.agent.classicAddress, Counterparty: w.mm.classicAddress,
       LoanBrokerID: s.brokerID, PrincipalRequested: '2000000', InterestRate: 5000,
-      PaymentInterval: 60, PaymentTotal: 2, GracePeriod: 60, Data: hex('patapim demo loan'),
+      PaymentInterval: Number(arg ?? 60), PaymentTotal: Number(arg2 ?? 2), GracePeriod: 60, Data: hex('patapim demo loan'),
     }, 'loan of securities, two signatures')
     const loanID = r.meta && createdId(r.meta, 'Loan')
     if (loanID) { s.loanID = loanID; save(s); console.log(`       LoanID ${loanID}`) }
   } else if (step === 'impair') await submit(client, w.agent, { TransactionType: 'LoanManage', Account: w.agent.classicAddress, LoanID: s.loanID, Flags: LoanManageFlags.tfLoanImpair }, 'agent impairs')
   else if (step === 'default') await submit(client, w.agent, { TransactionType: 'LoanManage', Account: w.agent.classicAddress, LoanID: s.loanID, Flags: LoanManageFlags.tfLoanDefault }, 'agent declares default')
-  else if (step === 'state') {
+  else if (step === 'withdraw') {
+    const v = (await client.request({ command: 'ledger_entry', index: s.vaultID, ledger_index: 'validated' })).result.node
+    const mine = await client.request({
+      command: 'ledger_entry', ledger_index: 'validated',
+      mptoken: { mpt_issuance_id: v.ShareMPTID, account: w.lender.classicAddress },
+    }).catch(() => null)
+    const shares = mine?.result?.node?.MPTAmount
+    if (!shares) { console.log('  le prêteur ne détient aucune part'); await client.disconnect(); return }
+    console.log(`  le prêteur détient ${shares} parts`)
+    // Denominated in shares. An asset-denominated withdrawal under-delivers one unit on an
+    // integral asset, which is finding F-009 in the report.
+    await submit(client, w.lender, {
+      TransactionType: 'VaultWithdraw', Account: w.lender.classicAddress, VaultID: s.vaultID,
+      Amount: { mpt_issuance_id: v.ShareMPTID, value: shares },
+    }, 'the lender redeems, by shares')
+  } else if (step === 'withdraw-early') {
+    const v = (await client.request({ command: 'ledger_entry', index: s.vaultID, ledger_index: 'validated' })).result.node
+    await submit(client, w.lender, {
+      TransactionType: 'VaultWithdraw', Account: w.lender.classicAddress, VaultID: s.vaultID,
+      Amount: { mpt_issuance_id: v.ShareMPTID, value: '1000' },
+    }, 'capital is locked for the term', 'tecTOO_SOON')
+  } else if (step === 'loan-early') {
+    await submitLoanSet(client, w.agent, w.mm, {
+      TransactionType: 'LoanSet', Account: w.agent.classicAddress, Counterparty: w.mm.classicAddress,
+      LoanBrokerID: s.brokerID, PrincipalRequested: '100000', InterestRate: 5000,
+      PaymentInterval: 60, PaymentTotal: 1, GracePeriod: 60,
+    }, 'lending is blocked before the term opens', 'tecTOO_SOON')
+  } else if (step === 'state') {
     const v = (await client.request({ command: 'ledger_entry', index: s.vaultID, ledger_index: 'validated' })).result.node
     const b = (await client.request({ command: 'ledger_entry', index: s.brokerID, ledger_index: 'validated' })).result.node
     const sh = (await client.request({ command: 'ledger_entry', mpt_issuance: v.ShareMPTID, ledger_index: 'validated' })).result.node
@@ -141,6 +179,6 @@ async function act(step) {
   await client.disconnect()
 }
 
-const [cmd, arg] = process.argv.slice(2)
-if (cmd === 'provision') provision(Number(arg ?? 4)).catch((e) => { console.error('FATAL', e); process.exit(1) })
-else act(cmd ?? 'state').catch((e) => { console.error('FATAL', e); process.exit(1) })
+const [cmd, arg, arg2] = process.argv.slice(2)
+if (cmd === 'provision') provision(Number(arg ?? 4), Number(arg2 ?? 10)).catch((e) => { console.error('FATAL', e); process.exit(1) })
+else act(cmd ?? 'state', arg, arg2).catch((e) => { console.error('FATAL', e); process.exit(1) })

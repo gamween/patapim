@@ -11,5 +11,10 @@ export const NETWORK = {
 export const LIBRARY = 'xrpl.js@5.2.0-beta.0'
 export const REPO = 'https://github.com/gamween/patapim'
 
-/** The vault provisioned by scripts/recall-spine.mjs, filled in after each demo run. */
-export const DEMO_VAULT = '1D5C0C8EA8BEB028EB4AD5507F0BCFCA7D3D0977712C09B96D21E3DB54372687'
+/**
+ * The vault the landing page advertises. `scripts/recall-spine.mjs` ends by redeeming the lender,
+ * so the vault it leaves behind reads zero on every figure: never point this at a spine run.
+ * Repoint it at whatever `node scripts/demo.mjs provision` creates, and check the page before the
+ * pitch — a judge arriving from the hero button must land on a vault that holds something.
+ */
+export const DEMO_VAULT = 'FAB518C7FC616F2BEAE22537F94B53C33AF9138FC472FAF0043057B6C3020132'

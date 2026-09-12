@@ -4,7 +4,7 @@ Research slug: `rippled-source`. Written 2026-09-12 for team **patapim**, XRPL L
 Everything below is read from source, package metadata, or the live ledgers. Nothing is inferred from blog posts or the event brief.
 
 Working clone (scratchpad, disposable):
-`/private/tmp/claude-501/-Users-fianso-Development-hackathons-patapim/8aa6c9a4-f1d0-41c5-ad64-3a3f5d140504/scratchpad/rippled`
+`a local scratch checkout of rippled`
 
 ---
 
