@@ -429,3 +429,47 @@ zero balance, while impairment, which `tfLoanUnimpair` can reverse, does not.
 
 **Proposed fix** None to the code. If anything, a distinct label such as "settled by cover" would
 tell a lender what actually happened without changing the accounting the explorer is right about.
+
+---
+
+## F-018 · A permissioned domain gates lenders, not borrowers; the fix has been open for six months and nothing tells an integrator
+**Category** docs · **Severity** high · **Track 2, public devnet, rippled 3.4.0-rc5**
+
+Same vault, same minute. A `VaultDeposit` from an account with no credential is refused
+`tecNO_AUTH` (`30C4B86F…B6F9`). A `LoanSet` naming that same account as `Counterparty` succeeds
+(`DDD61141…2C12`). So the domain gates who supplies capital and not who borrows it.
+
+We built a compliance story on the first result and were about to report the second as a protocol
+gap. It is not undiscovered. It is written down, twice:
+
+- [XLS-Standards #484](https://github.com/XRPLF/XRPL-Standards/pull/484), "Add PermissionedDomain to
+  LoanBroker", open since 26 February 2026. Credential validation applies at loan issuance only, and
+  deliberately not to `LoanPay`, so a borrower can always repay.
+- [rippled #6517](https://github.com/XRPLF/rippled/pull/6517), open since 10 March 2026, 18 files.
+  `LoanSet::preclaim` gains a `credentials::validDomain` check on the borrower, guarded by
+  `brokerSle->isFlag(lsfLoanBrokerPrivate)` and by a new amendment:
+
+  ```
+  XRPL_FEATURE(LendingPermissionedDomain,   Supported::No,  VoteBehavior::DefaultNo)
+  ```
+
+The finding is therefore not the gap. It is that an integrator cannot find out the gap exists.
+
+- `feature` on the public devnet returns `LendingProtocol`, `LendingProtocolV1_1` and
+  `PermissionedDomains` all `enabled: true`. Read together, that is the amendment set of a
+  compliance-gated lending market that works.
+- `LendingPermissionedDomain` is `Supported::No` and appears on neither hackathon network, so it is
+  absent from the list rather than present-and-disabled. Nothing distinguishes "not yet built" from
+  "built and not voted in".
+- The `LoanBrokerSet` reference page documents seven fields, no `DomainID`, and contains no sentence
+  about who may borrow. A reader of the reference pages alone has no reason to suspect a second
+  gating mechanism exists, let alone that it is pending.
+
+The gating a broker needs is not the vault's `DomainID` either, which is the assumption we made and
+would have shipped: #484 puts a separate `DomainID` on the `LoanBroker`, so lender eligibility and
+borrower eligibility are two different domains by design.
+
+**Proposed fix** A reference page whose behaviour is pending an unshipped amendment should name that
+amendment and list the pending fields as pending. Failing that, a line on `LoanBrokerSet` and on the
+Lending Protocol concept page saying that a vault's permissioned domain restricts depositors only,
+and linking #484, would have saved us the entire investigation.

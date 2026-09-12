@@ -162,12 +162,19 @@ the lender sees. Both designs are defensible; nothing states which one ships. *P
 on the `LoanManage` page saying impairment is available once a payment is past due, independently of
 `GracePeriod`.*
 
-**A permissioned domain gates lenders, not borrowers.** Same vault, same minute: a non-member
-`VaultDeposit` is refused `tecNO_AUTH`, then a `LoanSet` naming that same account as counterparty
-succeeds. There is no `checkVaultDomain` anywhere under the lending transactors. A market described
-as a compliance-gated lending market therefore gates who supplies capital and not who borrows it.
-*Proposal: honour the vault's `DomainID` on the loan counterparty, or document loudly that borrower
-eligibility is entirely off-protocol.*
+**A permissioned domain gates lenders, not borrowers, and nothing says so.** Same vault, same
+minute: a non-member `VaultDeposit` is refused `tecNO_AUTH`, then a `LoanSet` naming that same
+account as counterparty succeeds. We took this for a protocol gap until we found the fix already
+written: [XLS-Standards #484](https://github.com/XRPLF/XRPL-Standards/pull/484) specifies a
+`DomainID` on the `LoanBroker`, and [rippled #6517](https://github.com/XRPLF/rippled/pull/6517)
+implements the borrower check in `LoanSet::preclaim` behind a new `LendingPermissionedDomain`
+amendment. Both have been open since March 2026. So the finding is not the gap: it is that an
+integrator cannot discover it. That amendment is `Supported::No` and absent from both hackathon
+networks, while `LendingProtocol`, `LendingProtocolV1_1` and `PermissionedDomains` all read
+`enabled: true` — which is exactly the shape of a compliance-gated lending market that works. The
+`LoanBrokerSet` reference page lists seven fields, no `DomainID`, and says nothing about who may
+borrow. *Proposal: reference pages for a transaction whose behaviour is pending an unshipped
+amendment should say which amendment, and the unshipped fields should be listed as such.*
 
 **No vault or loan transaction is delegable.** Every lending entry in `transactions.macro` omits
 `.delegable`, and `permissions.macro` defines no granular permission over any of them. Fifteen

@@ -24,7 +24,7 @@ Submission Sunday 13 September, 13:00 CEST. Code freeze 12:30.
 | ~~3~~ | ~~Demo provisioning script~~ **done and rehearsed**: `scripts/demo.mjs`, every step of the runbook fired against Devnet once | me | an untested demo script is a promise to fail on stage |
 | ~~2b~~ | ~~Design pass~~ **merged**: Armand's art direction, live vault rendering and jury deck are on `main` | Armand | the dashboard is the demo surface |
 | 4 | **Slide deck**, ten slides maximum | Armand | required |
-| 5 | **Report the borrower eligibility gap privately to a mentor** | Fianso | required by the brief before presenting |
+| ~~5~~ | ~~Report the borrower eligibility gap privately to a mentor~~ **not a private disclosure**: the gap is publicly tracked in [XLS-Standards #484](https://github.com/XRPLF/XRPL-Standards/pull/484) and [rippled #6517](https://github.com/XRPLF/rippled/pull/6517), both open since March 2026. Filed as F-018, reframed as the discoverability failure it actually is | Fianso | mention it to a mentor as courtesy, but nothing is being disclosed |
 | 6 | **DevEx form**, once the organizers publish the link | Fianso | required, blocked on them |
 | 7 | Final pass: refresh the evidence file, the README transaction table and the report from the last run | me | the hashes must match what we demo |
 | 7b | **Repoint `web/lib/config.ts` `DEMO_VAULT`** at the morning's `demo.mjs provision`, then open the landing page and confirm the figures are not all zero | me | the hero button sends a judge straight to that vault; a spine run leaves it drained |

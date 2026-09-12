@@ -121,8 +121,12 @@ Armand's art direction is merged. The landing page and the dashboard are one cli
 - [ ] **No credential or address of a real third party** in the research notes or the report.
 - [ ] **The signed LoanSet blob cannot be replayed** to create a second loan. Submit the same blob
       twice and confirm the second is rejected.
-- [ ] **The protocol-level finding has been reported privately to a mentor before any presentation**,
-      as the brief requires. That is the permissioned domain gating depositors but not borrowers.
+- [ ] **The borrower-eligibility finding is nothing to disclose privately.** It is publicly tracked
+      in [XLS-Standards #484](https://github.com/XRPLF/XRPL-Standards/pull/484) and
+      [rippled #6517](https://github.com/XRPLF/rippled/pull/6517), both open since March 2026 behind
+      an unshipped `LendingPermissionedDomain` amendment. Confirm both are still open and still
+      unmerged at audit time, and that F-018 and `DEVELOPER-REPORT.md` describe them accurately: if
+      either merged this week, both documents are wrong.
 
 ## 5. The contribution
 
