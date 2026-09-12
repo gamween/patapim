@@ -1,0 +1,8 @@
+# XRPL DevEx Capture: local capture data, machine-specific hook paths and
+# agent skill links (installed per developer, never committed)
+.xrpl-devex/
+.claude/settings.local.json
+.claude/skills/
+.cursor/
+.codex/
+.grok/
