@@ -8,7 +8,7 @@
 [![Track 2](https://img.shields.io/badge/Track%202-closed--ended%20vault-0f9d58?style=flat-square)](#the-trade)
 [![xrpl.js](https://img.shields.io/badge/xrpl.js-5.2.0--beta.0-363636?style=flat-square)](https://www.npmjs.com/package/xrpl/v/5.2.0-beta.0)
 [![Contribution](https://img.shields.io/badge/ripple%2Fexplorer-%231342-7c3aed?style=flat-square)](https://github.com/ripple/explorer/pull/1342)
-[![XLS-65 · XLS-66](https://img.shields.io/badge/XLS--65%20%C2%B7%20XLS--66-Lending%20Protocol-b54708?style=flat-square)](https://xls.xrpl.org/xls/XLS-0066)
+[![XLS-65 · XLS-66](https://img.shields.io/badge/XLS--65%20%C2%B7%20XLS--66-Lending%20Protocol-b54708?style=flat-square)](https://xls.xrpl.org/xls/XLS-0066-lending-protocol)
 
 **XRPL Lending Protocol Hackathon · Paris · 12-13 September 2026**
 
