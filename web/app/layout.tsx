@@ -3,7 +3,7 @@ import { NETWORK, LIBRARY, REPO } from '@/lib/config'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Recall, securities lending native on the XRP Ledger',
+  title: 'patapim, securities lending native on the XRP Ledger',
   description:
     'Eligible holders lend tokenised securities from a fixed-term vault through a lending agent, with the ledger enforcing the indemnity. Built on XLS-65 and XLS-66.',
 }
@@ -15,7 +15,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="page">
           <nav className="nav">
             <a href="/" className="brand">
-              Recall <small>by patapim</small>
+              patapim <small>securities lending on XRPL</small>
             </a>
             <div className="nav-links">
               <a href="/#how">How it works</a>

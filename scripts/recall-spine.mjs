@@ -1,4 +1,4 @@
-// Recall, full spine on the PUBLIC XRPL devnet (Track 2, rippled 3.4.0-rc5).
+// patapim, full spine on the PUBLIC XRPL devnet (Track 2, rippled 3.4.0-rc5).
 // Everything below was proven on the Track 1 network by the research agents; rc5 enforces
 // Lending Protocol V1.1 strictly, so it all has to be re-proven here before we build on it.
 //
@@ -21,7 +21,7 @@ const waitLedger = async (client, target, label) => {
   while (t < target) { await sleep(4000); t = await ledgerNow(client) }
   console.log(`\n--- ${label} (ledger ${t}, target was ${target}) ---`)
 }
-const KYC = hex('recall.eligible.v1')
+const KYC = hex('patapim.eligible.v1')
 const SUB_IN = 60, INVEST_LEN = 300
 const ev = []
 const rec = (step, r, note) => { ev.push({ step, code: r?.code, hash: r?.hash, note }); return r }
@@ -43,8 +43,8 @@ const main = async () => {
     AssetScale: 0, MaximumAmount: '1000000000',
     Flags: MPT.CanTransfer | MPT.CanTrade | MPT.CanEscrow | MPT.CanClawback | MPT.CanLock | MPT.RequireAuth,
     MPTokenMetadata: hex(JSON.stringify({
-      ticker: 'TBL', name: 'Recall demo T-Bill', desc: 'Demo tokenised treasury bill for the XRPL lending hackathon',
-      icon: 'https://patapim.example/tbl.png', asset_class: 'rwa', issuer_name: 'Recall demo transfer agent',
+      ticker: 'TBL', name: 'patapim demo T-Bill', desc: 'Demo tokenised treasury bill for the XRPL lending hackathon',
+      icon: 'https://patapim.example/tbl.png', asset_class: 'rwa', issuer_name: 'patapim demo transfer agent',
     })),
   }, 'MPTokenIssuanceCreate TBL'))
   const SEC = iss.meta?.mpt_issuance_id
@@ -75,7 +75,7 @@ const main = async () => {
     TransactionType: 'VaultCreate', Account: agent.classicAddress,
     Asset: { mpt_issuance_id: SEC }, WithdrawalPolicy: 1, DomainID: domainID, Flags: 0x00010000,
     VaultKind: 1, SubscriptionDate: subscriptionDate, RedemptionDate: redemptionDate,
-    Data: hex('Recall demo vault'),
+    Data: hex('patapim demo vault'),
   }, 'VaultCreate closed + MPT + domain'))
   const vaultID = createdId(vc.meta, 'Vault')
   console.log(`       VaultID = ${vaultID}   Subscription closes t+${SUB_IN}s, Redemption opens t+${SUB_IN + INVEST_LEN}s`)
@@ -99,7 +99,7 @@ const main = async () => {
   const loan = rec('LoanSet', await submitLoanSet(client, agent, mm, {
     TransactionType: 'LoanSet', Account: agent.classicAddress, Counterparty: mm.classicAddress,
     LoanBrokerID: brokerID, PrincipalRequested: '2000000', InterestRate: 5000,
-    PaymentInterval: 60, PaymentTotal: 2, GracePeriod: 60, Data: hex('Recall demo loan'),
+    PaymentInterval: 60, PaymentTotal: 2, GracePeriod: 60, Data: hex('patapim demo loan'),
   }, 'LoanSet securities, 2 signatures'))
   const loanID = loan.meta && createdId(loan.meta, 'Loan')
   console.log(`       LoanID = ${loanID}`)

@@ -60,7 +60,7 @@ export default function Home() {
           native on the XRP Ledger.
         </h1>
         <p className="lede">
-          Recall lets holders of tokenised securities lend them through a lending agent, for a fee.
+          patapim lets holders of tokenised securities lend them through a lending agent, for a fee.
           If the borrower does not return them in time, the agent’s own capital repays the vault and
           the ledger’s default logic makes the lenders whole. No smart contract: only native XRPL
           objects.

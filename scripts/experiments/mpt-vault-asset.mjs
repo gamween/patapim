@@ -51,7 +51,7 @@ const main = async () => {
     TransactionType: 'MPTokenIssuanceCreate', Account: issuer.classicAddress,
     AssetScale: 2, MaximumAmount: '1000000000',
     Flags: F.tfMPTCanTransfer | F.tfMPTCanTrade | F.tfMPTCanEscrow | F.tfMPTCanClawback | F.tfMPTCanLock,
-    MPTokenMetadata: hex(JSON.stringify({ ticker: 'TBILL', name: 'Recall T-Bill' })),
+    MPTokenMetadata: hex(JSON.stringify({ ticker: 'TBILL', name: 'patapim T-Bill' })),
   }
   const iss = rec('1 MPTokenIssuanceCreate SEC', await submit(client, issuer, issTx, 'MPTokenIssuanceCreate SEC'))
   const SEC = mptId(iss)

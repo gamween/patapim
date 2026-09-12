@@ -1,4 +1,4 @@
-# Recall
+# patapim
 
 **Securities lending, native on the XRP Ledger.** Eligible holders lend a tokenised security from a
 fixed-term vault through a lending agent, for a fee. If the borrower does not return the securities
@@ -40,7 +40,7 @@ securities, that market does not exist yet. Every primitive it needs already shi
 All verified on the public XRPL Devnet. One full lifecycle, end to end, from
 [`docs/evidence/recall-t2.json`](./docs/evidence/recall-t2.json).
 
-| Transaction | Role in Recall | Result | Hash |
+| Transaction | Role in patapim | Result | Hash |
 |---|---|---|---|
 | `VaultCreate` | the fixed-term lender pool, `VaultKind: 1`, asset is the security, gated by `DomainID` | `tesSUCCESS` | [`0CBE12AB`](https://devnet.xrpl.org/transactions/0CBE12AB9ACDD12E2659A5FD0EC9505A37EFF55D56A0447AF83D4967D93CC246) |
 | `VaultDeposit` | an eligible holder subscribes | `tesSUCCESS` | [`CE5C7E59`](https://devnet.xrpl.org/transactions/CE5C7E595B0D9761B10BE9114AEF38597A03A9620A1590EE7DEC56528B47D06C) |
@@ -90,7 +90,7 @@ mandates. See finding 1 of the developer report.
 ## Layout
 
 ```
-scripts/          the ledger work: shared lib, the Recall lifecycle, the phase probes, the read path
+scripts/          the ledger work: shared lib, the patapim lifecycle, the phase probes, the read path
 scripts/experiments/   what we fired at the ledger to establish the findings
 web/              the dashboard, Next.js, reads the ledger server side, no wallet needed
 docs/evidence/    transaction hashes per run

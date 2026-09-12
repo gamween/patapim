@@ -8,7 +8,7 @@
 | **Library** | `xrpl.js@5.2.0-beta.0`, `ripple-binary-codec@2.11.0` |
 | **Team** | patapim |
 
-We built Recall, a securities lending market: eligible holders lend a tokenised security from a
+We built patapim, a securities lending market: eligible holders lend a tokenised security from a
 fixed-term vault through a lending agent who indemnifies them with first-loss capital. Everything
 below happened to us while building it, in order. Every claim carries a transaction hash, a file
 and line, or a pull request number.
