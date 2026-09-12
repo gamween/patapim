@@ -398,3 +398,29 @@ is missing from the implementation, and that is why nobody can show yield on a c
 receives it, with the drawdown arithmetic. State the time basis of `InterestRate`. And either ship
 the donation flag the workshop teaches, or correct the deck and give closed-ended vaults another way
 to recognise yield inside a demonstrable window.
+
+## F-017 · A defaulted loan reads "Paid Off" in the explorer, and that is intended
+**Category** UX · **Severity** low · **Not a defect, a product opinion**
+
+Our loan `D94FF2EF…E2D4` on vault `CC9CB7BF…0C4D` carries `Flags: 196608`, defaulted and impaired,
+with the two `LoanManage` transactions visible in the page's own history. The XRPL Explorer shows its
+status as **Paid Off**.
+
+We nearly filed that as a bug. It is not. The behaviour is deliberate and internally consistent:
+
+- `src/containers/Vault/VaultLoans/test/utils.test.ts` documents the priority order in its header and
+  asserts it directly: `it('paid_off takes priority over default flag')`, with the comment "Even if
+  default flag is set, zero balance means paid off".
+- `BrokerLoansTable.tsx` filters the Default and Impaired tabs on `TotalValueOutstanding > 0`.
+- `BrokerDetails.tsx` computes `hasDefaultedLoan` with the same guard.
+
+Three call sites and a test agree. From the vault's side the loan is settled: nothing is outstanding.
+
+The observation we keep is a product one. After a default the borrower did not pay, the first-loss
+cover did, and a lender reading a loan book that says "paid off" cannot tell a repayment from a
+counterparty failure absorbed by someone else's capital. The distinction is the entire value of the
+indemnity. Our own dashboard therefore diverges, and only here: default is terminal and wins over a
+zero balance, while impairment, which `tfLoanUnimpair` can reverse, does not.
+
+**Proposed fix** None to the code. If anything, a distinct label such as "settled by cover" would
+tell a lender what actually happened without changing the accounting the explorer is right about.
