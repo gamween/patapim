@@ -1,5 +1,7 @@
 # Contribution back: make loan broker and loan identifiers resolvable in the XRPL Explorer
 
+**Opened as [ripple/explorer#1342](https://github.com/ripple/explorer/pull/1342).**
+
 Verified on 12 September 2026 against `ripple/explorer` at `main` and against the live Devnet
 explorer. Everything below is reproducible.
 

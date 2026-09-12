@@ -165,12 +165,13 @@ dashboard view in one call.*
 
 ## What we contributed back
 
-A pull request to `ripple/explorer` making `LoanBroker` and `Loan` ledger entry identifiers
-resolvable from the search box. The objects already render inside the vault page and resolve over
+[ripple/explorer#1342](https://github.com/ripple/explorer/pull/1342), opened during the event,
+making `LoanBroker` and `Loan` ledger entry identifiers resolvable from the search box. The objects already render inside the vault page and resolve over
 RPC, but pasting either identifier into search returns "Could not find any Transactions, Vaults,
 Ledgers or NFTs that match the specified ID", because `determineHashType` in `Search.tsx` probes
-exactly four types. `getLoanBroker()` is already implemented, exported and unit tested, and the
-parent chain `Loan.LoanBrokerID → LoanBroker.VaultID → Vault` is two hops.
+exactly four types. The fix replaces the vault lookup with a single `ledger_entry` call switched on
+`LedgerEntryType`, so the request count is unchanged and the next object type costs a case rather
+than a round trip. Four tests, lint, format and typecheck clean.
 
 Every finding above was also filed through the event's own capture hook, pre-classified in its
 taxonomy, so the aggregate is a query rather than a reading exercise.
