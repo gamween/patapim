@@ -127,5 +127,27 @@ export async function readPosition(shareMptId: string, account: string) {
   return r?.node ?? null
 }
 
+/**
+ * Loan status. The first three cases mirror what the XRPL Explorer shows, so the two agree.
+ * "overdue" is ours: the payment window plus its grace period has passed and the agent has not
+ * yet acted. That is the moment a lending agent earns its fee, so the dashboard names it.
+ */
+export const LSF_LOAN_DEFAULT = 0x00010000
+export const LSF_LOAN_IMPAIRED = 0x00020000
+
+export type LoanStatus = 'paid off' | 'defaulted' | 'impaired' | 'overdue' | 'current'
+
+export function loanStatus(loan: Json, clock: number): LoanStatus {
+  if (Number(loan.TotalValueOutstanding ?? 0) === 0) return 'paid off'
+  // eslint-disable-next-line no-bitwise
+  if (loan.Flags & LSF_LOAN_DEFAULT) return 'defaulted'
+  // eslint-disable-next-line no-bitwise
+  if (loan.Flags & LSF_LOAN_IMPAIRED) return 'impaired'
+  const due = Number(loan.NextPaymentDueDate ?? 0)
+  const grace = Number(loan.GracePeriod ?? 0)
+  if (due > 0 && clock > due + grace) return 'overdue'
+  return 'current'
+}
+
 export const rippleToDate = (t: number) => new Date((t + 946684800) * 1000)
 export const shortId = (s: string, n = 6) => (s ? `${s.slice(0, n)}…${s.slice(-4)}` : '')

@@ -1,5 +1,12 @@
 import { NETWORK } from '@/lib/config'
-import { readVault, readPosition, PHASE_RULES, rippleToDate, shortId } from '@/lib/ledger'
+import {
+  readVault,
+  readPosition,
+  loanStatus,
+  PHASE_RULES,
+  rippleToDate,
+  shortId,
+} from '@/lib/ledger'
 
 export const dynamic = 'force-dynamic'
 
@@ -7,6 +14,14 @@ const n = (v: number | null | undefined, digits = 0) =>
   v === null || v === undefined || Number.isNaN(v)
     ? '—'
     : new Intl.NumberFormat('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(v)
+
+const STATUS_TONE: Record<string, string> = {
+  current: 'badge-positive',
+  overdue: 'badge-warn',
+  impaired: 'badge-warn',
+  defaulted: 'badge-danger',
+  'paid off': 'badge-accent',
+}
 
 const PHASE_TONE: Record<string, string> = {
   subscription: 'badge-accent',
@@ -224,6 +239,7 @@ export default async function VaultPage({
                   <th className="num">Total owed</th>
                   <th className="num">Payments left</th>
                   <th>Next payment due</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -237,6 +253,11 @@ export default async function VaultPage({
                       {l.NextPaymentDueDate
                         ? rippleToDate(l.NextPaymentDueDate).toISOString().slice(11, 19) + 'Z'
                         : '—'}
+                    </td>
+                    <td>
+                      <span className={`badge ${STATUS_TONE[loanStatus(l, clock)]}`}>
+                        {loanStatus(l, clock)}
+                      </span>
                     </td>
                   </tr>
                 ))}
