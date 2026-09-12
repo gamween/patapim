@@ -73,10 +73,14 @@ async function provision(minutes) {
   const vaultID = createdId(vc.meta, 'Vault')
   const lb = await submit(client, agent, {
     TransactionType: 'LoanBrokerSet', Account: agent.classicAddress, VaultID: vaultID,
-    ManagementFeeRate: 1000, DebtMaximum: '4000000', CoverRateMinimum: 10000, CoverRateLiquidation: 100000,
+    ManagementFeeRate: 1000, DebtMaximum: '4000000',
+    // 100000 is one hundred percent, in parts per 100000. The cover absorbs the whole loan at
+    // default, which is the entire promise to the lender. At 10000 it would absorb a tenth of it
+    // and the lenders would eat the rest: see finding F-014.
+    CoverRateMinimum: 100000, CoverRateLiquidation: 100000,
   }, 'LoanBrokerSet')
   const brokerID = createdId(lb.meta, 'LoanBroker')
-  await submit(client, agent, { TransactionType: 'LoanBrokerCoverDeposit', Account: agent.classicAddress, LoanBrokerID: brokerID, Amount: { mpt_issuance_id: SEC, value: '1000000' } }, 'first-loss cover')
+  await submit(client, agent, { TransactionType: 'LoanBrokerCoverDeposit', Account: agent.classicAddress, LoanBrokerID: brokerID, Amount: { mpt_issuance_id: SEC, value: '2500000' } }, 'first-loss cover, 2,500,000 TBL against a 2,000,000 loan')
 
   save({
     seeds: { issuer: issuer.seed, agent: agent.seed, lender: lender.seed, mm: mm.seed, outsider: outsider.seed },
