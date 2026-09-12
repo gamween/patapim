@@ -1,0 +1,78 @@
+{
+  "network": "t2-public-devnet",
+  "SEC": "005030892D3FABDAF2FBE7B6F2A3E0DBB6A69B504018B2C0",
+  "domainID": "1B3C6F0786DB1865D7BF657FCAD7696E32346911CBA6153BCB9D713C668B96C8",
+  "vaultID": "6B79B084F9EA00FB3B8B368D5710F50A871D488DE43095500B38C9FAD6D2C13C",
+  "brokerID": "055FDE074EC86E62F94F32D296898DA8A9D2586262AD1B912CA6066377D0BE9F",
+  "loanID": "A7920C443CA7AD71803F7F8E230FC7E1B53FC560EF10DD5EA59DE9D621F54165",
+  "subscriptionDate": 842540660,
+  "redemptionDate": 842540960,
+  "events": [
+    {
+      "step": "MPTokenIssuanceCreate",
+      "code": "tesSUCCESS",
+      "hash": "B1F39818B7C96E4A25541B89285726B8E1485383D5AC6D720C35896784C8C0A2"
+    },
+    {
+      "step": "PermissionedDomainSet",
+      "code": "tesSUCCESS",
+      "hash": "006858D1930599611342CCA5F49F05CA3F2B19B061D43F67F580C9B2BDD35BEF"
+    },
+    {
+      "step": "VaultCreate",
+      "code": "tesSUCCESS",
+      "hash": "0CBE12AB9ACDD12E2659A5FD0EC9505A37EFF55D56A0447AF83D4967D93CC246"
+    },
+    {
+      "step": "VaultDeposit lender",
+      "code": "tesSUCCESS",
+      "hash": "CE5C7E595B0D9761B10BE9114AEF38597A03A9620A1590EE7DEC56528B47D06C"
+    },
+    {
+      "step": "VaultDeposit mm (gated)",
+      "code": "tecNO_AUTH",
+      "hash": "D4C938639DD005D8B4AD6ADB06425AC6E15047C15C02B80386AAA2E07C3DBC88",
+      "note": "domain gates lenders"
+    },
+    {
+      "step": "LoanBrokerSet",
+      "code": "tesSUCCESS",
+      "hash": "B3974D7F04236070B8C03FA2B3B637EFC8C980010ABE74514784D29892D3DDA2"
+    },
+    {
+      "step": "CoverDeposit",
+      "code": "tesSUCCESS",
+      "hash": "2365CA117DE89E212E2C19B03C603328BE76E6967FEBC07CA591FD1D1D9AD607"
+    },
+    {
+      "step": "VaultDeposit after close",
+      "code": "tecEXPIRED",
+      "hash": "7B9D16FA25DA3F54B7B3A13A63C21AB06775346264A4D1EC12228EBCFD709291"
+    },
+    {
+      "step": "LoanSet",
+      "code": "tesSUCCESS",
+      "hash": "318A74E5F7083E919F316531B08F81AFFF5F409C35EDD40B21422D53DE516927"
+    },
+    {
+      "step": "EscrowCreate collateral",
+      "code": "tesSUCCESS",
+      "hash": "387AFEE307549019CAE5555EE5599894BA75B3BCFEB0925C33AF8125BBD380FC"
+    },
+    {
+      "step": "LoanPay full",
+      "code": "tesSUCCESS",
+      "hash": "CAF24C84D9ED1DAC098C0D85FC069BD878719B374FF2FAEC9595C132E91C0AFE"
+    },
+    {
+      "step": "LoanSet in redemption",
+      "code": "tecEXPIRED",
+      "hash": "61FFF1E1E12CEF9924FB3F68E072292B6DD69B4DEE70F0F3903A71A09027B432"
+    },
+    {
+      "step": "VaultWithdraw by shares",
+      "code": "tesSUCCESS",
+      "hash": "CD270519367CD55D2818F91D1BD8389C4971DC7B01B3A9EEAE34E4D92DAB5591"
+    }
+  ]
+}

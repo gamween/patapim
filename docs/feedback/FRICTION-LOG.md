@@ -1,0 +1,282 @@
+# Friction log, patapim
+
+Running log. Every entry is written the moment it happens, with the exact command, the exact
+output and a concrete proposed fix. The three-page manual report required at the repository
+root is generated from this file at the end.
+
+Environment under test:
+- rippled `3.4.0-rc1` on the custom hackathon devnet (network_id 4001)
+- rippled `3.4.0-rc5` on the public XRPL devnet (network_id 2)
+- `xrpl.js@5.2.0-beta.0` and `xrpl.js@5.2.0` (stable), `ripple-binary-codec@2.11.0` in both
+
+Severity: high = blocks a minimum-bar step, medium = costs real time or forces a workaround,
+low = friction without a blocker.
+
+---
+
+## F-001 · xrpl.js 5.2.0-beta.0 signs LoanSet counterparty signatures with the wrong encoder
+**Category** client libraries · **Severity** high · **Library** xrpl.js@5.2.0-beta.0
+
+`signLoanSetByCounterparty()` builds a `CounterpartySignature` that rippled rejects. The
+identical transaction, on the identical network, succeeds with stable `xrpl.js@5.2.0`.
+
+Repro, custom hackathon devnet, `scripts/probe.mjs t1 open`:
+
+| library | result |
+|---|---|
+| `xrpl.js@5.2.0-beta.0` | `fails local checks: Counterparty: Invalid signature.` |
+| `xrpl.js@5.2.0` | `tesSUCCESS`, tx `42BDEBF81958D716070F1852CB5560A2DFBE05B017357838ACF35A9A3004A530` |
+
+Every preceding step (`VaultCreate`, `VaultDeposit`, `LoanBrokerSet`, `LoanBrokerCoverDeposit`)
+returns `tesSUCCESS` on both versions, so the divergence is isolated to the counterparty signature.
+
+Cause, from the published sources of both packages:
+
+```diff
+# src/Wallet/counterpartySigner.ts   (< 5.2.0 stable, > 5.2.0-beta.0)
+-      TxnSignature: computeSignature(tx, wallet.privateKey, undefined, 'counterparty'),
++      TxnSignature: computeSignature(tx, wallet.privateKey),
+
+# src/Wallet/utils.ts
+-  role: SignatureRole = 'transaction'   // SIGNING_ENCODERS[role] -> encodeForSigningCounterparty
+-  ...                                   // beta.0 has no role parameter and always calls encodeForSigning
+```
+
+`ripple-binary-codec@2.11.0`, which **both** versions depend on, already exports
+`encodeForSigningCounterparty`. The beta simply never calls it.
+
+**Impact** Track 2 mandates `xrpl.js@5.2.0-beta.0`. On that version the library's own helper
+cannot originate a loan, so minimum-bar step 3 is unreachable for any team that follows the
+brief and trusts the SDK.
+
+**Proposed fix** Backport the `role` argument to the beta line: two call sites in
+`counterpartySigner.ts` (single-signer and multisign branches). Better, publish one release that
+carries both the V1.1 vault types and the counterparty fix, and retire the beta requirement from
+the brief.
+
+**Workaround shipped here** `scripts/lib/lending.mjs → signCounterparty()` calls
+`encodeForSigningCounterparty` from the codec directly, so the mandated beta can be used.
+
+---
+
+## F-002 · No published xrpl.js version carries both halves of the lending feature
+**Category** client libraries · **Severity** high · **Library** xrpl.js 5.2.0 / 5.2.0-beta.0
+
+The two releases diverge in opposite directions, verified by diffing the published tarballs:
+
+| | 5.2.0 (npm `latest`) | 5.2.0-beta.0 |
+|---|---|---|
+| `VaultKind`, `SubscriptionDate`, `RedemptionDate` on `VaultCreate` | absent | present |
+| same fields on the `Vault` ledger entry, plus `LEVersion` | absent | present |
+| `CredentialIDs` on `VaultWithdraw`, `LoanBrokerCoverWithdraw` | absent | present |
+| `MemoData` on `VaultDelete` | absent | present |
+| counterparty signing role (F-001) | correct | broken |
+
+A developer who installs `xrpl` from npm gets 5.2.0 and cannot model a closed-ended vault at all,
+with no deprecation notice and no error pointing at the beta. Semver reads the wrong way round:
+`5.2.0-beta.0` is *newer* in protocol coverage than the `5.2.0` that supersedes it.
+
+**Proposed fix** One release with both, plus a feature/version matrix in the lending docs stating
+which xrpl.js version supports V1 and which supports V1.1.
+
+---
+
+## F-003 · The two event faucets return incompatible payloads
+**Category** UX · **Severity** low
+
+```
+custom devnet : {"account":{"address":"r...","secret":"sEd..."},"balance":1000}
+public devnet : {"account":{"xAddress":"X...","address":"r...","classicAddress":"r..."},
+                 "amount":100,"seed":"sEd...","transactionHash":"..."}
+```
+
+The secret is `account.secret` on one and `seed` on the other, and the funded amount differs by
+10x. Any helper written for one track silently breaks when pointed at the other, which is exactly
+what the brief's "do not mix tracks" warning is trying to prevent.
+
+**Proposed fix** Serve the same shape from both faucets, or document the difference in the brief's
+environment table next to the faucet URLs.
+
+---
+
+## F-004 · The brief's Track 1 amendment warning does not match the ledger
+**Category** documentation · **Severity** medium
+
+The brief's appendix states that Track 1 "must remain a V1 environment for new open-ended-vault
+loans" and that enabling Lending Protocol V1.1 on the same ledger "would restrict new loans to
+closed-ended vaults".
+
+Reading the Amendments ledger entry
+(`ledger_entry` index `7DB0788C020F02780A673DC74757F23823FA3014C1866E72CC4CD8B226CD6EF4`) and
+mapping every enabled ID against `features.macro`, **both** hackathon networks have
+`LendingProtocol` *and* `LendingProtocolV1_1` enabled. Despite that, an open-ended vault loan
+originated successfully on the Track 1 network (tx `42BDEBF8…A530`).
+
+So either the warning is stale, or the restriction is narrower than stated. Teams may pick a track
+on a false premise.
+
+**Proposed fix** State the enabled amendment set per network in the environment table, and correct
+or delete the appendix note.
+
+---
+
+## F-005 · Brief and challenge deck disagree on the presentation format and on Track 2's bar
+**Category** documentation · **Severity** medium
+
+| | Notion brief | Ripple challenge deck |
+|---|---|---|
+| Pitch | 4-minute demo + 2-minute Q&A | 5-minute presentation + 3-minute Q&A |
+| Track 2 rejections | "rejected `VaultDeposit`, `VaultWithdraw` and `LoanSet` at the wrong phase" | rejected `VaultDeposit` and `VaultWithdraw` **during Investment**, rejected `LoanSet` **during Redemption** |
+
+Teams rehearse to the wrong clock and may demo the wrong rejection.
+
+**Proposed fix** Make the Notion page the single source and regenerate the deck from it.
+
+---
+
+<!-- next items appended as they are hit -->
+
+## F-006 · Phase-gate rejections reuse two generic codes for four different gates
+**Category** UX · **Severity** medium · **Track 2, public devnet, rippled 3.4.0-rc5**
+
+Full closed-ended lifecycle walked in real wall-clock time, `scripts/probe-t2.mjs`. Every phase gate
+fires, which is good, but the code alone never says which gate fired:
+
+| phase | transaction | result | tx |
+|---|---|---|---|
+| Subscription | `VaultDeposit` | `tesSUCCESS` | `C15C80B7…F87F` |
+| Subscription | `LoanSet` | `tecTOO_SOON` | `50B7887C…E11E` |
+| Investment | `VaultDeposit` | `tecEXPIRED` | `6F288748…7EA0` |
+| Investment | `VaultWithdraw` | `tecTOO_SOON` | `B1AC2EE1…9402` |
+| Investment | `LoanSet` ending after `RedemptionDate` | `tecNO_PERMISSION` | `60E499EA…B2BC` |
+| Investment | `LoanSet` within the window | `tesSUCCESS` | `C717D339…9F00` |
+| Redemption | `LoanSet` | `tecEXPIRED` | `1A80A637…ADC0` |
+
+The scheme is internally consistent, `tecTOO_SOON` before a window and `tecEXPIRED` after it, but
+`tecTOO_SOON` on a `VaultWithdraw` means "wait for RedemptionDate" while the same code on a
+`LoanSet` means "wait for SubscriptionDate", and `tecNO_PERMISSION` on a `LoanSet` means something
+else entirely: the amortisation schedule would outlive the vault.
+
+**Proposed fix** Either a dedicated code per gate (`tecVAULT_PHASE`), or a table in the closed-ended
+vault documentation mapping every (phase, transaction) pair to its code. We had to build that table
+by firing transactions.
+
+---
+
+## F-007 · A closed-ended vault guarantees the loan schedule ends before redemption, not that the loan is repaid
+**Category** missing primitive · **Severity** high · **Track 2**
+
+`LoanSet` is refused with `tecNO_PERMISSION` when the amortisation schedule would end after
+`RedemptionDate` (tx `60E499EA…B2BC`), so the ledger does enforce something. But a loan created
+inside the window and simply not repaid leaves the vault illiquid at redemption: `AssetsTotal`
+40000000 against `AssetsAvailable` 30000000, and the lender withdrawal returns
+`tecINSUFFICIENT_FUNDS` (tx `D5879394…6E68`, vault `33EAD348…DB6B`).
+
+So the closed-ended design protects the *calendar* and not the *cash*. A lender reading the
+documentation reasonably expects that reaching the redemption window means the money is back.
+Nothing states otherwise, and no redemption-phase recovery path exists: the broker cannot call the
+loan early, and `LoanManage` default only writes down the position.
+
+**Proposed fix** Say it explicitly in the closed-ended documentation, expose an "expected liquidity
+at redemption" view on the vault, and consider a lender-protective primitive: a loan call or
+mandatory prepayment before `RedemptionDate`. This is the single most important product gap we found.
+
+---
+
+## F-008 · `tecINSUFFICIENT_PAYMENT` does not carry the amount due, and the amount due is not representable
+**Category** UX · **Severity** medium
+
+Two `LoanPay` attempts rejected with `tecINSUFFICIENT_PAYMENT` (tx `C1BC35CC…1C3C`, `F32A68AC…3F89`).
+The code is correct, our amounts were below the periodic payment, but the ledger knows the exact
+figure and does not return it.
+
+Worse, when you fetch it from the `Loan` entry it reads
+`"PeriodicPayment": "5000003.567356568362"`. XRP has no fraction below one drop, so no payment can
+equal that value. The client must round, and no documentation says in which direction, nor whether
+rounding up overpays into `tfLoanOverpayment` territory with its own fee.
+
+**Proposed fix** Return the required amount in the error, or document the rounding rule and expose a
+ready-to-submit `AmountDue` on the `Loan` entry.
+
+---
+
+## F-009 · The number that matters most, price per share, is not readable from the vault
+**Category** documentation · **Severity** medium
+
+The organizers ask whether position value, utilisation, available liquidity and accrued yield can be
+read without guessing from ledger objects. Measured answer, `scripts/read-vault.mjs`:
+
+- `AssetsTotal` and `AssetsAvailable` are on the `Vault` entry, so available liquidity is direct.
+- Shares outstanding are **not**. Price per share needs a second call,
+  `ledger_entry` with `mpt_issuance` equal to `ShareMPTID`, then `OutstandingAmount`, then a
+  client-side division. Nothing on the vault or in the docs points there.
+- Utilisation is a client-side computation from two fields.
+- Accrued yield is only visible as a drift in that computed price per share.
+- Zero-valued fields are omitted from the entry entirely, and `VaultKind` is **absent** rather than
+  `0` on an open-ended vault, so a reader cannot distinguish open-ended from an older entry version
+  without also reading `LEVersion`.
+
+**Proposed fix** Put `SharesTotal` and a computed `SharePrice` on the `Vault` entry, or ship a
+`vault_info` RPC that returns the dashboard view in one call. Document that absent means zero.
+
+---
+
+## F-010 · Loans are not discoverable from the vault or from the broker owner
+**Category** documentation · **Severity** medium
+
+`account_objects` on the broker owner returns `Vault`, `LoanBroker` and `MPToken`, with no `Loan`.
+The loans live under the **LoanBroker pseudo-account**, the `Account` field of the `LoanBroker` entry
+(`rUJd54Kxaw82p9BoxUNxBuhNkNC7ADhvmV` in our run), and are also directory-linked to the borrower.
+The vault pseudo-account holds the `MPTokenIssuance` and the `LoanBroker`.
+
+Three pseudo-accounts, no documentation of which one owns what. Building a broker dashboard means
+discovering that layout by enumerating objects on every address in sight.
+
+**Proposed fix** Document the pseudo-account topology in the Lending Protocol concepts page with a
+diagram, and note that listing a broker book means calling `account_objects` on `LoanBroker.Account`.
+
+## F-011 · The two hackathon networks enforce different lending rules behind an identical amendment list
+**Category** other / protocol · **Severity** high · **CORRECTS F-004**
+
+Same transaction, same library, same amendment set, opposite outcome:
+
+| network | build | `LoanBrokerSet` on an **open-ended** vault |
+|---|---|---|
+| custom hackathon devnet (network_id 4001) | 3.4.0-rc1 | `tesSUCCESS` (tx `59496BAE…6F85`) |
+| public XRPL devnet (network_id 2) | 3.4.0-rc5 | `tecNO_PERMISSION` (tx `DD751B83…95D5`) |
+
+Both networks report `LendingProtocol` **and** `LendingProtocolV1_1` as enabled, read from the
+Amendments ledger entry and mapped against `features.macro`. So the brief's appendix warning was
+right about the mechanism, V1.1 does restrict new loans to closed-ended vaults, and the custom
+devnet has been configured to keep V1 behaviour. **This corrects our earlier report F-004**, which
+concluded from the Track 1 network alone that the warning had not materialised.
+
+The developer-facing problem is that nothing exposes the difference. `server_info` gives a
+build_version that is not a published tag, the amendment set is identical, and the only way to
+discover which semantics a network enforces is to send a transaction and read the rejection. Two
+ledgers gating different behaviour behind the same amendment ID is also a release-engineering
+hazard worth a second look from the protocol team.
+
+**Proposed fix** Expose the effective lending protocol version, for instance in `server_info` or via
+`feature`, publish the source for whatever build each hackathon network runs, and state the
+network-to-semantics mapping in the brief's environment table. Right now the table's
+"Lending Protocol V1 / V1.1" row is the only hint and it is not verifiable from the ledger.
+
+---
+
+## F-012 · `VaultCreate` costs 10x more on one hackathon network than the other, silently
+**Category** UX · **Severity** medium
+
+Identical `VaultCreate`, autofilled by the same xrpl.js version:
+
+- custom hackathon devnet: `Fee` **2000000 drops**, 2 XRP (tx `44B98E6A…59AA`)
+- public XRPL devnet: `Fee` **200000 drops**, 0.2 XRP (tx `13F8E75B…9C6D`)
+
+The fee is derived from the network's owner reserve, which differs between the two, and xrpl.js
+autofill applies it without a word. A team that sizes its account budget on one network, where the
+faucet also hands out 1000 XRP instead of 100, gets a nasty surprise on the other. Nothing in the
+brief mentions that creating a vault costs a reserve-scaled fee at all.
+
+**Proposed fix** Document the vault creation cost as "one incremental owner reserve, network
+dependent" in the `VaultCreate` reference, and have the environment table state the reserve and the
+faucet amount per network.
