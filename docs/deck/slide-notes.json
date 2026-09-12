@@ -1,0 +1,65 @@
+[
+  {
+    "time": "0:00–0:15",
+    "tag": "The opportunity",
+    "title": "Good assets.<br />Put to <em>work.</em>",
+    "note": "Tokenised treasuries and money market funds need more than issuance. We built agency securities lending: holders lend securities through an agent, for a fee. This is a Devnet prototype with a fictitious security, not a production fund.",
+    "source": "README.md · Why / The trade"
+  },
+  {
+    "time": "0:15–0:30",
+    "tag": "The product",
+    "title": "A market with an agent<br /><em>on the hook.</em>",
+    "note": "The asset in the vault is the security itself. The agent owns the vault and loan broker, checks borrower eligibility and posts cover. Loan interest accrues to the vault; origination fees go to the broker. The compressed demo does not demonstrate meaningful lender yield. XRP collateral is a separate bilateral escrow; do not describe escrow and default settlement as one atomic transaction.",
+    "source": "README.md · The trade / The other primitives"
+  },
+  {
+    "time": "0:30–1:30",
+    "tag": "Demo / Subscription",
+    "title": "Eligibility the ledger<br /><em>actually enforces.</em>",
+    "note": "Switch to the live vault provisioned by the protocol operator. The link uses DEMO_VAULT from lib/config.ts at deck-generation time; use the fresh vault URL when rehearsing. Trigger deposits from the existing operator script. The dashboard is read-only and does not submit transactions. If the phase walk is not the live arc, open verified transaction links.",
+    "source": "<a href=\"https://devnet.xrpl.org/transactions/CE5C7E595B0D9761B10BE9114AEF38597A03A9620A1590EE7DEC56528B47D06C\" target=\"_blank\" rel=\"noreferrer\">Eligible · CE5C7E59</a> · <a href=\"https://devnet.xrpl.org/transactions/D4C938639DD005D8B4AD6ADB06425AC6E15047C15C02B80386AAA2E07C3DBC88\" target=\"_blank\" rel=\"noreferrer\">Refused · D4C93863</a>"
+  },
+  {
+    "time": "1:30–2:00",
+    "tag": "Demo / Phase boundary",
+    "title": "The calendar is<br /><em>a protocol rule.</em>",
+    "note": "The phase comes from immutable vault dates compared with the ledger close time. The page refreshes every ten seconds and never advances the phase from the browser clock. Show the deposit rejection at the phase boundary. The complete phase walk and default arc cannot both run live in four minutes: the minimum investment period is 180 seconds. Choose one and use verified evidence for the other.",
+    "source": "<a href=\"https://devnet.xrpl.org/transactions/7B9D16FA25DA3F54B7B3A13A63C21AB06775346264A4D1EC12228EBCFD709291\" target=\"_blank\" rel=\"noreferrer\">Closed subscription · 7B9D16FA</a> · docs/PLAN.md"
+  },
+  {
+    "time": "2:00–2:30",
+    "tag": "Demo / Origination",
+    "title": "Two signatures.<br /><em>One loan.</em>",
+    "note": "Show the co-signed origination transaction and the resulting loan book row. The browser reads the ledger server-side; the protocol operator submits the transaction. The required beta SDK needs our counterparty-signing workaround, described later.",
+    "source": "<a href=\"https://devnet.xrpl.org/transactions/EDF107402242DB11C46B0DB87CDD97704CBB851840A3A49CC0BD31DD14B61C41\" target=\"_blank\" rel=\"noreferrer\">Origination · EDF10740</a> · README.md / The trade"
+  },
+  {
+    "time": "2:30–3:15",
+    "tag": "Verified default / 100% cover rate",
+    "title": "The borrower defaults.<br /><em>The agent pays.</em>",
+    "note": "Use the fully covered default arc. During impairment, the correct net price is 0.60: (5,000,000 − 2,000,000) / 5,000,000. The historical evidence file records the old gross-ratio price of 1.00 at that step; the net figure here is recomputed from its raw fields, consistent with lib/ledger.ts and the developer report. After default, cover restores net price to 1.00. Do not say that the price never moves. At a 10% cover rate, the same default ends at 0.64; the configured rate, not merely the posted balance, decides absorption.",
+    "source": "<a href=\"https://devnet.xrpl.org/transactions/95AD6692375BFD184155472FA105571BA9C9A836B221BB36F11CAA4F699C81D4\" target=\"_blank\" rel=\"noreferrer\">Covered default · 95AD6692</a> · docs/evidence/default-arc-cover100000.json"
+  },
+  {
+    "time": "3:15–3:35",
+    "tag": "Developer experience / Three fixes",
+    "title": "What building it<br /><em>made visible.</em>",
+    "note": "Keep this to twenty seconds. The mandated beta has closed-ended types but uses the wrong signing prefix. Stable signs correctly but lacks the V1.1 types. Both hackathon networks enable the same lending amendments while enforcing different lending rules; their full amendment sets differ. These are observed development findings in the report; do not change networks in the demo.",
+    "source": "<a href=\"https://github.com/gamween/patapim/blob/main/DEVELOPER-REPORT.md\" target=\"_blank\" rel=\"noreferrer\">DEVELOPER-REPORT.md · Findings 1–3</a>"
+  },
+  {
+    "time": "3:35–3:45",
+    "tag": "Protocol proposal",
+    "title": "A fixed end date needs<br /><em>a way to recall.</em>",
+    "note": "This is a proposal for LendingProtocolV1_2, not a transaction the prototype can execute. Close the findings with a specific protocol ask: an early recall path so an agent can manage the vault’s maturity.",
+    "source": "DEVELOPER-REPORT.md · What the protocol made hard"
+  },
+  {
+    "time": "3:45–4:00",
+    "tag": "Contribution back",
+    "title": "A working trade.<br /><em>A useful contribution.</em>",
+    "note": "The Explorer PR was verified open when this deck was prepared; do not call it merged. Close on the actual contribution and invite the jury to inspect the live vault, transaction evidence and developer report. Submission: Sunday 13 September 2026 at 13:00 CEST; code freeze 12:30. Rehearse with a fresh vault and retain a recorded run for network failure.",
+    "source": "ripple/explorer#1342 · README.md · DEVELOPER-REPORT.md"
+  }
+]
