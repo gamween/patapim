@@ -387,7 +387,7 @@ LoanScale Int32 nth=1  WithdrawalPolicy UInt8 nth=20
 ### Track 1 — `https://lending-hackathon-faucet.dev.ripplex.io/accounts`
 ```
 POST {}  ->  HTTP/1.1 200, Content-Type: application/json, X-Powered-By: Express, Access-Control-Allow-Origin: *
-{"account":{"address":"rEQbLj7Ka9CY3vHFoqhkkZef36MFGW3rRr","secret":"sEdVGBkGyQyT26qD1HqrH6ZoNWEXc2e"},"balance":1000}
+{"account":{"address":"rEQbLj7Ka9CY3vHFoqhkkZef36MFGW3rRr","secret":"sEd[redacted devnet seed]"},"balance":1000}
 ```
 - Funds **1000 XRP** per call, brand-new ed25519 account (`sEd...` seeds).
 - **No `classicAddress`, no `xAddress`, no `seed`, no `amount`, no `transactionHash` field.**
@@ -400,7 +400,7 @@ POST {}  ->  HTTP/1.1 200, Content-Type: application/json, X-Powered-By: Express
 ```
 POST {}  ->  HTTP/1.1 200
 {"account":{"xAddress":"X7qkQ...","address":"rfF9GUV5kyVxfy5sjWXDGdFsxyu8YiHyhH","classicAddress":"rfF9GUV5kyVxfy5sjWXDGdFsxyu8YiHyhH"},
- "amount":100,"transactionHash":"ABD2397BD8DB4131A02895CE6E90068D58C6BAA0FE1AD03E6758438BE83069F0","seed":"sEd7fTpSBALBk3HsDb9PM9M1K37f5zT"}
+ "amount":100,"transactionHash":"ABD2397BD8DB4131A02895CE6E90068D58C6BAA0FE1AD03E6758438BE83069F0","seed":"sEd[redacted devnet seed]"}
 ```
 - Funds **100 XRP** per call. Latency ~0.63–0.69 s.
 - **No rate limiting observed**: 5 back-to-back calls, all 200. No `RateLimit-*` or `Retry-After` headers.

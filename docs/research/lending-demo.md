@@ -905,7 +905,7 @@ off the LoanBroker node.
 
 ```
 $ curl -s -X POST https://lending-hackathon-faucet.dev.ripplex.io/accounts -d '{}'
-{ "account": { "address": "rh8uEZ...", "secret": "sEdVj1GGD2wYiYrvPpTP3Q8ys8aoyrS" }, "balance": 1000 }
+{ "account": { "address": "rh8uEZ...", "secret": "sEd[redacted devnet seed]" }, "balance": 1000 }
 
 $ curl -s -X POST https://faucet.devnet.rippletest.net/accounts -d '{}'   # keys:
 ["account","amount","seed","transactionHash"]   account keys: ["address","classicAddress","xAddress"]
