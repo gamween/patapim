@@ -252,7 +252,7 @@ devnet has been configured to keep V1 behaviour. **This corrects our earlier rep
 concluded from the Track 1 network alone that the warning had not materialised.
 
 The developer-facing problem is that nothing exposes the difference. `server_info` gives a
-build_version that is not a published tag, the amendment set is identical, and the only way to
+build_version that is not a published tag, the lending amendments read the same on both, and the only way to
 discover which semantics a network enforces is to send a transaction and read the rejection. Two
 ledgers gating different behaviour behind the same amendment ID is also a release-engineering
 hazard worth a second look from the protocol team.

@@ -79,16 +79,35 @@ adjacent rather than conflicting:
 The repository is MIT licensed, not archived, last pushed 2026-09-11, and its `CONTRIBUTING.md`
 opens with "We're thrilled you're interested".
 
-## The change
+## The change, as shipped
 
-1. Add two lookups to `determineHashType`: `getLoanBroker`, and a loan lookup by ledger entry index.
-2. Resolve a `LoanBroker` hit to its `VaultID`, and a `Loan` hit to `LoanBrokerID` then `VaultID`.
-3. Route both to the existing vault page, deep linking the broker tab so the object the user pasted
-   is the one in view.
-4. Update the placeholder and the not-found copy, which both enumerate the supported types.
-5. Tests next to the existing `getLoanBroker` cases.
+Three commits on `gamween:search-resolve-loan-objects`:
 
-Roughly forty to eighty lines plus tests. No new page, no new route, no new RPC helper.
+1. The vault lookup in `determineHashType` becomes one `getLedgerEntry` call switched on
+   `LedgerEntryType`. `Vault` routes to the vault page as before, `LoanBroker` routes to its
+   `VaultID`, `Loan` routes through `getLoanBroker` to that broker's vault, and every other entry
+   type throws so it falls through to `hash_not_found` exactly as #1320 intended. The request count
+   is unchanged; a `Loan` costs one extra call.
+2. Both English search strings name loan brokers explicitly, after the automated review asked for it.
+3. The route is only built when a vault id is actually present, so a malformed object cannot throw
+   out of `getRoute` and kill the search box, and the broker hop is tested with an assertion on the
+   id rather than a mock that answers anything.
+
+What it does **not** do, stated in the pull request as a known limitation: it does not deep-link the
+broker tab. `VAULT_ROUTE` has no tab or anchor parameter and the vault page selects its first broker
+from local state, so on a vault with more than one broker the searched broker is not the selected
+tab. No devnet vault has two brokers today. Anchoring it needs a route parameter and is offered as a
+follow-up.
+
+## Prior art the pull request names
+
+- **#1320**, merged, deliberately made any non-`Vault` ledger entry fall into not-found after a
+  `PermissionedDomain` id landed on a vault page. This change preserves that, and there is a test
+  using a `PermissionedDomain` node to prove it.
+- **#1146**, an open draft by a maintainer since March 2025, adds a generic `/entry/:id` page for any
+  ledger object. It is the broader road. The pull request says so and offers to close in its favour.
+- **#1291**, open, asks for `header.search.placeholder` to be re-translated after #1281 changed it.
+  This moves that key again and adds `hash_not_found` to the same list.
 
 ## A second, smaller thing found on the way
 
