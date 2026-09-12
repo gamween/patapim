@@ -630,7 +630,8 @@ export default function GhostApp({
               <p className="about-detail">
                 Eligible holders subscribe to a fixed-term vault. The lending
                 agent posts first-loss cover, co-signs loans and manages
-                defaults. Repayments and fees return in the same security.
+                defaults. Borrowers repay in the same security. Loan interest
+                accrues to the vault; origination fees go to the agent.
                 Credentials, domains, MPTs, vaults, loan brokers and XRP escrow
                 are native ledger building blocks.
               </p>
