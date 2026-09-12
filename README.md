@@ -57,6 +57,31 @@ The remaining phase gate, `VaultWithdraw` refused during Investment with `tecTOO
 `LoanSet` refused during Subscription with `tecTOO_SOON`, are in
 [`scripts/probe-t2.mjs`](./scripts/probe-t2.mjs), which walks the three phases on an XRP vault.
 
+## The default arc
+
+The half of the story that matters to a lender: the borrower does not return the securities, and the
+agent's own capital makes the vault whole. Run twice on Devnet with the only difference being
+`CoverRateMinimum`, and the difference is the whole lesson.
+
+**Indemnified at one hundred percent**, `docs/evidence/default-arc-cover100000.json`:
+
+| state | vault assets | unrealised loss | price per share | agent cover |
+|---|---|---|---|---|
+| loan drawn, 2,000,000 TBL | 5,000,000 | 0 | 1.00 | 2,500,000 |
+| impaired | 5,000,000 | 2,000,000 | 1.00 | 2,500,000 |
+| **defaulted** | **5,000,000** | 0 | **1.00** | **500,000** |
+
+The cover absorbs the entire loan, the vault does not shrink, and the lenders' share price does not
+move. [`LoanSet`](https://devnet.xrpl.org/transactions/EDF107402242DB11C46B0DB87CDD97704CBB851840A3A49CC0BD31DD14B61C41)
+· [`LoanManage` impair](https://devnet.xrpl.org/transactions/5227A0967246FE5AE7A60F879900FF42062FFBCF71C20648494FC2EAC8DA5F48)
+· [`LoanManage` default](https://devnet.xrpl.org/transactions/95AD6692375BFD184155472FA105571BA9C9A836B221BB36F11CAA4F699C81D4)
+
+**At a ten percent cover rate**, `docs/evidence/default-arc-cover10000.json`: the same default takes
+the vault from 5,000,000 to 3,200,000 and the share price from 1.00 to 0.64, while the cover gives
+up only 200,000 of the 1,000,000 posted. The rate, not the balance, decides what the cover absorbs.
+That is finding F-014 in the developer report, and it is why this vault is configured at one
+hundred percent.
+
 ## The other primitives, the Loaded half
 
 | Primitive | What it does here | Hash |

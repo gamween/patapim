@@ -104,11 +104,14 @@ page, and expose it as a field.*
 **"First-loss capital" absorbs a rate of the debt, not the first loss.** Same run, cover 1000000
 against a 2000000 loan at `CoverRateMinimum: 10000`, ten percent. On default the vault lost 1800000
 and the cover lost 200000: exactly the configured rate, with the lenders taking the other ninety
-percent, although the posted cover could have absorbed half the loan. Price per share went from 1.00
-to 0.64. For a product whose promise to lenders is indemnification, the distance between that name
-and that behaviour is the most expensive misunderstanding in XLS-66, and nothing in the field tables
-corrects it. *Proposal: document the default settlement arithmetic with a worked example, and treat
-a cover rate of 100000 as the documented way to express full indemnity.*
+percent, although the posted cover could have absorbed half the loan. Price per share went from 1.00 to 0.64. Re-running the identical arc at
+`CoverRateMinimum: 100000` settles it: the cover absorbs the whole loan, assets hold at 5000000 and
+the share price stays at 1.00. So the parameter that reads as a floor on how much cover to post in
+fact decides how much of a default it absorbs, and a broker can sit on ten times the capital it will
+ever pay out. For a product whose promise to lenders is indemnification, that is the most expensive
+misunderstanding in XLS-66, and nothing in the field tables corrects it. *Proposal: document the
+default settlement arithmetic with a worked example, and treat a cover rate of 100000 as the
+documented way to express full indemnity.*
 
 **A closed-ended vault protects the calendar, not the cash.** `LoanSet` is refused with
 `tecNO_PERMISSION` when the amortisation schedule would end after `RedemptionDate`, so the ledger

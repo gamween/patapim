@@ -325,6 +325,19 @@ For a product whose entire promise to lenders is indemnification, that gap betwe
 behaviour is the most expensive misunderstanding available in XLS-66, and nothing in the field
 tables or the concepts page corrects it.
 
+Re-running the identical arc with `CoverRateMinimum: 100000` and 2500000 of cover settles it:
+
+| state | assets | loss | price per share | cover |
+|---|---|---|---|---|
+| loan drawn | 5000000 | 0 | 1.00 | 2500000 |
+| impaired | 5000000 | 2000000 | 1.00 | 2500000 |
+| defaulted | 5000000 | 0 | **1.00** | **500000** |
+
+The cover now absorbs the whole loan and the lenders are untouched. So the parameter that reads as a
+floor on how much cover a broker must post in fact decides how much of a default that cover absorbs,
+and a broker can hold ten times the cover it will ever pay out. Two runs, `default-arc-cover10000`
+and `default-arc-cover100000` in `docs/evidence/`, identical but for that one number.
+
 **Proposed fix** Document the settlement arithmetic on default with a worked example, and say
 plainly that the cover pays `min(CoverAvailable, CoverRateMinimum × debt)`. Consider renaming the
-parameter, or accepting a cover rate of 100000 as the documented way to express full indemnity.
+parameter, or documenting a cover rate of 100000 as the way to express full indemnity.

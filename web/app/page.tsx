@@ -34,7 +34,7 @@ const STEPS = [
   },
   {
     h: 'Default',
-    p: 'Past the grace period the agent declares default. The first-loss cover repays the vault in securities and the collateral rebuilds the cover, so the lenders’ position is made whole.',
+    p: 'Past the grace period the agent declares default. The first-loss cover, sized at one hundred percent of the loan, repays the vault in securities: the vault does not shrink and the lenders’ share price does not move. Verified on chain, not asserted.',
   },
 ]
 

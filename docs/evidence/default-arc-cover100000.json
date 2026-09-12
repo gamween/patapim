@@ -1,12 +1,12 @@
 {
   "network": "t2-public-devnet",
-  "SEC": "005038C0E71310C57FCFD1FA4B9E9E12BDE50D97303F1E64",
-  "domainID": "B37A70C16E4DFBAD5D9F30A693213B9EA4B578DBD97D0E8789D412E978DF4F90",
-  "vaultID": "FEC5DB46C0FB8C409523DE20B28F7C6AF0F993DBFC44FA4BC53BBF0F29C2BABA",
-  "brokerID": "F3EE8CF695E95554B7B31F804F423EE11D279D651DBBBA096E2168B032B314AD",
-  "loanID": "670BADA2E83B9D07699FF6B611456674A11D1D3B66D8E8847E721BD3BE927CCC",
-  "subscriptionDate": 842547355,
-  "redemptionDate": 842547955,
+  "SEC": "00503937D0874A52BF76E1D6916D06AB29F9DEA52344F492",
+  "domainID": "526393E8BE14A22463065B43FD59153C67B23B10ABC7C3A45030A90E2C2AE5E1",
+  "vaultID": "CC9CB7BF175BFD7BA448E7C247A7E5BB7D8D16C0F4D93A462C157A4D1B5F0C4D",
+  "brokerID": "603F0208FF71BE8DDD08BF90E5FCBC88D4CA556BC1B5F32CDBB4B41DFF1FA51C",
+  "loanID": "D94FF2EFADEC188F8046C6A742895FE2E91D80382AFE3186417169103129E2D4",
+  "subscriptionDate": 842547717,
+  "redemptionDate": 842548317,
   "states": [
     {
       "label": "after funding",
@@ -15,7 +15,7 @@
       "LossUnrealized": "0",
       "shares": "5000000",
       "pricePerShare": "1.00000000",
-      "CoverAvailable": "1000000",
+      "CoverAvailable": "2500000",
       "DebtTotal": "0"
     },
     {
@@ -25,7 +25,7 @@
       "LossUnrealized": "0",
       "shares": "5000000",
       "pricePerShare": "1.00000000",
-      "CoverAvailable": "1000000",
+      "CoverAvailable": "2500000",
       "DebtTotal": "2000000"
     },
     {
@@ -35,17 +35,17 @@
       "LossUnrealized": "2000000",
       "shares": "5000000",
       "pricePerShare": "1.00000000",
-      "CoverAvailable": "1000000",
+      "CoverAvailable": "2500000",
       "DebtTotal": "2000000"
     },
     {
       "label": "defaulted, cover absorbs",
-      "AssetsTotal": "3200000",
-      "AssetsAvailable": "3200000",
+      "AssetsTotal": "5000000",
+      "AssetsAvailable": "5000000",
       "LossUnrealized": "0",
       "shares": "5000000",
-      "pricePerShare": "0.64000000",
-      "CoverAvailable": "800000",
+      "pricePerShare": "1.00000000",
+      "CoverAvailable": "500000",
       "DebtTotal": "0"
     }
   ],
@@ -53,42 +53,42 @@
     {
       "step": "VaultCreate",
       "code": "tesSUCCESS",
-      "hash": "FB588544CE04535428FED827935E197D653212082ED764997DCBB3301DB5153B"
+      "hash": "46AABC26E1D807CA88F81E66FB59E288DF0BF96547FAE3EC8942BE4405D61E26"
     },
     {
       "step": "VaultDeposit",
       "code": "tesSUCCESS",
-      "hash": "E97777138928FF9974011571C7BDEE8EF604664231A7A7571D26A6997BD10E2E"
+      "hash": "B659C8D50FD38708D8E1313CED982EF1EDE0BEA539AA9ECD4E21957D56FD363C"
     },
     {
       "step": "LoanBrokerSet",
       "code": "tesSUCCESS",
-      "hash": "256A7812CAF116A89AB53BFF3A857F2C6BDEB853C1ED8DEB49B93EF783FA183C"
+      "hash": "D71F17AE42DF80E6B3D758650429EBE69F6536437F902B2CE7BA8155FE52B078"
     },
     {
       "step": "CoverDeposit",
       "code": "tesSUCCESS",
-      "hash": "EC170D81726570C01306A7B9CAAF56E551C353012A2EF8A3A6C2ACAB745B2D47"
+      "hash": "880B7F595BC2ADA09BBA3A84B783065E884F57E11C5DB4D5DEFC939DEE4C2F0E"
     },
     {
       "step": "LoanSet",
       "code": "tesSUCCESS",
-      "hash": "5C65F0A51F7EE7A992DA1B296D77C5E2893B8FDEC86A5E75E4895FE45D86CD05"
+      "hash": "EDF107402242DB11C46B0DB87CDD97704CBB851840A3A49CC0BD31DD14B61C41"
     },
     {
       "step": "LoanManage impair (too early)",
       "code": "tesSUCCESS",
-      "hash": "A3734858DD8D5DF2E19384B882682083BA338FC1EECED00E3E7A3357DD62F55D"
+      "hash": "5227A0967246FE5AE7A60F879900FF42062FFBCF71C20648494FC2EAC8DA5F48"
     },
     {
       "step": "LoanManage impair",
       "code": "tecNO_PERMISSION",
-      "hash": "C9F009890DB54D8D0DC464403A6893FF95CE461FD71CC04C1E068044638BA649"
+      "hash": "03933F6DCA3C73B306CF4FFC44B4B8426DC28C6CAF9F9F2F3707224D7B8897B6"
     },
     {
       "step": "LoanManage default",
       "code": "tesSUCCESS",
-      "hash": "D4F71EBF5F3234A8C47D2DBC16E7C17AA1A4C12E7858D6EDF392E7FF62F7F035"
+      "hash": "95AD6692375BFD184155472FA105571BA9C9A836B221BB36F11CAA4F699C81D4"
     }
   ]
 }
