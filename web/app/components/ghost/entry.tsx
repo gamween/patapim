@@ -1,29 +1,30 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import { DEMO_VAULT } from '@/lib/config'
+import './ghost.css'
 
-// Browser-only source uses matchMedia, WebGL, video and the local clock.
 const GhostApp = dynamic(() => import('./ghost-app'), {
   ssr: false,
   loading: () => (
-    <main className="page section">
-      <h1>patapim</h1>
-      <p className="lede" role="status">
-        Loading the experience…
-      </p>
-      <div className="row hero-actions">
-        <a className="btn" href="/product">
-          Explore the product
-        </a>
-        <a className="btn btn-primary" href={`/vault/${DEMO_VAULT}`}>
-          Open the live vault
-        </a>
+    <main className="ghost-root app">
+      <div className="loader" role="status">
+        <div className="loader-type">
+          <h1>
+            <span>PATAPIM</span>
+          </h1>
+          <p>
+            <span>ASSETS IN MOTION</span>
+          </p>
+        </div>
       </div>
     </main>
   ),
 })
-
-export default function GhostEntry() {
-  return <GhostApp />
+export default function GhostEntry(props: {
+  vaultId?: string
+  holder?: string
+  skipIntro?: boolean
+  initialSection?: 'vault' | 'about'
+}) {
+  return <GhostApp {...props} />
 }

@@ -1,11 +1,13 @@
 'use client'
 
-import { DEMO_VAULT } from '@/lib/config'
 import './ghost.css'
 import { useEffect, useRef, useState } from 'react'
-import type { CSSProperties } from 'react'
-import type { Experience, Phase, Project } from './animation/Experience'
-import projects from './projects.json'
+import type { CSSProperties, FormEvent } from 'react'
+import { useRouter } from 'next/navigation'
+import { DEMO_VAULT, REPO } from '@/lib/config'
+import type { LedgerCard, VaultSnapshot } from '@/lib/vault-ui'
+import type { Experience, Phase } from './animation/Experience'
+import { useVault } from './use-vault'
 
 function Icon({
   name,
@@ -35,66 +37,254 @@ function Icon({
     </svg>
   )
 }
-function Preview({ project }: { project: Project }) {
-  const a = project.atlas
+const short = (id: string) => `${id.slice(0, 8)}…${id.slice(-4)}`
+const tone = (status: string) =>
+  status === 'defaulted'
+    ? 'red'
+    : ['overdue', 'impaired'].includes(status)
+      ? 'amber'
+      : 'green'
+const timestamp = (date: string | null) =>
+  date ? date.replace('T', ' ').replace('.000Z', ' UTC') : '—'
+
+function Rules({ snapshot }: { snapshot: VaultSnapshot }) {
   return (
-    <div
-      role="img"
-      aria-label={project.title}
-      className="atlas-preview"
-      style={
-        {
-          '--atlas': `url(/reference/atlases/media-rgb-atlas-${a.index}.jpg)`,
-          '--alpha': `url(/reference/atlases/media-alpha-atlas-${a.index}.jpg)`,
-          '--position': `${a.cellX * 20}% ${a.cellY * 20}%`,
-        } as CSSProperties
-      }
-    />
-  )
-}
-function Clock() {
-  const [date, setDate] = useState(new Date())
-  useEffect(() => {
-    const id = setInterval(() => setDate(new Date()), 30000)
-    return () => clearInterval(id)
-  }, [])
-  return (
-    <div className="clock mono">
-      <span>
-        <i /> PARIS, FR
-      </span>
-      <time>
-        {date.toLocaleTimeString('fr-FR', {
-          timeZone: 'Europe/Paris',
-          hour: '2-digit',
-          minute: '2-digit',
-        })}
-      </time>
-      <span className="muted">LOCAL TIME</span>
-      <span className="muted">48°51′ N</span>
+    <div className="live-rules">
+      <div>
+        <h3>Allowed in {snapshot.phase}</h3>
+        {snapshot.rules.allowed.map((tx) => (
+          <div className="rule-line" key={tx}>
+            <span>{tx}</span>
+            <span className="live-status green">ALLOWED</span>
+          </div>
+        ))}
+      </div>
+      <div>
+        <h3>Refused in {snapshot.phase}</h3>
+        {snapshot.rules.blocked.map(([tx, code]) => (
+          <div className="rule-line" key={tx}>
+            <span>{tx}</span>
+            <span className="live-status red">{code}</span>
+          </div>
+        ))}
+        {!snapshot.rules.blocked.length && (
+          <p>No phase restrictions for this vault.</p>
+        )}
+      </div>
+      <p className="live-footnote">
+        Phase permissions at ledger close time. Eligibility, available cover and
+        other transaction checks still apply.
+      </p>
     </div>
   )
 }
+function Loans({
+  snapshot,
+  query = '',
+}: {
+  snapshot: VaultSnapshot
+  query?: string
+}) {
+  const loans = snapshot.loans.filter((loan) =>
+    `${loan.borrower} ${loan.status} ${loan.id}`
+      .toLowerCase()
+      .includes(query.toLowerCase()),
+  )
+  return (
+    <div className="live-loans">
+      {loans.length ? (
+        loans.map((loan) => (
+          <article className="loan-row" key={loan.id}>
+            <div>
+              <span className="mono muted">BORROWER</span>
+              <a
+                href={`${snapshot.explorer}/accounts/${loan.borrower}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {short(loan.borrower)}
+              </a>
+              <span className={`live-status ${tone(loan.status)}`}>
+                {loan.status}
+              </span>
+            </div>
+            <dl>
+              <div>
+                <dt>Principal outstanding</dt>
+                <dd>{loan.principal}</dd>
+              </div>
+              <div>
+                <dt>Total owed</dt>
+                <dd>{loan.owed}</dd>
+              </div>
+              <div>
+                <dt>Payments left</dt>
+                <dd>{loan.payments}</dd>
+              </div>
+              <div>
+                <dt>Next payment (UTC)</dt>
+                <dd>{timestamp(loan.due === '—' ? null : loan.due)}</dd>
+              </div>
+            </dl>
+          </article>
+        ))
+      ) : (
+        <p className="live-empty">
+          {query
+            ? 'No loans match this search.'
+            : 'No loans returned in this ledger snapshot.'}
+        </p>
+      )}
+    </div>
+  )
+}
+function Details({
+  card,
+  snapshot,
+}: {
+  card: LedgerCard
+  snapshot: VaultSnapshot
+}) {
+  return (
+    <>
+      <div className="detail-hero">
+        <span className="mono muted">{card.category}</span>
+        <h2>{card.title}</h2>
+        <strong>{card.value}</strong>
+        <p>{card.subtitle}</p>
+      </div>
+      {card.id === 'loans' ? (
+        <Loans snapshot={snapshot} />
+      ) : card.id === 'rules' ? (
+        <Rules snapshot={snapshot} />
+      ) : (
+        <dl className="detail-values">
+          {card.lines.map(([label, value]) => (
+            <div key={label}>
+              <dt>{label}</dt>
+              <dd>{value}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+      {card.id === 'phase' && (
+        <>
+          <div className="phase-track">
+            {['subscription', 'investment', 'redemption'].map((phase, i) => (
+              <div
+                key={phase}
+                aria-current={snapshot.phase === phase ? 'step' : undefined}
+              >
+                <span className="mono">0{i + 1}</span>
+                {phase}
+              </div>
+            ))}
+          </div>
+          <dl className="detail-values">
+            <div>
+              <dt>Subscription closes</dt>
+              <dd>{timestamp(snapshot.subscription)}</dd>
+            </div>
+            <div>
+              <dt>Redemption opens</dt>
+              <dd>{timestamp(snapshot.redemption)}</dd>
+            </div>
+            <div>
+              <dt>Ledger close time</dt>
+              <dd>{timestamp(snapshot.ledgerTime)}</dd>
+            </div>
+          </dl>
+        </>
+      )}
+      {card.id === 'price' && (
+        <p className="live-footnote">
+          Net share price = (AssetsTotal − LossUnrealized) / OutstandingAmount.
+          Missing share data is shown as unavailable.
+        </p>
+      )}
+      {card.id === 'cover' && (
+        <p className="live-footnote">
+          The configured cover rate determines default absorption. The cover
+          balance alone does not imply full indemnity.
+        </p>
+      )}
+      {card.id === 'provenance' && (
+        <div className="rpc-details">
+          {snapshot.calls.map((call, i) => (
+            <details key={i}>
+              <summary>
+                {i + 1}. {call.why}
+              </summary>
+              <pre>{JSON.stringify(call.request, null, 2)}</pre>
+            </details>
+          ))}
+          <a
+            href={`${snapshot.explorer}/accounts/${snapshot.owner}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Inspect vault owner on the explorer
+          </a>
+        </div>
+      )}
+      {card.id === 'position' && snapshot.position && (
+        <p className="live-footnote">
+          Holder {snapshot.position.holder}. Position value is the holder’s
+          fraction of outstanding shares multiplied by net assets.
+        </p>
+      )}
+    </>
+  )
+}
 
-export default function GhostApp() {
+export default function GhostApp({
+  vaultId = DEMO_VAULT,
+  holder,
+  skipIntro = false,
+  initialSection = 'vault',
+}: {
+  vaultId?: string
+  holder?: string
+  skipIntro?: boolean
+  initialSection?: 'vault' | 'about'
+}) {
+  const router = useRouter()
   const canvas = useRef<HTMLCanvasElement>(null)
   const scene = useRef<Experience | null>(null)
   const [run, setRun] = useState(0)
   const [phase, setPhase] = useState<Phase>('loading')
   const [progress, setProgress] = useState(0)
   const [view, setView] = useState<'grid' | 'list'>('grid')
-  const [about, setAbout] = useState(false)
-  const [selected, setSelected] = useState<Project | null>(null)
+  const [section, setSection] = useState<'vault' | 'loans' | 'rules' | 'about'>(
+    initialSection,
+  )
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const [fallback, setFallback] = useState(false)
   const [sound, setSound] = useState(false)
   const [motion, setMotion] = useState(
     !matchMedia('(prefers-reduced-motion: reduce)').matches,
   )
   const [query, setQuery] = useState('')
+  const [switching, setSwitching] = useState(false)
   const dialog = useRef<HTMLDialogElement>(null)
+  const switchDialog = useRef<HTMLDialogElement>(null)
+  const { snapshot, pending, error, refresh } = useVault(vaultId, holder)
+  const snapshotRef = useRef(snapshot)
   const revealed = phase === 'revealed' || phase === 'ready'
-  const loading = phase === 'loading' || phase === 'separating'
+  const about = section === 'about'
+  const selected = snapshot?.cards.find((card) => card.id === selectedId)
+  const gridVisible = section === 'vault' && view === 'grid' && !fallback
+  const cards =
+    snapshot?.cards.filter((card) =>
+      `${card.title} ${card.category} ${card.subtitle}`
+        .toLowerCase()
+        .includes(query.toLowerCase()),
+    ) ?? []
 
+  useEffect(() => {
+    snapshotRef.current = snapshot
+    scene.current?.setCards(snapshot?.cards ?? [])
+  }, [snapshot])
   useEffect(() => {
     if (!canvas.current || fallback) return
     let cancelled = false
@@ -102,7 +292,7 @@ export default function GhostApp() {
     setProgress(0)
     const fail = (e: unknown) => {
       if (cancelled) return
-      console.warn('Using accessible gallery fallback:', e)
+      console.warn('Using the live list fallback:', e)
       setFallback(true)
       setView('list')
       setPhase('ready')
@@ -114,9 +304,13 @@ export default function GhostApp() {
           scene.current = new Experience(canvas.current, {
             progress: (n) => setProgress((old) => Math.max(old, n)),
             phase: setPhase,
-            select: setSelected,
+            select: (card) => {
+              if (card.id !== 'loading') setSelectedId(card.id)
+            },
             error: fail,
           })
+          scene.current.setCards(snapshotRef.current?.cards ?? [])
+          if (skipIntro && run === 0) scene.current.skip()
         } catch (e) {
           fail(e)
         }
@@ -127,83 +321,87 @@ export default function GhostApp() {
       scene.current?.dispose()
       scene.current = null
     }
-  }, [run, fallback])
-
+  }, [run, fallback, skipIntro])
   useEffect(() => {
     scene.current?.setActive(
-      !revealed || (view === 'grid' && !about && !selected),
+      !revealed || (gridVisible && !selectedId && !switching),
     )
-  }, [view, about, selected, revealed])
+  }, [revealed, gridVisible, selectedId, switching])
   useEffect(() => {
     scene.current?.setMotion(motion)
   }, [motion, phase])
   useEffect(() => {
     if (!sound || phase !== 'intro') return
-    const load = new Audio('/reference/site/assets/sounds/load.mp3')
-    const whoosh = new Audio('/reference/site/assets/sounds/whoosh.mp3')
+    const load = new Audio('/reference/site/assets/sounds/load.mp3'),
+      whoosh = new Audio('/reference/site/assets/sounds/whoosh.mp3')
     load.volume = 0.35
     whoosh.volume = 0.3
     void load.play().catch(() => {})
-    const id = setTimeout(() => {
+    const timer = setTimeout(() => {
       void whoosh.play().catch(() => {})
     }, 2500)
     return () => {
-      clearTimeout(id)
+      clearTimeout(timer)
       load.pause()
       whoosh.pause()
     }
   }, [sound, phase])
   useEffect(() => {
-    if (selected) dialog.current?.showModal()
+    if (selectedId && selected) dialog.current?.showModal()
     else dialog.current?.close()
-  }, [selected])
+  }, [selectedId, selected])
   useEffect(() => {
-    const close = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setAbout(false)
-        setSelected(null)
-      }
-    }
-    window.addEventListener('keydown', close)
-    return () => window.removeEventListener('keydown', close)
-  }, [])
+    if (switching) switchDialog.current?.showModal()
+    else switchDialog.current?.close()
+  }, [switching])
   function replay() {
-    setAbout(false)
-    setSelected(null)
+    setSelectedId(null)
+    setSection('vault')
     setView('grid')
     setFallback(false)
     setPhase('loading')
     setRun((n) => n + 1)
   }
-  const filtered = projects.filter((p) =>
-    `${p.title} ${p.client} ${p.zone} ${p.features.join(' ')}`
-      .toLowerCase()
-      .includes(query.toLowerCase()),
-  )
+  function openSection(next: typeof section) {
+    setSection(next)
+    setQuery('')
+  }
+  function openVault(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const data = new FormData(event.currentTarget)
+    const id = String(data.get('vault')).trim()
+    const account = String(data.get('holder')).trim()
+    setSwitching(false)
+    router.push(
+      `/vault/${encodeURIComponent(id)}${account ? `?holder=${encodeURIComponent(account)}` : ''}`,
+    )
+  }
 
   return (
     <main
-      className={`ghost-root app ${revealed ? 'is-revealed' : ''} ${about ? 'about-open' : ''}`}
+      className={`ghost-root app live-app ${revealed ? 'is-revealed' : ''} ${about ? 'about-open' : ''}`}
       data-phase={phase}
+      data-ledger-state={error ? 'error' : snapshot ? 'ready' : 'loading'}
     >
       <a
         className="skip-link"
-        href="#archive"
+        href="#ledger-content"
         onClick={() => {
           scene.current?.skip()
+          setPhase('ready')
           setView('list')
+          setSection('vault')
         }}
       >
-        Skip to references
+        Skip to vault data
       </a>
       <canvas
         ref={canvas}
-        className={`experience ${view === 'list' || about || fallback ? 'is-hidden' : ''}`}
-        aria-label="Interactive visual reference gallery. Drag to explore or use the arrow keys. Use list view to open each reference with the keyboard."
-        tabIndex={revealed && view === 'grid' && !about ? 0 : -1}
+        className={`experience ${revealed && !gridVisible ? 'is-hidden' : ''}`}
+        aria-label="Live vault data in an interactive grid. Drag to explore; switch to list view for keyboard-accessible metrics."
+        tabIndex={revealed && gridVisible ? 0 : -1}
       />
-
-      {loading && (
+      {(phase === 'loading' || phase === 'separating') && (
         <div
           className={`loader ${phase === 'separating' ? 'depart' : ''}`}
           role="status"
@@ -225,18 +423,13 @@ export default function GhostApp() {
       {!revealed && (
         <button
           className="skip-intro mono"
-          onClick={() => scene.current?.skip()}
+          onClick={() => {
+            scene.current?.skip()
+            setPhase('ready')
+          }}
         >
-          SKIP INTRO <span>↗</span>
+          SKIP INTRO <Icon name="arrow" />
         </button>
-      )}
-
-      {!revealed && (
-        <nav className="intro-links" aria-label="Direct access">
-          <a href="/product">Product</a>
-          <a href={`/vault/${DEMO_VAULT}`}>Live vault</a>
-          <a href="/deck/index.html">Deck</a>
-        </nav>
       )}
       <header
         className="header chrome"
@@ -246,17 +439,17 @@ export default function GhostApp() {
         <button
           className="brand"
           onClick={() => {
-            setAbout(false)
+            setSection('vault')
             setView(fallback ? 'list' : 'grid')
           }}
-          aria-label="Patapim, back to the gallery"
+          aria-label="Patapim, back to the vault"
         >
           <img src="/reference/site/ghost.svg" alt="" width="45" height="74" />
           <span>patapim</span>
         </button>
         <button
           className={`sound mono ${sound ? 'is-on' : ''}`}
-          onClick={() => setSound((s) => !s)}
+          onClick={() => setSound((v) => !v)}
           aria-pressed={sound}
           aria-label={sound ? 'Mute intro sound' : 'Enable intro sound'}
         >
@@ -267,91 +460,153 @@ export default function GhostApp() {
           </span>
           SOUND [{sound ? 'ON' : 'OFF'}]
         </button>
-        <p className="statement mono">
-          SECURITIES LENDING.
+        <button
+          className="vault-selector mono"
+          onClick={() => setSwitching(true)}
+          aria-label="Choose vault and holder"
+        >
+          {snapshot?.network ?? 'XRPL DEVNET'}
           <br />
-          NATIVE ON THE
+          VAULT {short(vaultId)}
           <br />
-          XRP LEDGER.
-        </p>
-        <Clock />
-        <a className="explore pill" href={`/vault/${DEMO_VAULT}`}>
-          Live vault <Icon name="arrow" />
-        </a>
+          <span className="muted">CHANGE VAULT / HOLDER</span>
+        </button>
+        <div className="clock mono">
+          <span>
+            <i />
+            {error
+              ? 'STALE SNAPSHOT'
+              : pending
+                ? 'READING LEDGER'
+                : 'VALIDATED LEDGER'}
+          </span>
+          <time>{snapshot?.ledgerTime.slice(11, 19) ?? '—'}</time>
+          <span className="muted">
+            {snapshot?.phase.toUpperCase() ?? 'CONNECTING'}
+          </span>
+          <span className="muted">UTC</span>
+        </div>
+        <button className="explore pill" onClick={refresh} disabled={pending}>
+          {pending ? 'Refreshing…' : 'Refresh ledger'}
+          <Icon name="arrow" />
+        </button>
       </header>
+      {revealed && error && (
+        <div className="ledger-alert" role="alert">
+          <strong>
+            {snapshot
+              ? 'Refresh failed. Showing the last successful ledger snapshot.'
+              : 'Vault data unavailable.'}
+          </strong>
+          <span>{error}</span>
+          <button onClick={refresh}>Retry ledger</button>
+          <button onClick={() => setSwitching(true)}>Choose vault</button>
+        </div>
+      )}
+      {revealed && !snapshot && !error && (
+        <div className="ledger-loading" role="status">
+          Reading the live vault…
+        </div>
+      )}
+      {revealed && gridVisible && snapshot && (
+        <div className="grid-caption mono">
+          <span>{snapshot.name}</span>
+          <span>
+            {snapshot.asset} / {snapshot.phase}
+            {snapshot.nextSeconds !== null
+              ? ` / NEXT PHASE IN ${snapshot.nextSeconds}s AT LEDGER CLOSE`
+              : ''}
+          </span>
+        </div>
+      )}
 
-      {revealed && view === 'list' && !about && (
+      {revealed && !gridVisible && !about && (
         <section
-          id="archive"
-          className="archive"
-          aria-label="Visual references"
+          id="ledger-content"
+          className="archive live-archive"
+          aria-label="Live vault data"
         >
           <div className="archive-heading">
             <div>
               <span className="eyebrow mono">
-                PHANTOM VISUAL REFERENCES / 001
+                {snapshot?.network ?? 'XRPL DEVNET'} / {short(vaultId)}
               </span>
               <h1>
-                Reference collection<span>({projects.length})</span>
+                {section === 'loans'
+                  ? 'Loan book'
+                  : section === 'rules'
+                    ? 'Ledger rules'
+                    : 'Your vault'}
+                <span>
+                  {section === 'loans'
+                    ? (snapshot?.loans.length ?? '—')
+                    : (snapshot?.phase ?? 'connecting')}
+                </span>
               </h1>
             </div>
-            <label className="search mono">
-              <span>SEARCH</span>
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Project, client, discipline…"
-                type="search"
-              />
-            </label>
+            {section !== 'rules' && (
+              <label className="search mono">
+                <span>
+                  SEARCH{' '}
+                  {section === 'loans'
+                    ? 'BORROWERS OR STATUS'
+                    : 'VAULT METRICS'}
+                </span>
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder={
+                    section === 'loans'
+                      ? 'Borrower, loan, status…'
+                      : 'Capital, phase, cover…'
+                  }
+                />
+              </label>
+            )}
           </div>
           {fallback && (
             <p className="fallback-note">
-              List view is available because the 3D experience could not load.
-              You can still explore Patapim and open the live vault.
+              The live list is active because the 3D intro could not load.
+              Ledger data remains available.
             </p>
           )}
-          <div className="project-list">
-            {filtered.map((p, i) => (
-              <button
-                className="project-row"
-                key={p.id}
-                onClick={() => setSelected(p)}
-              >
-                <span className="row-number mono">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <Preview project={p} />
-                <span className="row-title">{p.title}</span>
-                <span className="row-client mono">{p.client}</span>
-                <span className="row-year mono">
-                  {p.launchDate.slice(0, 4)}
-                </span>
-                <Icon name="arrow" />
-              </button>
+          {snapshot &&
+            (section === 'loans' ? (
+              <Loans snapshot={snapshot} query={query} />
+            ) : section === 'rules' ? (
+              <Rules snapshot={snapshot} />
+            ) : (
+              <div className="ledger-list">
+                {cards.map((card, i) => (
+                  <button
+                    className="ledger-row"
+                    key={card.id}
+                    onClick={() => setSelectedId(card.id)}
+                  >
+                    <span className="row-number mono">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <span className="row-title">
+                      {card.title}
+                      <small>{card.subtitle}</small>
+                    </span>
+                    <strong className="ledger-value">{card.value}</strong>
+                    <Icon name="arrow" />
+                  </button>
+                ))}
+                {!cards.length && (
+                  <p className="live-empty">No metrics match this search.</p>
+                )}
+              </div>
             ))}
-          </div>
-          {!filtered.length && (
-            <p className="no-results">No reference matches “{query}”.</p>
-          )}
-          <p className="reference-credit mono">
-            VISUAL REFERENCES & PROJECTS BY{' '}
-            <a
-              href="https://www.phantom.land/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              PHANTOM STUDIOS ↗
-            </a>
-          </p>
         </section>
       )}
-
-      {about && (
+      {revealed && about && (
         <section className="about" aria-label="About Patapim">
           <div className="about-top mono">
-            <span>SECURITIES LENDING / 001</span>
-            <span>NATIVE ON XRPL</span>
+            <span>SECURITIES LENDING / XRPL</span>
+            <span>FIXED TERM. AGENT COVER.</span>
           </div>
           <h1>
             Good assets.
@@ -373,36 +628,41 @@ export default function GhostApp() {
                 Agents put up capital.
               </p>
               <p className="about-detail">
-                Patapim is a fixed-term securities lending vault on the XRP
-                Ledger. Explore the product, then inspect the real ledger data.
-                This visual experience and its reference collection come from
-                our frontend study of Phantom Studios.
+                Eligible holders subscribe to a fixed-term vault. The lending
+                agent posts first-loss cover, co-signs loans and manages
+                defaults. Repayments and fees return in the same security.
+                Credentials, domains, MPTs, vaults, loan brokers and XRP escrow
+                are native ledger building blocks.
               </p>
-              <a className="pill" href="/product">
-                Explore the product <Icon name="arrow" />
-              </a>
-              <button className="pill" onClick={replay}>
-                Replay the experience <Icon name="replay" />
+              <button className="pill" onClick={() => openSection('vault')}>
+                Explore the live vault <Icon name="arrow" />
               </button>
+              <a className="pill" href="/deck/index.html">
+                Pitch deck <Icon name="arrow" />
+              </a>
             </div>
             <span className="mono about-index">
-              PARIS, FRANCE
-              <br />
               TEAM PATAPIM / 2026
+              <br />
+              XRPL LENDING HACKATHON
               <br />
               <br />
               <a
-                href="https://www.phantom.land/"
+                href={`${REPO}/blob/main/DEVELOPER-REPORT.md`}
                 target="_blank"
                 rel="noreferrer"
               >
-                REFERENCE: PHANTOM ↗
+                DEVELOPER REPORT
               </a>
+              <br />
+              <br />
+              Devnet demonstration
+              <br />
+              with a fictitious security.
             </span>
           </div>
         </section>
       )}
-
       <footer
         className="chrome footer"
         inert={!revealed}
@@ -410,65 +670,59 @@ export default function GhostApp() {
       >
         <div className="view-switch glass" aria-label="Display mode">
           <button
-            className={view === 'grid' && !about ? 'active' : ''}
+            className={gridVisible ? 'active' : ''}
             aria-label="Grid view"
-            aria-pressed={view === 'grid' && !about}
-            onClick={() => {
-              if (!fallback) setView('grid')
-              setAbout(false)
-            }}
+            aria-pressed={gridVisible}
             disabled={fallback}
+            onClick={() => {
+              setView('grid')
+              openSection('vault')
+            }}
           >
             <Icon name="grid" />
           </button>
           <button
-            className={view === 'list' && !about ? 'active' : ''}
+            className={section === 'vault' && view === 'list' ? 'active' : ''}
             aria-label="List view"
-            aria-pressed={view === 'list' && !about}
+            aria-pressed={section === 'vault' && view === 'list'}
             onClick={() => {
               setView('list')
-              setAbout(false)
+              openSection('vault')
             }}
           >
             <Icon name="list" />
           </button>
         </div>
         <div className="explore-hint mono">
-          {about
-            ? 'ASSETS IN MOTION'
-            : view === 'grid'
-              ? 'DRAG TO DISCOVER'
-              : `${filtered.length} VISUAL REFERENCES`}
-          <span>{view === 'grid' && !about ? '↔' : '↗'}</span>
+          {gridVisible
+            ? 'DRAG TO EXPLORE YOUR VAULT'
+            : snapshot
+              ? `${snapshot.cards.length} LIVE DATA TILES`
+              : 'CONNECTING TO THE LEDGER'}
         </div>
         <nav className="dock glass" aria-label="Main navigation">
-          <button
-            className={!about ? 'active' : ''}
-            onClick={() => setAbout(false)}
-          >
-            Gallery
-          </button>
-          <button
-            className={about ? 'active' : ''}
-            onClick={() => setAbout(true)}
-          >
-            About
-          </button>
-          <a href="/product">Product</a>
-          <a href="/deck/index.html">Deck</a>
-          <button onClick={replay}>
+          {(['vault', 'loans', 'rules', 'about'] as const).map((next) => (
+            <button
+              key={next}
+              className={section === next ? 'active' : ''}
+              onClick={() => openSection(next)}
+            >
+              {next.charAt(0).toUpperCase() + next.slice(1)}
+            </button>
+          ))}
+          <button onClick={replay} aria-label="Replay">
             Replay <Icon name="replay" />
           </button>
         </nav>
         <div className="footer-right">
-          <span className="mono">
-            PHANTOM REFERENCES
+          <a className="mono" href="/deck/index.html">
+            PITCH DECK
             <br />
-            <span className="muted">{projects.length} VISUAL STUDIES</span>
-          </span>
+            <span className="muted">9 SLIDES / PATAPIM</span>
+          </a>
           <button
             className="motion-toggle glass"
-            onClick={() => setMotion((m) => !m)}
+            onClick={() => setMotion((v) => !v)}
             aria-label={motion ? 'Pause animations' : 'Resume animations'}
             aria-pressed={!motion}
           >
@@ -476,56 +730,86 @@ export default function GhostApp() {
           </button>
         </div>
       </footer>
-
       <dialog
         ref={dialog}
-        className="project-dialog"
-        onCancel={() => setSelected(null)}
+        className="project-dialog ledger-dialog"
+        onCancel={() => setSelectedId(null)}
         onClick={(e) => {
-          if (e.target === e.currentTarget) setSelected(null)
+          if (e.target === e.currentTarget) setSelectedId(null)
         }}
       >
-        {selected && (
+        {selected && snapshot && (
           <article>
             <div className="dialog-bar mono">
-              <span>PHANTOM / {selected.zone}</span>
+              <span>LIVE VAULT / {short(snapshot.id)}</span>
               <button
                 className="close-button"
                 autoFocus
-                onClick={() => setSelected(null)}
-                aria-label="Close reference"
+                onClick={() => setSelectedId(null)}
+                aria-label="Close details"
               >
                 <Icon name="close" />
               </button>
             </div>
-            <div className="dialog-image">
-              <Preview project={selected} />
-            </div>
-            <div className="dialog-copy">
-              <span className="mono">
-                {selected.client} / {selected.launchDate.slice(0, 4)}
-              </span>
-              <h2>{selected.title}</h2>
-              <div className="tags">
-                {selected.features.map((f) => (
-                  <span key={f}>{f}</span>
-                ))}
-              </div>
-              <p>
-                A project by Phantom Studios, included in our visual reference
-                collection. The brands shown are not Patapim partners.
+            {error && (
+              <p className="live-footnote">
+                Last successful snapshot — refresh currently unavailable.
               </p>
-              <a
-                className="pill"
-                href="https://www.phantom.land/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Visit the original studio <Icon name="arrow" />
-              </a>
-            </div>
+            )}
+            <Details card={selected} snapshot={snapshot} />
+            <p className="live-footnote">
+              Ledger close {timestamp(snapshot.ledgerTime)} · Updates every 10
+              seconds while visible.
+            </p>
           </article>
         )}
+      </dialog>
+      <dialog
+        ref={switchDialog}
+        className="project-dialog vault-dialog"
+        onCancel={() => setSwitching(false)}
+      >
+        <form onSubmit={openVault}>
+          <div className="dialog-bar mono">
+            <span>OPEN A VAULT / XRPL DEVNET</span>
+            <button
+              type="button"
+              className="close-button"
+              onClick={() => setSwitching(false)}
+              aria-label="Close vault selector"
+            >
+              <Icon name="close" />
+            </button>
+          </div>
+          <h2>
+            Your vault.
+            <br />
+            Your ledger data.
+          </h2>
+          <label>
+            Vault ID
+            <input
+              name="vault"
+              required
+              pattern="[A-Fa-f0-9]{64}"
+              defaultValue={vaultId}
+              spellCheck={false}
+            />
+          </label>
+          <label>
+            Holder address <span className="muted">(optional)</span>
+            <input
+              name="holder"
+              defaultValue={holder ?? ''}
+              pattern="r[1-9A-HJ-NP-Za-km-z]{24,34}"
+              placeholder="r…"
+              spellCheck={false}
+            />
+          </label>
+          <button className="pill" type="submit">
+            Read vault <Icon name="arrow" />
+          </button>
+        </form>
       </dialog>
     </main>
   )

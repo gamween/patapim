@@ -1,34 +1,24 @@
-# Ghost frontend integration
+# Ghost frontend with live Patapim data
 
-Source: `STOOOKEEE/frontend-ripple-` at commit `3bc1753`.
+The UI from `STOOOKEEE/frontend-ripple-` (source commit `3bc1753`) is the application, not an entry
+page linking to another dashboard. Its original ghost sequence, particles, warped grid, list,
+search, dialogs, glass dock, About, optional sound, pause and replay are retained.
 
-The complete active ghost experience is integrated into the Next.js homepage. Source mapping:
+The grid's project-image atlases and 85-item reference dataset have been removed. Each grid tile
+is now a canvas texture containing actual ledger data from the local API. Changed tiles update
+without restarting the animation. Clicking a tile opens its current details, including phase
+boundaries, the loan book, rejection codes and raw read provenance. Vault, Loans, Rules and About
+are views inside the same React application. `/vault/<id>` uses this same interface.
 
-| Frontend source | Patapim destination |
-| --- | --- |
-| `src/App.tsx` | `web/app/components/ghost/ghost-app.tsx` |
-| `src/style.css` | `web/app/components/ghost/ghost.css`, scoped under `.ghost-root` |
-| `src/animation/Experience.ts` | `web/app/components/ghost/animation/Experience.ts` |
-| `src/animation/*.{glsl,vert,frag}` | `web/app/components/ghost/animation/shaders.ts`, identical shader strings |
-| `src/projects.json` | `web/app/components/ghost/projects.json`, all 85 references |
-| `public/reference/` | `web/public/reference/`, complete active asset set |
-| `public/fonts/` | `web/public/fonts/`, local DM Mono and OFL licence |
-| `tests/experience.spec.ts` | `web/tests/ghost.spec.ts`, translated and extended for Patapim navigation |
+`web/lib/vault-presentation.ts` adapts the existing protocol reader into a serializable presentation
+contract. `web/lib/ledger.ts` and `web/lib/config.ts` remain unchanged relative to main. The browser
+only polls `/api/vault/<id>`; it never sends XRPL RPCs directly. Phase/countdown and loan status
+come from the protocol reader, using ledger close time. Failed refreshes are labelled stale and
+retain the last successful values. Initial failures produce no fake balances.
 
-The integration keeps the loader, 25-frame ghost sequence, particle transition, warped draggable
-WebGL gallery, atlas video, list/search, dialogs, About, optional sound, replay, pause, reduced-motion
-handling, mobile variants and asset-failure fallback. The interface is English and branded Patapim.
-The gallery explicitly identifies Phantom's projects as visual references, not Patapim partners.
-Original asset provenance is preserved in `PHANTOM.md` and `FRONTEND-SOURCE.md` in this folder.
+The ghost assets keep their original attribution. `PHANTOM.md` and `FRONTEND-SOURCE.md` preserve
+the source study's provenance; descriptions of the old project gallery in those files refer to
+the source study, not the current Patapim app. Runtime assets now include only the original ghost
+frames, model, particle image, logo and sounds.
 
-Product, live-vault and deck links are available during loading and after reveal. The original
-product landing now lives at `/product`; the ledger dashboard remains `/vault/[id]`. Their shared
-navigation is in `web/app/components/site-shell.tsx`. No XRPL reader, network or phase logic is
-changed by this integration. The latest upstream default-status correction and demo vault are
-included through the merge from main.
-
-Validation: production build and TypeScript pass. Eight browser scenarios passed, including desktop
-intro/replay, click vs drag, search/dialogs/About, mobile at 400px, reduced motion, asset failure,
-product/vault/deck navigation, direct navigation during loading, and product/ledger light and dark
-layouts. `docs/design/ghost/` contains captures from the integrated Next.js app. The live server was
-also checked through its Tailscale address, reaching the `ready` animation phase.
+Validation and current captures are documented in `web/README.md` and `docs/design/live/`.

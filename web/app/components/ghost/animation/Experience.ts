@@ -11,14 +11,14 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js'
 import gsap from 'gsap'
-import projects from '../projects.json'
+import type { LedgerCard } from '@/lib/vault-ui'
+import { ledgerTexture } from './ledger-texture'
 
-export type Project = (typeof projects)[number]
 export type Phase = 'loading' | 'separating' | 'intro' | 'revealed' | 'ready'
 type Callbacks = {
   progress: (n: number) => void
   phase: (p: Phase) => void
-  select: (p: Project) => void
+  select: (p: LedgerCard) => void
   error: (e: unknown) => void
 }
 const clamp = THREE.MathUtils.clamp
@@ -26,26 +26,15 @@ const asset = (path: string) => `/reference/${path}`
 
 const galleryVertex = `varying vec2 vUv; void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`
 const galleryFragment = `
-uniform sampler2D colorMap, alphaMap, labelMap;
-uniform vec2 cell;
+uniform sampler2D colorMap;
 uniform float opacity, hover;
 varying vec2 vUv;
 void main(){
-  vec2 origin=vec2(cell.x,5.-cell.y)/6.;
-  vec2 labelUV=origin+vUv/6.;
-  vec2 mediaUV=(vUv-.5)/.7+.5;
-  vec2 bounded=clamp(mediaUV,.006,.994);
-  vec2 mediaCoord=origin+bounded/6.;
-  vec4 label=texture2D(labelMap,labelUV);
-  vec3 rgb=texture2D(colorMap,mediaCoord).rgb;
-  float alpha=texture2D(alphaMap,mediaCoord).r;
-  if(mediaUV.x<0.||mediaUV.x>1.||mediaUV.y<0.||mediaUV.y>1.)alpha=0.;
-  vec3 wash=texture2D(colorMap,origin+(vec2(.5)+(vUv-.5)/20.)/6.).rgb*.3*hover;
-  vec3 color=mix(wash,rgb,alpha);
-  color=mix(color,label.rgb,label.a*(.8+.2*hover));
-  if(vUv.x<.002||vUv.y<.002)color=vec3(.12);
+  vec3 color=texture2D(colorMap,vUv).rgb;
+  color += vec3(.015,.035,.02)*hover;
   gl_FragColor=vec4(color*opacity,1.);
 }`
+
 const distortionShader = {
   uniforms: {
     tDiffuse: { value: null },
@@ -75,7 +64,11 @@ export class Experience {
   private sequence?: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>
   private particles?: THREE.Points<THREE.BufferGeometry, THREE.ShaderMaterial>
   private timeline?: gsap.core.Timeline
-  private video = document.createElement('video')
+  private liveCards: LedgerCard[] = []
+  private cardTextures = new Map<
+    string,
+    { signature: string; texture: THREE.Texture }
+  >()
   private raf = 0
   private disposed = false
   private started = -1
@@ -165,18 +158,12 @@ export class Experience {
           (_, i) => sequences.mobile[Math.floor(Math.random() * 3)][i],
         )
       : sequences.desktop
-    const [frames, model, particle, atlases] = await Promise.all([
+    const [frames, model, particle] = await Promise.all([
       Promise.all(urls.map(texture)),
       new GLTFLoader(manager).loadAsync(asset('site/assets/models/dude.glb')),
       texture(asset('site/assets/images/particle.jpg')),
-      Promise.all(
-        [0, 1, 2].map(async (i) => ({
-          color: await texture(asset(`atlases/media-rgb-atlas-${i}.jpg`)),
-          alpha: await texture(asset(`atlases/media-alpha-atlas-${i}.jpg`)),
-          label: await texture(asset(`atlases/label-atlas-${i}.png`)),
-        })),
-      ),
     ])
+    await document.fonts.load('18px "DM Mono"')
     if (this.disposed) {
       model.scene.traverse((o) => {
         if (o instanceof THREE.Mesh) o.geometry.dispose()
@@ -185,26 +172,7 @@ export class Experience {
     }
     this.frames = frames
     this.createIntro(model.scene, particle)
-    this.createGallery(atlases)
-    this.video.src = asset('atlases/media-rgb-atlas-2.mp4')
-    this.video.loop = true
-    this.video.muted = true
-    this.video.playsInline = true
-    this.video.preload = 'auto'
-    const videoTexture = new THREE.VideoTexture(this.video)
-    videoTexture.colorSpace = THREE.NoColorSpace
-    this.textures.push(videoTexture)
-    this.video.addEventListener(
-      'loadeddata',
-      () => {
-        if (this.disposed) return
-        this.cards.forEach((card) => {
-          if (card.userData.project.atlas.index === 2)
-            card.material.uniforms.colorMap.value = videoTexture
-        })
-      },
-      { once: true },
-    )
+    this.createGallery()
     this.assetsReady = true
     clearTimeout(this.watchdog)
     this.cb.progress(100)
@@ -313,44 +281,70 @@ export class Experience {
     this.resize()
   }
 
-  private createGallery(
-    atlases: {
-      color: THREE.Texture
-      alpha: THREE.Texture
-      label: THREE.Texture
-    }[],
-  ) {
+  private createGallery() {
     const geometry = new THREE.PlaneGeometry(0.998, 0.998)
     for (let y = -5; y <= 5; y++)
       for (let x = -5; x <= 5; x++) {
-        const index = THREE.MathUtils.euclideanModulo(
-          (y + 5) * 11 + x + 5,
-          projects.length,
-        )
-        const project = projects[index]
-        const atlas = atlases[project.atlas.index]
         const material = new THREE.ShaderMaterial({
           vertexShader: galleryVertex,
           fragmentShader: galleryFragment,
           uniforms: {
-            colorMap: { value: atlas.color },
-            alphaMap: { value: atlas.alpha },
-            labelMap: { value: atlas.label },
-            cell: {
-              value: new THREE.Vector2(
-                project.atlas.cellX,
-                project.atlas.cellY,
-              ),
-            },
+            colorMap: { value: null },
             opacity: { value: 0 },
             hover: { value: 0 },
           },
         })
         const mesh = new THREE.Mesh(geometry, material)
-        mesh.userData = { x, y, project }
+        mesh.userData = { x, y }
         mesh.position.set(x, y, 0)
         this.cards.push(mesh)
         this.gallery.add(mesh)
+      }
+    this.setCards(this.liveCards)
+  }
+
+  setCards(cards: LedgerCard[]) {
+    this.liveCards = cards
+    if (!this.cards.length || this.disposed) return
+    const shown = cards.length
+      ? cards
+      : [
+          {
+            id: 'loading',
+            title: 'Vault data',
+            value: 'READING',
+            subtitle: 'Waiting for a validated ledger snapshot',
+            category: 'PATAPIM / LIVE',
+            lines: [],
+          } satisfies LedgerCard,
+        ]
+    const keep = new Set(shown.map((card) => card.id))
+    for (const card of shown) {
+      const signature = JSON.stringify(card)
+      const old = this.cardTextures.get(card.id)
+      if (old?.signature !== signature) {
+        old?.texture.dispose()
+        this.cardTextures.set(card.id, {
+          signature,
+          texture: ledgerTexture(card),
+        })
+      }
+    }
+    this.cards.forEach((mesh) => {
+      const index = THREE.MathUtils.euclideanModulo(
+        mesh.userData.x + mesh.userData.y * 3,
+        shown.length,
+      )
+      const card = shown[index]
+      mesh.userData.card = card
+      mesh.material.uniforms.colorMap.value = this.cardTextures.get(
+        card.id,
+      )!.texture
+    })
+    for (const [id, value] of this.cardTextures)
+      if (!keep.has(id)) {
+        value.texture.dispose()
+        this.cardTextures.delete(id)
       }
   }
 
@@ -400,7 +394,6 @@ export class Experience {
         () => {
           this.revealed = true
           this.cb.phase('revealed')
-          if (!this.reduceMotion) void this.video.play().catch(() => {})
         },
         [],
         3.2,
@@ -423,20 +416,12 @@ export class Experience {
     this.intro.visible = false
     this.revealed = this.interactive = true
     this.cb.phase('ready')
-    if (!this.reduceMotion && this.active)
-      void this.video.play().catch(() => {})
   }
   setActive(active: boolean) {
     this.active = active
-    if (!active) this.video.pause()
-    else if (this.interactive && !this.reduceMotion)
-      void this.video.play().catch(() => {})
   }
   setMotion(enabled: boolean) {
     this.reduceMotion = !enabled
-    if (enabled && this.active && this.interactive)
-      void this.video.play().catch(() => {})
-    else this.video.pause()
   }
 
   private resize = () => {
@@ -479,7 +464,7 @@ export class Experience {
         this.particles.material.uniforms.time.value = 36 * (now / 1000)
     }
     if (this.active) {
-      const damping = 1 - Math.exp(-8 * dt)
+      const damping = this.reduceMotion ? 1 : 1 - Math.exp(-8 * dt)
       this.offset.lerp(this.target, damping)
       this.cards.forEach((card) => {
         card.position.x =
@@ -554,7 +539,7 @@ export class Experience {
       this.point(e)
       this.raycaster.setFromCamera(this.pointer, this.camera)
       const hit = this.raycaster.intersectObjects(this.cards)[0]
-      if (hit) this.cb.select(hit.object.userData.project)
+      if (hit) this.cb.select(hit.object.userData.card)
     }
     this.onCancel()
     if (this.canvas.hasPointerCapture(e.pointerId))
@@ -582,14 +567,11 @@ export class Experience {
   }
   private onVisibility = () => {
     if (document.hidden) {
-      this.video.pause()
       this.timeline?.pause()
     } else {
       this.timeline?.resume()
       if (this.started >= 0 && this.timeline)
         this.started = performance.now() - this.timeline.time() * 1000
-      if (this.interactive && this.active && !this.reduceMotion)
-        void this.video.play().catch(() => {})
     }
   }
   private onContextLost = (e: Event) => {
@@ -614,9 +596,6 @@ export class Experience {
     this.canvas.removeEventListener('keydown', this.onKey)
     this.canvas.removeEventListener('webglcontextlost', this.onContextLost)
     document.removeEventListener('visibilitychange', this.onVisibility)
-    this.video.pause()
-    this.video.removeAttribute('src')
-    this.video.load()
     this.scene.traverse((object) => {
       if (object instanceof THREE.Mesh || object instanceof THREE.Points) {
         object.geometry.dispose()
@@ -626,6 +605,8 @@ export class Experience {
         materials.forEach((m) => m.dispose())
       }
     })
+    this.cardTextures.forEach(({ texture }) => texture.dispose())
+    this.cardTextures.clear()
     this.textures.forEach((t) => t.dispose())
     this.composer.passes.forEach((p) => p.dispose())
     this.composer.dispose()
