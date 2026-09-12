@@ -3,6 +3,7 @@ import {
   readVault,
   readPosition,
   loanStatus,
+  vaultData,
   PHASE_RULES,
   rippleToDate,
   shortId,
@@ -74,6 +75,8 @@ export default async function VaultPage({
         ? vault.RedemptionDate
         : null
     : null
+  const meta = vaultData(vault.Data)
+  const compressedSeconds = isClosed ? vault.RedemptionDate - vault.SubscriptionDate : 0
   const position = holder && vault.ShareMPTID ? await readPosition(vault.ShareMPTID, holder) : null
   const positionShares = Number(position?.MPTAmount ?? 0)
   const rules = PHASE_RULES[phase]
@@ -165,6 +168,14 @@ export default async function VaultPage({
                 <div className="mono">{rippleToDate(clock).toISOString().slice(0, 19)}Z</div>
               </div>
             </div>
+            {meta.term_days ? (
+              <p style={{ fontSize: 13, marginTop: 12 }}>
+                <strong>{meta.term_days} day term</strong>, compressed to{' '}
+                {Math.floor(compressedSeconds / 60)}m {compressedSeconds % 60}s for this
+                demonstration. The vault carries that on chain in its <span className="mono">Data</span>{' '}
+                field, so this page reads the modelled duration rather than asserting it.
+              </p>
+            ) : null}
             <p className="muted" style={{ fontSize: 13, marginTop: 12 }}>
               Phases are judged against the parent ledger close time, never against the clock of the
               machine submitting. This page uses the ledger.

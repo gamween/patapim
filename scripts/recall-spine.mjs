@@ -96,6 +96,10 @@ const main = async () => {
   await waitLedger(client, subscriptionDate + 8, '5. INVESTMENT: the loan of securities')
 
   rec('VaultDeposit after close', await submit(client, lender, { TransactionType: 'VaultDeposit', Account: lender.classicAddress, VaultID: vaultID, Amount: { mpt_issuance_id: SEC, value: '1000' } }, 'VaultDeposit after subscription closed', 'tecEXPIRED'))
+  // The minimum bar asks for three rejections at the wrong phase. This is the third, and it belongs
+  // on the product's own vault rather than on a side probe.
+  const shareIdEarly = (await client.request({ command: 'ledger_entry', index: vaultID, ledger_index: 'validated' })).result.node.ShareMPTID
+  rec('VaultWithdraw during Investment', await submit(client, lender, { TransactionType: 'VaultWithdraw', Account: lender.classicAddress, VaultID: vaultID, Amount: { mpt_issuance_id: shareIdEarly, value: '1000' } }, 'VaultWithdraw before Redemption opens', 'tecTOO_SOON'))
   const loan = rec('LoanSet', await submitLoanSet(client, agent, mm, {
     TransactionType: 'LoanSet', Account: agent.classicAddress, Counterparty: mm.classicAddress,
     LoanBrokerID: brokerID, PrincipalRequested: '2000000', InterestRate: 5000,

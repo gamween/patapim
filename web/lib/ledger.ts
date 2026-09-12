@@ -159,5 +159,20 @@ export function loanStatus(loan: Json, clock: number): LoanStatus {
   return 'current'
 }
 
+/**
+ * The vault's Data field carries the product metadata, including the real-world term the demo
+ * compresses. The brief asks for that duration to be modelled somewhere; modelling it on chain
+ * means the dashboard reads it rather than inventing it.
+ */
+export function vaultData(hexData?: string): { n?: string; term_days?: number; note?: string } {
+  if (!hexData) return {}
+  try {
+    const text = Buffer.from(hexData, 'hex').toString('utf8')
+    return JSON.parse(text)
+  } catch {
+    return {}
+  }
+}
+
 export const rippleToDate = (t: number) => new Date((t + 946684800) * 1000)
 export const shortId = (s: string, n = 6) => (s ? `${s.slice(0, n)}…${s.slice(-4)}` : '')
