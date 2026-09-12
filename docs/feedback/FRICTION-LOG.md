@@ -2,7 +2,7 @@
 
 Running log. Every entry is written the moment it happens, with the exact command, the exact
 output and a concrete proposed fix. The three-page manual report required at the repository
-root is generated from this file at the end.
+root is written from it by hand, by us.
 
 Environment under test:
 - rippled `3.4.0-rc1` on the custom hackathon devnet (network_id 4001)
@@ -235,7 +235,7 @@ discovering that layout by enumerating objects on every address in sight.
 **Proposed fix** Document the pseudo-account topology in the Lending Protocol concepts page with a
 diagram, and note that listing a broker book means calling `account_objects` on `LoanBroker.Account`.
 
-## F-011 · The two hackathon networks enforce different lending rules behind an identical amendment list
+## F-011 · The two hackathon networks enforce different lending rules behind the same lending amendments
 **Category** other / protocol · **Severity** high · **CORRECTS F-004**
 
 Same transaction, same library, same amendment set, opposite outcome:
@@ -252,7 +252,7 @@ devnet has been configured to keep V1 behaviour. **This corrects our earlier rep
 concluded from the Track 1 network alone that the warning had not materialised.
 
 The developer-facing problem is that nothing exposes the difference. `server_info` gives a
-build_version that is not a published tag, the amendment set is identical, and the only way to
+build_version that is not a published tag, the lending amendments read the same on both, and the only way to
 discover which semantics a network enforces is to send a transaction and read the rejection. Two
 ledgers gating different behaviour behind the same amendment ID is also a release-engineering
 hazard worth a second look from the protocol team.
@@ -338,9 +338,16 @@ floor on how much cover a broker must post in fact decides how much of a default
 and a broker can hold ten times the cover it will ever pay out. Two runs, `default-arc-cover10000`
 and `default-arc-cover100000` in `docs/evidence/`, identical but for that one number.
 
-**Proposed fix** Document the settlement arithmetic on default with a worked example, and say
-plainly that the cover pays `min(CoverAvailable, CoverRateMinimum × debt)`. Consider renaming the
-parameter, or documenting a cover rate of 100000 as the way to express full indemnity.
+**Correction after checking the documentation.** The arithmetic is published and correct:
+`xrpl.org/docs/concepts/tokens/lending-protocol` gives
+`DefaultCovered = min((DebtTotal × CoverRateMinimum) × CoverRateLiquidation, DefaultAmount)` with a
+worked example, and 200000 is exactly what it predicts for our numbers. What we hit is a navigation
+failure, not an absence: we were reading `LoanBrokerSet`'s field table and the `LoanBroker` ledger
+entry page, which is where a developer building the transaction looks, and neither says that the
+parameter named as a minimum to post also caps what is paid out, nor links to the worked example.
+
+**Proposed fix** One sentence on the `LoanBrokerSet` and `LoanBroker` reference pages, and a link
+from the field table to the worked example.
 
 ## F-015 · The grace period protects the borrower's payment, not their standing
 **Category** protocol · **Severity** medium
