@@ -1,14 +1,16 @@
 # Ghost frontend with live Patapim data
 
-The UI from `STOOOKEEE/frontend-ripple-` (source commit `3bc1753`) is the application, not an entry
-page linking to another dashboard. Its original ghost sequence, particles, warped grid, list,
-search, dialogs, glass dock, About, optional sound, pause and replay are retained.
+The UI from `STOOOKEEE/frontend-ripple-` (source commit `3bc1753`) provides the landing's original
+ghost sequence, particles and warped draggable grid. The grid previews real ledger data. The
+landing has a short product explanation and a single Open app link to `/vault/<id>`.
 
-The grid's project-image atlases and 85-item reference dataset have been removed. Each grid tile
-is now a canvas texture containing actual ledger data from the local API. Changed tiles update
-without restarting the animation. Clicking a tile opens its current details, including phase
-boundaries, the loan book, rejection codes and raw read provenance. Vault, Loans, Rules and About
-are views inside the same React application. `/vault/<id>` uses this same interface.
+The project-image atlases and 85-item reference dataset have been removed. Grid tiles contain
+actual data from the local API, updated without restarting the intro. Clicking a tile also enters
+the app. The glass dock, Replay, grid/list switch and deck/pause block have been removed.
+
+The vault app opens directly without loading WebGL. It retains the original black/green style,
+list, search and dialogs, with plain Vault, Loans and Rules navigation. It includes phase
+boundaries, loan statuses, rejection codes, holder position and raw read provenance.
 
 `web/lib/vault-presentation.ts` adapts the existing protocol reader into a serializable presentation
 contract. `web/lib/ledger.ts` and `web/lib/config.ts` remain unchanged relative to main. The browser

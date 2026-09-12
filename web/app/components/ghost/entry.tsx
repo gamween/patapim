@@ -23,8 +23,7 @@ const GhostApp = dynamic(() => import('./ghost-app'), {
 export default function GhostEntry(props: {
   vaultId?: string
   holder?: string
-  skipIntro?: boolean
-  initialSection?: 'vault' | 'about'
+  landing?: boolean
 }) {
   return <GhostApp {...props} />
 }

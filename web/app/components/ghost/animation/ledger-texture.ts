@@ -78,7 +78,7 @@ export function ledgerTexture(card: LedgerCard) {
   ctx.fillText('PATAPIM / XRPL DEVNET', 44, 721)
   ctx.fillStyle = accent
   ctx.textAlign = 'right'
-  ctx.fillText('OPEN DETAILS', 724, 721)
+  ctx.fillText('OPEN APP', 724, 721)
   const texture = new THREE.CanvasTexture(canvas)
   texture.colorSpace = THREE.NoColorSpace
   return texture

@@ -5,9 +5,9 @@ import type { VaultSnapshot } from '../lib/vault-ui'
 let live: VaultSnapshot
 const api = `**/api/vault/${DEMO_VAULT}*`
 const app = (page: Page) => page.locator('.live-app')
-async function ready(page: Page, reduce = true) {
-  if (reduce) await page.emulateMedia({ reducedMotion: 'reduce' })
-  await page.goto('/')
+async function ready(page: Page, landing = false) {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto(landing ? '/' : `/vault/${DEMO_VAULT}`)
   await expect(app(page)).toHaveAttribute('data-phase', 'ready', {
     timeout: 30000,
   })
@@ -46,11 +46,22 @@ test('real ghost intro reveals live ledger tiles instead of project imagery', as
   await page.mouse.move(790, 530, { steps: 12 })
   await page.mouse.up()
   await expect(page.locator('.ledger-dialog')).not.toBeVisible()
-  await page.mouse.click(710, 500)
-  await expect(page.locator('.ledger-dialog')).toBeVisible()
-  await expect(page.locator('.ledger-dialog')).toContainText('Ledger close')
-  await page.getByRole('button', { name: 'Close details', exact: true }).click()
-  await page.getByRole('button', { name: 'List view', exact: true }).click()
+  await expect(
+    page.locator('.footer, .dock, .view-switch, .motion-toggle'),
+  ).toHaveCount(0)
+  await expect(
+    page.getByRole('button', { name: 'Replay', exact: true }),
+  ).toHaveCount(0)
+  await expect(page.getByRole('link', { name: /Pitch deck/i })).toHaveCount(0)
+  await expect(
+    page.getByRole('heading', { name: 'Good assets. Put to work.' }),
+  ).toBeVisible()
+  await page.getByRole('link', { name: 'Open app', exact: true }).click()
+  await expect(page).toHaveURL(new RegExp(`/vault/${DEMO_VAULT}$`))
+  await expect(app(page)).toHaveAttribute('data-ledger-state', 'ready', {
+    timeout: 25000,
+  })
+  await expect(page.locator('canvas.experience')).toHaveCount(0)
   await expect(page.locator('.ledger-row')).toHaveCount(live.cards.length)
   await expect(
     page.locator('.ledger-row').filter({ hasText: 'Price per share' }),
@@ -63,7 +74,7 @@ test('real ghost intro reveals live ledger tiles instead of project imagery', as
   expect(errors).toEqual([])
 })
 
-test('vault, loan book, phase rules, details and replay stay in the original frontend', async ({
+test('vault, loan book, phase rules and details work inside the app', async ({
   page,
 }) => {
   await ready(page)
@@ -84,7 +95,7 @@ test('vault, loan book, phase rules, details and replay stay in the original fro
     ).toContainText(code)
   await page.screenshot({ path: '../docs/design/live/rules.png' })
   expect(page.url()).toBe(url)
-  await page.getByRole('button', { name: 'List view', exact: true }).click()
+  await page.getByRole('button', { name: 'Vault', exact: true }).click()
   await page.getByRole('searchbox').fill('provenance')
   await expect(page.locator('.ledger-row')).toHaveCount(1)
   await page.locator('.ledger-row').click()
@@ -93,7 +104,6 @@ test('vault, loan book, phase rules, details and replay stay in the original fro
     'ledger_entry',
   )
   await page.keyboard.press('Escape')
-  await page.getByRole('button', { name: 'Replay', exact: true }).click()
   await expect(app(page)).toHaveAttribute('data-phase', 'ready', {
     timeout: 25000,
   })
@@ -122,7 +132,6 @@ test('API refresh updates open details and phase rules without replay; failure r
       : route.fulfill({ json: reads === 1 ? live : updated })
   })
   await ready(page)
-  await page.getByRole('button', { name: 'List view', exact: true }).click()
   await page.locator('.ledger-row').filter({ hasText: 'Vault assets' }).click()
   await expect(page.locator('.detail-hero strong')).toHaveText('123,456', {
     timeout: 17000,
@@ -155,42 +164,49 @@ test('initial data failure shows no invented balances and supports retry', async
       : route.fulfill({ json: live }),
   )
   await page.emulateMedia({ reducedMotion: 'reduce' })
-  await page.goto('/')
+  await page.goto(`/vault/${DEMO_VAULT}`)
   await expect(app(page)).toHaveAttribute('data-phase', 'ready', {
     timeout: 25000,
   })
   await expect(app(page).getByRole('alert')).toContainText(
     'Vault data unavailable',
   )
-  await page.getByRole('button', { name: 'List view', exact: true }).click()
   await expect(page.locator('.ledger-row')).toHaveCount(0)
   fail = false
   await page.getByRole('button', { name: 'Retry ledger', exact: true }).click()
   await expect(page.locator('.ledger-row')).toHaveCount(live.cards.length)
 })
 
-test('failed ghost asset keeps the real ledger list usable', async ({
+test('failed ghost asset leaves the landing CTA and app usable', async ({
   page,
 }) => {
   await page.route('**/dude.glb', (route) => route.abort())
-  await ready(page)
-  await expect(page.locator('.fallback-note')).toBeVisible()
-  await expect(page.locator('.ledger-row')).toHaveCount(live.cards.length)
+  await ready(page, true)
   await expect(
-    page.getByRole('button', { name: 'Grid view', exact: true }),
-  ).toBeDisabled()
+    page.getByRole('heading', { name: 'Good assets. Put to work.' }),
+  ).toBeVisible()
+  await page.getByRole('link', { name: 'Open app', exact: true }).click()
+  await expect(page.locator('.ledger-row')).toHaveCount(live.cards.length)
 })
 
 test('400px viewport supports ledger list, rules, dialogs and holder selection', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 400, height: 844 })
-  await ready(page)
+  await ready(page, true)
   await page.screenshot({ path: '../docs/design/live/mobile-grid.png' })
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true)
+  await page.getByRole('link', { name: 'Open app', exact: true }).click()
+  await expect(app(page)).toHaveAttribute('data-ledger-state', 'ready', {
+    timeout: 25000,
+  })
   await expect(
     page.getByRole('button', { name: 'Choose vault and holder', exact: true }),
   ).toBeVisible()
-  await page.getByRole('button', { name: 'List view', exact: true }).click()
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
@@ -216,7 +232,7 @@ test('400px viewport supports ledger list, rules, dialogs and holder selection',
   ).toBe(true)
 })
 
-test('vault URLs and holder lookup use the same immersive UI; malformed IDs are rejected', async ({
+test('vault URLs and holder lookup open the app; malformed IDs are rejected', async ({
   page,
   request,
 }) => {
@@ -234,7 +250,6 @@ test('vault URLs and holder lookup use the same immersive UI; malformed IDs are 
   await expect(app(page)).toHaveAttribute('data-phase', 'ready', {
     timeout: 25000,
   })
-  await page.getByRole('button', { name: 'List view', exact: true }).click()
   await expect(
     page.locator('.ledger-row').filter({ hasText: 'Your position' }),
   ).toBeVisible()

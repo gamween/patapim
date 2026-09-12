@@ -9,11 +9,6 @@ export default async function VaultPage({
   const { id } = await params
   const { holder } = await searchParams
   return (
-    <GhostEntry
-      key={`${id}:${holder ?? ''}`}
-      vaultId={id}
-      holder={holder}
-      skipIntro
-    />
+    <GhostEntry key={`${id}:${holder ?? ''}`} vaultId={id} holder={holder} />
   )
 }

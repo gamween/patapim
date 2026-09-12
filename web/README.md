@@ -1,9 +1,9 @@
 # Patapim frontend
 
-The original ghost frontend is the live Patapim application. After the ghost intro, its warped,
-draggable grid displays real ledger metrics in place of the former project images. The same
-metrics open in the original dialog surface and are searchable in list view. The dock switches
-between Vault, Loans, Rules and About without leaving the app.
+The landing keeps the original ghost intro and draggable live-data gallery. A single **Open app**
+link opens the vault application. Floating controls, Replay, display toggles and the deck/pause
+block have been removed. The app uses the same black/green typography with plain Vault, Loans
+and Rules navigation, searchable metrics and live detail dialogs.
 
 ## Run
 
@@ -17,15 +17,14 @@ For production: `npm run build && npm run start`. The app listens on port 3000 b
 
 | Route | Behaviour |
 | --- | --- |
-| `/` | Ghost intro, then the configured demo vault's live data |
-| `/vault/<VaultID>` | The same frontend for a specific vault, skipping the intro on entry |
+| `/` | Ghost landing, live-data gallery preview and Open app link |
+| `/vault/<VaultID>` | Vault application; opens directly without loading the ghost or WebGL |
 | `?holder=<address>` | Include that holder's vault shares and position value |
-| `/?view=about` | The product explanation inside the same frontend |
-| `/product` | Compatibility redirect to `/?view=about` |
+| `/product` | Compatibility redirect to `/` |
 | `/api/vault/<VaultID>` | Uncached server-side presentation of the existing ledger reader |
 | `/deck/index.html` | Nine-slide jury deck, speaker notes and PDF print layout |
 
-The vault/holder selector is available in the header, including on mobile. The app is read-only:
+The vault/holder selector is available in the app header, including on mobile. The app is read-only:
 it does not connect a wallet or submit transactions. The configured network remains the public
 XRPL Devnet; it is never replaced by the custom hackathon network.
 
@@ -52,7 +51,7 @@ scripts and paste its ID into the selector. No provisioning is triggered by view
 
 ## Frontend structure
 
-- `app/components/ghost/ghost-app.tsx`: original navigation, live views, dialogs, replay and controls.
+- `app/components/ghost/ghost-app.tsx`: landing, Open app entry, vault navigation and live detail dialogs.
 - `app/components/ghost/use-vault.ts`: polling, retry, visibility handling and stale snapshots.
 - `app/components/ghost/animation/Experience.ts`: original ghost and warped-grid renderer.
 - `app/components/ghost/animation/ledger-texture.ts`: real ledger text and utilisation rendered to
@@ -63,7 +62,8 @@ scripts and paste its ID into the selector. No provisioning is triggered by view
 The project dataset and image/video atlases have been removed. The ghost's original frames, model,
 particle texture and sounds remain local in `public/reference/`, with provenance in
 `docs/reference/`. Only the ghost animation is retained from the visual reference assets.
-If WebGL or an intro asset fails, the live list and all ledger interactions remain usable.
+If WebGL or an intro asset fails, the landing headline and Open app link remain usable.
+The vault application does not depend on the animation or WebGL.
 
 ## Verify
 
@@ -74,7 +74,7 @@ npm test
 ```
 
 `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` can select an installed Chromium. Tests use a production
-server on port 3010 and cover real ledger data, intro/replay, grid selection, list/search, loan and
+server on port 3010 and cover real ledger data, ghost intro, landing-to-app navigation, search, loan and
 rule views, automatic refresh, open-dialog updates, outage/retry, WebGL fallback, mobile and
 vault/holder selection. Phase changes and outages are explicit test-only response fixtures;
 production has no mock data. Captures are in `docs/design/live/`.

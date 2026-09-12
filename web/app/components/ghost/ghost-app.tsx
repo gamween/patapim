@@ -2,26 +2,17 @@
 
 import './ghost.css'
 import { useEffect, useRef, useState } from 'react'
-import type { CSSProperties, FormEvent } from 'react'
+import type { FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
-import { DEMO_VAULT, REPO } from '@/lib/config'
+import { DEMO_VAULT } from '@/lib/config'
 import type { LedgerCard, VaultSnapshot } from '@/lib/vault-ui'
 import type { Experience, Phase } from './animation/Experience'
 import { useVault } from './use-vault'
 
-function Icon({
-  name,
-}: {
-  name: 'grid' | 'list' | 'arrow' | 'replay' | 'close' | 'pause' | 'play'
-}) {
+function Icon({ name }: { name: 'arrow' | 'close' }) {
   const paths = {
-    grid: 'M3 3h6v6H3z M15 3h6v6h-6z M3 15h6v6H3z M15 15h6v6h-6z',
-    list: 'M4 5h16M4 12h16M4 19h16',
     arrow: 'M5 19 19 5M5 5h14v14',
-    replay: 'M3 10a9 9 0 1 1 2 8M3 3v7h7',
     close: 'm5 5 14 14M5 19 19 5',
-    pause: 'M8 4v16M16 4v16',
-    play: 'm7 3 14 9-14 9z',
   }
   return (
     <svg
@@ -240,30 +231,20 @@ function Details({
 export default function GhostApp({
   vaultId = DEMO_VAULT,
   holder,
-  skipIntro = false,
-  initialSection = 'vault',
+  landing = false,
 }: {
   vaultId?: string
   holder?: string
-  skipIntro?: boolean
-  initialSection?: 'vault' | 'about'
+  landing?: boolean
 }) {
   const router = useRouter()
   const canvas = useRef<HTMLCanvasElement>(null)
   const scene = useRef<Experience | null>(null)
-  const [run, setRun] = useState(0)
   const [phase, setPhase] = useState<Phase>('loading')
   const [progress, setProgress] = useState(0)
-  const [view, setView] = useState<'grid' | 'list'>('grid')
-  const [section, setSection] = useState<'vault' | 'loans' | 'rules' | 'about'>(
-    initialSection,
-  )
+  const [section, setSection] = useState<'vault' | 'loans' | 'rules'>('vault')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [fallback, setFallback] = useState(false)
-  const [sound, setSound] = useState(false)
-  const [motion, setMotion] = useState(
-    !matchMedia('(prefers-reduced-motion: reduce)').matches,
-  )
   const [query, setQuery] = useState('')
   const [switching, setSwitching] = useState(false)
   const dialog = useRef<HTMLDialogElement>(null)
@@ -271,9 +252,9 @@ export default function GhostApp({
   const { snapshot, pending, error, refresh } = useVault(vaultId, holder)
   const snapshotRef = useRef(snapshot)
   const revealed = phase === 'revealed' || phase === 'ready'
-  const about = section === 'about'
   const selected = snapshot?.cards.find((card) => card.id === selectedId)
-  const gridVisible = section === 'vault' && view === 'grid' && !fallback
+  const gridVisible = landing && !fallback
+  const appHref = `/vault/${vaultId}${holder ? `?holder=${encodeURIComponent(holder)}` : ''}`
   const cards =
     snapshot?.cards.filter((card) =>
       `${card.title} ${card.category} ${card.subtitle}`
@@ -286,15 +267,18 @@ export default function GhostApp({
     scene.current?.setCards(snapshot?.cards ?? [])
   }, [snapshot])
   useEffect(() => {
+    if (!landing) {
+      setPhase('ready')
+      return
+    }
     if (!canvas.current || fallback) return
     let cancelled = false
     setPhase('loading')
     setProgress(0)
     const fail = (e: unknown) => {
       if (cancelled) return
-      console.warn('Using the live list fallback:', e)
+      console.warn('Showing the landing without WebGL:', e)
       setFallback(true)
-      setView('list')
       setPhase('ready')
     }
     import('./animation/Experience')
@@ -305,12 +289,11 @@ export default function GhostApp({
             progress: (n) => setProgress((old) => Math.max(old, n)),
             phase: setPhase,
             select: (card) => {
-              if (card.id !== 'loading') setSelectedId(card.id)
+              if (card.id !== 'loading') router.push(appHref)
             },
             error: fail,
           })
           scene.current.setCards(snapshotRef.current?.cards ?? [])
-          if (skipIntro && run === 0) scene.current.skip()
         } catch (e) {
           fail(e)
         }
@@ -321,31 +304,12 @@ export default function GhostApp({
       scene.current?.dispose()
       scene.current = null
     }
-  }, [run, fallback, skipIntro])
+  }, [landing, fallback, router, appHref])
   useEffect(() => {
     scene.current?.setActive(
       !revealed || (gridVisible && !selectedId && !switching),
     )
   }, [revealed, gridVisible, selectedId, switching])
-  useEffect(() => {
-    scene.current?.setMotion(motion)
-  }, [motion, phase])
-  useEffect(() => {
-    if (!sound || phase !== 'intro') return
-    const load = new Audio('/reference/site/assets/sounds/load.mp3'),
-      whoosh = new Audio('/reference/site/assets/sounds/whoosh.mp3')
-    load.volume = 0.35
-    whoosh.volume = 0.3
-    void load.play().catch(() => {})
-    const timer = setTimeout(() => {
-      void whoosh.play().catch(() => {})
-    }, 2500)
-    return () => {
-      clearTimeout(timer)
-      load.pause()
-      whoosh.pause()
-    }
-  }, [sound, phase])
   useEffect(() => {
     if (selectedId && selected) dialog.current?.showModal()
     else dialog.current?.close()
@@ -354,14 +318,6 @@ export default function GhostApp({
     if (switching) switchDialog.current?.showModal()
     else switchDialog.current?.close()
   }, [switching])
-  function replay() {
-    setSelectedId(null)
-    setSection('vault')
-    setView('grid')
-    setFallback(false)
-    setPhase('loading')
-    setRun((n) => n + 1)
-  }
   function openSection(next: typeof section) {
     setSection(next)
     setQuery('')
@@ -379,28 +335,21 @@ export default function GhostApp({
 
   return (
     <main
-      className={`ghost-root app live-app ${revealed ? 'is-revealed' : ''} ${about ? 'about-open' : ''}`}
+      className={`ghost-root app live-app ${revealed ? 'is-revealed' : ''} ${landing ? 'landing-page' : 'vault-page'}`}
       data-phase={phase}
       data-ledger-state={error ? 'error' : snapshot ? 'ready' : 'loading'}
     >
-      <a
-        className="skip-link"
-        href="#ledger-content"
-        onClick={() => {
-          scene.current?.skip()
-          setPhase('ready')
-          setView('list')
-          setSection('vault')
-        }}
-      >
-        Skip to vault data
+      <a className="skip-link" href={landing ? appHref : '#ledger-content'}>
+        {landing ? 'Skip to app' : 'Skip to vault data'}
       </a>
-      <canvas
-        ref={canvas}
-        className={`experience ${revealed && !gridVisible ? 'is-hidden' : ''}`}
-        aria-label="Live vault data in an interactive grid. Drag to explore; switch to list view for keyboard-accessible metrics."
-        tabIndex={revealed && gridVisible ? 0 : -1}
-      />
+      {landing && (
+        <canvas
+          ref={canvas}
+          className={`experience ${revealed && !gridVisible ? 'is-hidden' : ''}`}
+          aria-label="Live vault preview. Drag to explore, or use Open app for accessible vault details."
+          tabIndex={revealed && gridVisible ? 0 : -1}
+        />
+      )}
       {(phase === 'loading' || phase === 'separating') && (
         <div
           className={`loader ${phase === 'separating' ? 'depart' : ''}`}
@@ -436,60 +385,59 @@ export default function GhostApp({
         inert={!revealed}
         aria-hidden={!revealed}
       >
-        <button
-          className="brand"
-          onClick={() => {
-            setSection('vault')
-            setView(fallback ? 'list' : 'grid')
-          }}
-          aria-label="Patapim, back to the vault"
-        >
+        <a className="brand" href="/" aria-label="Patapim home">
           <img src="/reference/site/ghost.svg" alt="" width="45" height="74" />
           <span>patapim</span>
-        </button>
-        <button
-          className={`sound mono ${sound ? 'is-on' : ''}`}
-          onClick={() => setSound((v) => !v)}
-          aria-pressed={sound}
-          aria-label={sound ? 'Mute intro sound' : 'Enable intro sound'}
-        >
-          <span className="sound-bars" aria-hidden="true">
-            {Array.from({ length: 12 }, (_, i) => (
-              <i key={i} style={{ '--i': i } as CSSProperties} />
-            ))}
-          </span>
-          SOUND [{sound ? 'ON' : 'OFF'}]
-        </button>
-        <button
-          className="vault-selector mono"
-          onClick={() => setSwitching(true)}
-          aria-label="Choose vault and holder"
-        >
-          {snapshot?.network ?? 'XRPL DEVNET'}
-          <br />
-          VAULT {short(vaultId)}
-          <br />
-          <span className="muted">CHANGE VAULT / HOLDER</span>
-        </button>
-        <div className="clock mono">
-          <span>
-            <i />
-            {error
-              ? 'STALE SNAPSHOT'
-              : pending
-                ? 'READING LEDGER'
-                : 'VALIDATED LEDGER'}
-          </span>
-          <time>{snapshot?.ledgerTime.slice(11, 19) ?? '—'}</time>
-          <span className="muted">
-            {snapshot?.phase.toUpperCase() ?? 'CONNECTING'}
-          </span>
-          <span className="muted">UTC</span>
-        </div>
-        <button className="explore pill" onClick={refresh} disabled={pending}>
-          {pending ? 'Refreshing…' : 'Refresh ledger'}
-          <Icon name="arrow" />
-        </button>
+        </a>
+        {landing ? (
+          <>
+            <p className="landing-statement mono">
+              SECURITIES LENDING.
+              <br />
+              NATIVE ON THE XRP LEDGER.
+            </p>
+            <a className="open-app" href={appHref}>
+              Open app <Icon name="arrow" />
+            </a>
+          </>
+        ) : (
+          <>
+            <button
+              className="vault-selector mono"
+              onClick={() => setSwitching(true)}
+              aria-label="Choose vault and holder"
+            >
+              {snapshot?.network ?? 'XRPL DEVNET'}
+              <br />
+              VAULT {short(vaultId)}
+              <br />
+              <span className="muted">CHANGE VAULT / HOLDER</span>
+            </button>
+            <div className="clock mono">
+              <span>
+                <i />
+                {error
+                  ? 'STALE SNAPSHOT'
+                  : pending
+                    ? 'READING LEDGER'
+                    : 'VALIDATED LEDGER'}
+              </span>
+              <time>{snapshot?.ledgerTime.slice(11, 19) ?? '—'}</time>
+              <span className="muted">
+                {snapshot?.phase.toUpperCase() ?? 'CONNECTING'}
+              </span>
+              <span className="muted">UTC</span>
+            </div>
+            <button
+              className="explore pill"
+              onClick={refresh}
+              disabled={pending}
+            >
+              {pending ? 'Refreshing…' : 'Refresh ledger'}
+              <Icon name="arrow" />
+            </button>
+          </>
+        )}
       </header>
       {revealed && error && (
         <div className="ledger-alert" role="alert">
@@ -500,7 +448,9 @@ export default function GhostApp({
           </strong>
           <span>{error}</span>
           <button onClick={refresh}>Retry ledger</button>
-          <button onClick={() => setSwitching(true)}>Choose vault</button>
+          {!landing && (
+            <button onClick={() => setSwitching(true)}>Choose vault</button>
+          )}
         </div>
       )}
       {revealed && !snapshot && !error && (
@@ -508,24 +458,41 @@ export default function GhostApp({
           Reading the live vault…
         </div>
       )}
-      {revealed && gridVisible && snapshot && (
-        <div className="grid-caption mono">
-          <span>{snapshot.name}</span>
-          <span>
-            {snapshot.asset} / {snapshot.phase}
-            {snapshot.nextSeconds !== null
-              ? ` / NEXT PHASE IN ${snapshot.nextSeconds}s AT LEDGER CLOSE`
-              : ''}
-          </span>
-        </div>
+      {revealed && landing && (
+        <section
+          className="landing-copy"
+          aria-label="Securities lending on the XRP Ledger"
+        >
+          <h1>
+            Good assets.
+            <br />
+            Put to work.
+          </h1>
+          <p>
+            Lend securities through a fixed-term vault.
+            <br />
+            The lending agent puts its own capital on the line.
+          </p>
+        </section>
       )}
 
-      {revealed && !gridVisible && !about && (
+      {revealed && !landing && (
         <section
           id="ledger-content"
           className="archive live-archive"
           aria-label="Live vault data"
         >
+          <nav className="app-navigation" aria-label="Vault navigation">
+            {(['vault', 'loans', 'rules'] as const).map((next) => (
+              <button
+                key={next}
+                aria-current={section === next ? 'page' : undefined}
+                onClick={() => openSection(next)}
+              >
+                {next.charAt(0).toUpperCase() + next.slice(1)}
+              </button>
+            ))}
+          </nav>
           <div className="archive-heading">
             <div>
               <span className="eyebrow mono">
@@ -565,12 +532,6 @@ export default function GhostApp({
               </label>
             )}
           </div>
-          {fallback && (
-            <p className="fallback-note">
-              The live list is active because the 3D intro could not load.
-              Ledger data remains available.
-            </p>
-          )}
           {snapshot &&
             (section === 'loans' ? (
               <Loans snapshot={snapshot} query={query} />
@@ -602,135 +563,6 @@ export default function GhostApp({
             ))}
         </section>
       )}
-      {revealed && about && (
-        <section className="about" aria-label="About Patapim">
-          <div className="about-top mono">
-            <span>SECURITIES LENDING / XRPL</span>
-            <span>FIXED TERM. AGENT COVER.</span>
-          </div>
-          <h1>
-            Good assets.
-            <br />
-            Put to <span>work.</span>
-          </h1>
-          <div className="about-bottom">
-            <div className="orbit" aria-hidden="true">
-              <i />
-              <i />
-              <i />
-            </div>
-            <div>
-              <p>
-                Holders lend securities.
-                <br />
-                Borrowers get access.
-                <br />
-                Agents put up capital.
-              </p>
-              <p className="about-detail">
-                Eligible holders subscribe to a fixed-term vault. The lending
-                agent posts first-loss cover, co-signs loans and manages
-                defaults. Borrowers repay in the same security. Loan interest
-                accrues to the vault; origination fees go to the agent.
-                Credentials, domains, MPTs, vaults, loan brokers and XRP escrow
-                are native ledger building blocks.
-              </p>
-              <button className="pill" onClick={() => openSection('vault')}>
-                Explore the live vault <Icon name="arrow" />
-              </button>
-              <a className="pill" href="/deck/index.html">
-                Pitch deck <Icon name="arrow" />
-              </a>
-            </div>
-            <span className="mono about-index">
-              TEAM PATAPIM / 2026
-              <br />
-              XRPL LENDING HACKATHON
-              <br />
-              <br />
-              <a
-                href={`${REPO}/blob/main/DEVELOPER-REPORT.md`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                DEVELOPER REPORT
-              </a>
-              <br />
-              <br />
-              Devnet demonstration
-              <br />
-              with a fictitious security.
-            </span>
-          </div>
-        </section>
-      )}
-      <footer
-        className="chrome footer"
-        inert={!revealed}
-        aria-hidden={!revealed}
-      >
-        <div className="view-switch glass" aria-label="Display mode">
-          <button
-            className={gridVisible ? 'active' : ''}
-            aria-label="Grid view"
-            aria-pressed={gridVisible}
-            disabled={fallback}
-            onClick={() => {
-              setView('grid')
-              openSection('vault')
-            }}
-          >
-            <Icon name="grid" />
-          </button>
-          <button
-            className={section === 'vault' && view === 'list' ? 'active' : ''}
-            aria-label="List view"
-            aria-pressed={section === 'vault' && view === 'list'}
-            onClick={() => {
-              setView('list')
-              openSection('vault')
-            }}
-          >
-            <Icon name="list" />
-          </button>
-        </div>
-        <div className="explore-hint mono">
-          {gridVisible
-            ? 'DRAG TO EXPLORE YOUR VAULT'
-            : snapshot
-              ? `${snapshot.cards.length} LIVE DATA TILES`
-              : 'CONNECTING TO THE LEDGER'}
-        </div>
-        <nav className="dock glass" aria-label="Main navigation">
-          {(['vault', 'loans', 'rules', 'about'] as const).map((next) => (
-            <button
-              key={next}
-              className={section === next ? 'active' : ''}
-              onClick={() => openSection(next)}
-            >
-              {next.charAt(0).toUpperCase() + next.slice(1)}
-            </button>
-          ))}
-          <button onClick={replay} aria-label="Replay">
-            Replay <Icon name="replay" />
-          </button>
-        </nav>
-        <div className="footer-right">
-          <a className="mono" href="/deck/index.html">
-            PITCH DECK
-            <br />
-            <span className="muted">9 SLIDES / PATAPIM</span>
-          </a>
-          <button
-            className="motion-toggle glass"
-            onClick={() => setMotion((v) => !v)}
-            aria-label={motion ? 'Pause animations' : 'Resume animations'}
-            aria-pressed={!motion}
-          >
-            <Icon name={motion ? 'pause' : 'play'} />
-          </button>
-        </div>
-      </footer>
       <dialog
         ref={dialog}
         className="project-dialog ledger-dialog"
