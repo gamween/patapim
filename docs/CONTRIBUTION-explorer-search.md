@@ -2,6 +2,12 @@
 
 **Opened as [ripple/explorer#1342](https://github.com/ripple/explorer/pull/1342).**
 
+Review round one: the automated reviewer asked for loan brokers to be named explicitly in both
+search strings, since `LoanBroker` became a distinct resolvable type while the copy only said
+`Loan`. Applied in `8c361b5`. The required checks are waiting on a maintainer to approve the
+workflow run, which is the normal gate for a first-time external contributor, and the repository
+requires two approving reviews with write access.
+
 Verified on 12 September 2026 against `ripple/explorer` at `main` and against the live Devnet
 explorer. Everything below is reproducible.
 
