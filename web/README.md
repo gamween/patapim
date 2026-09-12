@@ -1,8 +1,9 @@
 # patapim, front end
 
-A dashboard for a fixed-term securities lending vault on XRPL. Next.js, server rendered, no wallet
-and no client-side XRPL library: every figure on the page is read from the ledger by the server at
-request time.
+An immersive ghost homepage, product story and live dashboard for a fixed-term securities lending
+vault on XRPL. Next.js serves the product and ledger pages; a browser-only Three.js experience
+powers the homepage. Ledger figures are read by the server at request time, without a wallet or
+client-side XRPL library. The visual reference gallery is independent of ledger data.
 
 ## Run it
 
@@ -12,12 +13,13 @@ npm install
 npm run dev          # http://localhost:3000
 ```
 
-Two routes:
+Routes:
 
-| route              | what it shows                                                                      |
-| ------------------ | ---------------------------------------------------------------------------------- |
-| `/`                | the landing: the problem, the five steps of the trade, the mapping to XRPL objects |
-| `/vault/<VaultID>` | the live dashboard for one vault, with `?holder=<address>` to add a position card  |
+| route              | what it shows                                                                     |
+| ------------------ | --------------------------------------------------------------------------------- |
+| `/`                | the full ghost intro and interactive visual reference gallery                     |
+| `/product`         | the product story, five steps of the trade and XRPL mapping                       |
+| `/vault/<VaultID>` | the live dashboard for one vault, with `?holder=<address>` to add a position card |
 
 A vault to point at is in `lib/config.ts` as `DEMO_VAULT`, and a fresh one is provisioned by
 `node scripts/recall-spine.mjs` from the repository root.
@@ -84,10 +86,13 @@ type scale.
 ## September design handoff
 
 The visual direction adapts the dark green palette, large sans-serif type and DM Mono labels from
-[`STOOOKEEE/frontend-ripple-`](https://github.com/STOOOKEEE/frontend-ripple-). The only reused asset
-is the locally hosted, OFL-licensed DM Mono font; its licence is in `public/fonts/`.
+[`STOOOKEEE/frontend-ripple-`](https://github.com/STOOOKEEE/frontend-ripple-). The full frontend experience is now ported into `app/components/ghost/`, including the original
+ghost sequence, particle transition, WebGL gallery, grid/list views, search, reference dialogs,
+About screen, sound, pause, replay, reduced motion and failure fallback. All active assets are local
+in `public/reference/`; DM Mono and its OFL licence are in `public/fonts/`. The abandoned fly
+experiment and Vite runtime are not part of the active experience.
 
-The landing now has a trade diagram, audience cards, the five-step lifecycle, historical default
+The product page at `/product` has a trade diagram, audience cards, the five-step lifecycle, historical default
 evidence and the native object mapping. Historical figures are explicitly labelled; they are not
 read from the demo vault. The dashboard adds a phase timeline, five overview tiles, phase rule
 panels and a collapsible provenance panel. These are markup changes; props and data shapes are
@@ -127,3 +132,31 @@ Desktop and 400px captures, plus browser verification results, are in `../docs/d
 Run `npm run build` from `web/` for the production compilation and TypeScript check.
 Use `npm run start` to review the production app. The ledger must be reachable for live dashboard
 checks; landing and deck do not require a ledger request.
+
+### Full ghost frontend integration
+
+`/` runs the complete active frontend from `STOOOKEEE/frontend-ripple-`, branded for Patapim and
+translated into English. Its 85 projects remain labelled as **Phantom visual references**, with
+source attribution in the gallery and dialogs. They are not Patapim partners or protocol data.
+Product, live-vault and deck links are available even while the intro loads. `/product` preserves
+the full editorial landing, and `/vault/[id]` keeps its existing server-side ledger reads.
+
+`ghost/entry.tsx` loads the browser-only React app without server rendering. Only that app loads
+Three.js and GSAP. Shader strings replace the source Vite `?raw` imports without changing shader
+behaviour. The original CSS is scoped under `.ghost-root`; the dashboard and product use
+`components/site-shell.tsx`. Animation assets and source notes retain their original attribution
+in `docs/reference/`. No image-generation or replacement ghost was used.
+
+For browser verification, from `web/`:
+
+```sh
+npm ci
+npx playwright install chromium
+npm run build
+npm test
+```
+
+`PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` can select an existing Chromium. The integration tests cover
+intro and replay, drag versus click, search/dialogs, mobile, reduced motion, failed WebGL assets,
+direct access during loading, product/vault/deck navigation and the two ledger themes at 400px.
+The test server uses port 3010; captures are written to `docs/design/ghost/`.

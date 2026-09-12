@@ -7,7 +7,7 @@
     <style>
       @font-face {
         font-family: DM;
-        src: url("../fonts/dm-mono-regular.ttf");
+        src: url('../fonts/dm-mono-regular.ttf');
       }
       :root {
         --bg: #101610;
@@ -528,7 +528,7 @@
               </p>
               <a
                 class="cta"
-                href="/vault/6B79B084F9EA00FB3B8B368D5710F50A871D488DE43095500B38C9FAD6D2C13C"
+                href="/vault/1D5C0C8EA8BEB028EB4AD5507F0BCFCA7D3D0977712C09B96D21E3DB54372687"
                 target="_blank"
                 rel="noreferrer"
                 >Open live vault</a
@@ -867,62 +867,62 @@
       ><button id="print">Print / PDF</button><a href="/">Website</a>
     </nav>
     <script>
-      const slides = [...document.querySelectorAll(".slide")];
-      let current = 0;
-      let notes = false;
-      const prev = document.querySelector("#prev"),
-        next = document.querySelector("#next");
+      const slides = [...document.querySelectorAll('.slide')]
+      let current = 0
+      let notes = false
+      const prev = document.querySelector('#prev'),
+        next = document.querySelector('#next')
       function show(index) {
-        current = Math.max(0, Math.min(slides.length - 1, index));
+        current = Math.max(0, Math.min(slides.length - 1, index))
         slides.forEach((s, i) => {
-          s.hidden = i !== current;
-          s.querySelector(".notes").hidden = !notes;
-        });
-        document.querySelector("#count").textContent =
-          `${String(current + 1).padStart(2, "0")} / 09`;
-        document.querySelector(".progress").style.width =
-          ((current + 1) / 9) * 100 + "%";
-        prev.disabled = current === 0;
-        next.disabled = current === 8;
-        history.replaceState(null, "", "#" + (current + 1));
-        window.scrollTo(0, 0);
+          s.hidden = i !== current
+          s.querySelector('.notes').hidden = !notes
+        })
+        document.querySelector('#count').textContent =
+          `${String(current + 1).padStart(2, '0')} / 09`
+        document.querySelector('.progress').style.width =
+          ((current + 1) / 9) * 100 + '%'
+        prev.disabled = current === 0
+        next.disabled = current === 8
+        history.replaceState(null, '', '#' + (current + 1))
+        window.scrollTo(0, 0)
       }
       function toggleNotes() {
-        notes = !notes;
+        notes = !notes
         document
-          .querySelector("#notes")
-          .setAttribute("aria-pressed", String(notes));
-        show(current);
+          .querySelector('#notes')
+          .setAttribute('aria-pressed', String(notes))
+        show(current)
       }
-      prev.onclick = () => show(current - 1);
-      next.onclick = () => show(current + 1);
-      document.querySelector("#notes").onclick = toggleNotes;
-      document.querySelector("#print").onclick = () => window.print();
-      document.addEventListener("keydown", (e) => {
+      prev.onclick = () => show(current - 1)
+      next.onclick = () => show(current + 1)
+      document.querySelector('#notes').onclick = toggleNotes
+      document.querySelector('#print').onclick = () => window.print()
+      document.addEventListener('keydown', (e) => {
         if (
           e.altKey ||
           e.ctrlKey ||
           e.metaKey ||
           /INPUT|TEXTAREA|BUTTON|A/.test(e.target.tagName)
         )
-          return;
-        if (["ArrowRight", "PageDown", " "].includes(e.key)) {
-          e.preventDefault();
-          show(current + 1);
-        } else if (["ArrowLeft", "PageUp"].includes(e.key)) {
-          e.preventDefault();
-          show(current - 1);
-        } else if (e.key === "Home") {
-          e.preventDefault();
-          show(0);
-        } else if (e.key === "End") {
-          e.preventDefault();
-          show(8);
-        } else if (e.key.toLowerCase() === "n") {
-          toggleNotes();
+          return
+        if (['ArrowRight', 'PageDown', ' '].includes(e.key)) {
+          e.preventDefault()
+          show(current + 1)
+        } else if (['ArrowLeft', 'PageUp'].includes(e.key)) {
+          e.preventDefault()
+          show(current - 1)
+        } else if (e.key === 'Home') {
+          e.preventDefault()
+          show(0)
+        } else if (e.key === 'End') {
+          e.preventDefault()
+          show(8)
+        } else if (e.key.toLowerCase() === 'n') {
+          toggleNotes()
         }
-      });
-      show((Number(location.hash.slice(1)) || 1) - 1);
+      })
+      show((Number(location.hash.slice(1)) || 1) - 1)
     </script>
   </body>
 </html>
