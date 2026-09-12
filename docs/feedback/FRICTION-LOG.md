@@ -338,9 +338,16 @@ floor on how much cover a broker must post in fact decides how much of a default
 and a broker can hold ten times the cover it will ever pay out. Two runs, `default-arc-cover10000`
 and `default-arc-cover100000` in `docs/evidence/`, identical but for that one number.
 
-**Proposed fix** Document the settlement arithmetic on default with a worked example, and say
-plainly that the cover pays `min(CoverAvailable, CoverRateMinimum × debt)`. Consider renaming the
-parameter, or documenting a cover rate of 100000 as the way to express full indemnity.
+**Correction after checking the documentation.** The arithmetic is published and correct:
+`xrpl.org/docs/concepts/tokens/lending-protocol` gives
+`DefaultCovered = min((DebtTotal × CoverRateMinimum) × CoverRateLiquidation, DefaultAmount)` with a
+worked example, and 200000 is exactly what it predicts for our numbers. What we hit is a navigation
+failure, not an absence: we were reading `LoanBrokerSet`'s field table and the `LoanBroker` ledger
+entry page, which is where a developer building the transaction looks, and neither says that the
+parameter named as a minimum to post also caps what is paid out, nor links to the worked example.
+
+**Proposed fix** One sentence on the `LoanBrokerSet` and `LoanBroker` reference pages, and a link
+from the field table to the worked example.
 
 ## F-015 · The grace period protects the borrower's payment, not their standing
 **Category** protocol · **Severity** medium

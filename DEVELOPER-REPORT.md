@@ -111,22 +111,32 @@ donation flag the deck teaches or correct the deck.*
 default and snapshotted the vault at each step. On impairment, `LossUnrealized` went to 2000000 and
 `AssetsTotal` stayed at 5000000, so `AssetsTotal / OutstandingAmount`, the only formula the field
 names suggest, still read 1.00 for a vault whose lenders were carrying a forty percent write-down.
-We shipped that bug in our own dashboard and found it by impairing a loan on chain, not by reading
-anything. The ledger settles `VaultWithdraw` against `AssetsTotal - LossUnrealized`, so the correct
-formula exists only in the source. *Proposal: put the net asset value formula on the vault concepts
-page, and expose it as a field.*
+We shipped that bug in our own dashboard and found it by impairing a loan on chain.
+
+The formula is published: the vault concepts page carries an Exchange Algorithm section with
+`ExchangeRate = (AssetsTotal - LossUnrealized) / SharesTotal` for withdrawals and
+`ExchangeRate = AssetsTotal / SharesTotal` for deposits, with a worked example. The failure is one of
+navigation, not of absence. The `Vault` **reference** page defines `AssetsTotal` and `LossUnrealized`
+with no pointer to that algorithm, and `vault_info` returns neither a net asset value nor a share
+price. A developer who starts where the field names are defined, as we did, ships the wrong number
+and never learns there are two rates. *Proposal: cross-link the two fields on the reference page to
+the exchange algorithm, and return the net asset value from `vault_info`.*
 
 **"First-loss capital" absorbs a rate of the debt, not the first loss.** Same run, cover 1000000
 against a 2000000 loan at `CoverRateMinimum: 10000`, ten percent. On default the vault lost 1800000
 and the cover lost 200000: exactly the configured rate, with the lenders taking the other ninety
-percent, although the posted cover could have absorbed half the loan. Price per share went from 1.00 to 0.64. Re-running the identical arc at
-`CoverRateMinimum: 100000` settles it: the cover absorbs the whole loan, assets hold at 5000000 and
-the share price stays at 1.00. So the parameter that reads as a floor on how much cover to post in
-fact decides how much of a default it absorbs, and a broker can sit on ten times the capital it will
-ever pay out. For a product whose promise to lenders is indemnification, that is the most expensive
-misunderstanding in XLS-66, and nothing in the field tables corrects it. *Proposal: document the
-default settlement arithmetic with a worked example, and treat a cover rate of 100000 as the
-documented way to express full indemnity.*
+percent, although the posted cover could have absorbed half the loan. Price per share went from 1.00 to 0.64. Re-running the identical arc at `CoverRateMinimum: 100000`
+settles it: the cover absorbs the whole loan, assets hold at 5000000 and the share price stays at 1.00.
+
+The arithmetic is published and correct. `xrpl.org/docs/concepts/tokens/lending-protocol` gives
+`DefaultCovered = min((DebtTotal × CoverRateMinimum) × CoverRateLiquidation, DefaultAmount)` with a
+worked example, and our 200000 is exactly what it predicts. We did not find it, because we were
+reading the pages a developer builds from: `LoanBrokerSet`'s field table and the `LoanBroker` ledger
+entry page. Neither says that the parameter named as a **minimum** to post also caps what is **paid
+out**, and neither links to the worked example. So a broker can sit on ten times the capital it will
+ever pay, and the field name is what tells them otherwise. *Proposal: one sentence on the
+`LoanBrokerSet` and `LoanBroker` reference pages saying the floor doubles as the cap, and a link from
+the field table to the worked example on the concepts page.*
 
 **A closed-ended vault protects the calendar, not the cash.** `LoanSet` is refused with
 `tecNO_PERMISSION` when the amortisation schedule would end after `RedemptionDate`, so the ledger
@@ -174,7 +184,7 @@ the single biggest custody blocker in XLS-66 today.
 | protocol | `tecINSUFFICIENT_PAYMENT` hides the amount owed, and `PeriodicPayment` publishes `1000000.142695042164` on an `AssetScale: 0` token | return a payable figure in the error |
 | protocol | Reading one lender position takes four calls and two client-side divisions | a `vault_info` that returns the dashboard view |
 | protocol | `VaultWithdraw` in assets under-delivers one unit on an integral asset, `tesSUCCESS`, asked 500000 got 499999 | document the rounding, or recommend withdrawing by shares |
-| protocol | `VaultCreate` costs 2 XRP on one hackathon network and 0.2 XRP on the other, documented on neither | document it as one incremental owner reserve |
+| protocol | `VaultCreate` costs 2 XRP on one hackathon network and 0.2 XRP on the other. The mechanism is documented under pseudo-accounts, an incremental owner reserve that is burned, and `server_state` returns `reserve_inc` 2000000 and 200000, but the `VaultCreate` reference page never says the cost is a reserve at all | say so on the `VaultCreate` page and point at `reserve_inc` |
 | protocol | Lending transactions are excluded from `Batch` at compile time, a mitigation for a counterparty-signature bypass, while a Ripple product manager publicly describes repo settlement built on co-signed atomic batches | say so in the Batch docs and the XLS-66 roadmap |
 | client libraries | `LoanSet` is missing from `txToFlag`, so its documented object form of `Flags` always throws; `autofill` also prints a console line on every `LoanSet` | add the entry, drop the line |
 | infrastructure | The two event faucets return incompatible JSON, fund by amounts differing tenfold, and neither shape is what `client.fundWallet()` expects | serve one shape |
