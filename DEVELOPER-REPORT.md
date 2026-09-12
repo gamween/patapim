@@ -9,33 +9,28 @@
 | **Team** | patapim |
 
 We built patapim, a securities lending market: eligible holders lend a tokenised security from a
-fixed-term vault through a lending agent who indemnifies them with first-loss capital. Everything
-below happened to us while building it, in order. Every claim carries a transaction hash, a file
-and line, or a pull request number.
+fixed-term vault through a lending agent who indemnifies them. Everything below happened to us while
+building it. Every claim carries a transaction hash, a file and line, or a pull request number.
 
 ---
 
 ## 1. The library the brief mandates cannot originate a loan
 
-This cost us the first hour and it is the only issue that stopped us dead.
+The only issue that stopped us dead, and it cost the first hour.
 
 `signLoanSetByCounterparty` in `xrpl.js@5.2.0-beta.0` produces a `CounterpartySignature` the ledger
 refuses: `fails local checks: Counterparty: Invalid signature.` The same `LoanSet`, same accounts,
-same network, succeeds with stable `xrpl.js@5.2.0`, transaction
-`42BDEBF81958D716070F1852CB5560A2DFBE05B017357838ACF35A9A3004A530`. Everything before it,
-`VaultCreate`, `VaultDeposit`, `LoanBrokerSet`, `LoanBrokerCoverDeposit`, returns `tesSUCCESS` on
-both versions, so the fault is isolated to the signature.
+same network, succeeds with stable `xrpl.js@5.2.0`, tx
+`42BDEBF81958D716070F1852CB5560A2DFBE05B017357838ACF35A9A3004A530`. Everything before it returns
+`tesSUCCESS` on both versions, so the fault is isolated to the signature.
 
-The cause is one argument. rippled #8162, merged on 2026-09-03 and gated on `fixCleanup3_4_0`,
-gave the counterparty signature its own hash prefixes. `fixCleanup3_4_0` is enabled on both
-hackathon networks, so the new prefixes are live. Stable 5.2.0 routes through
-`computeSignature(tx, key, undefined, 'counterparty')` and reaches `encodeForSigningCounterparty`.
-The beta has no `role` parameter and calls `encodeForSigning`, the ordinary transaction encoder.
-`ripple-binary-codec@2.11.0`, a dependency of **both** versions, already exports the correct
-function: the beta simply never calls it.
-
-The same defect ships in Ripple's own reference application,
-`ripple/xrpl-reference-app-lending-sav`, which pins `xrpl@4.6.0` and signs with `encodeForSigning`.
+The cause is one argument. rippled #8162, merged 2026-09-03 and gated on `fixCleanup3_4_0`, which is
+enabled on both hackathon networks, gave the counterparty signature its own hash prefixes. Stable
+routes through `computeSignature(tx, key, undefined, 'counterparty')` to
+`encodeForSigningCounterparty`; the beta has no `role` parameter and calls `encodeForSigning`.
+`ripple-binary-codec@2.11.0`, a dependency of **both**, already exports the right function. The beta
+never calls it. The same defect ships in Ripple's own reference application,
+`ripple/xrpl-reference-app-lending-sav`, which pins `xrpl@4.6.0`.
 
 **What we did.** Called `encodeForSigningCounterparty` ourselves,
 `scripts/lib/lending.mjs → signCounterparty()`, twelve lines. With it the mandated beta runs the
@@ -47,14 +42,12 @@ the counterparty fix, and drop the pinned beta from the brief.
 
 ## 2. No published version of the library has both halves of the feature
 
-Diffing the two published tarballs: only `5.2.0-beta.0` types `VaultKind`, `SubscriptionDate`,
-`RedemptionDate`, `LEVersion`, `CredentialIDs` on `VaultWithdraw` and `MemoData` on `VaultDelete`.
-Only stable `5.2.0` signs counterparties correctly. `npm install xrpl` gives you `5.2.0`, which
-cannot model a closed-ended vault at all, with no deprecation notice pointing anywhere. Semver reads
-backwards: the pre-release is newer in protocol coverage than the stable that supersedes it.
-
-`xrpl-py` has no counterparty signing prefix at all, so loan origination is impossible from Python,
-while the tutorials present Python as a peer of JavaScript.
+Diffing the published tarballs: only `5.2.0-beta.0` types `VaultKind`, `SubscriptionDate`,
+`RedemptionDate`, `LEVersion`, `CredentialIDs` and `MemoData`. Only stable `5.2.0` signs
+counterparties correctly. `npm install xrpl` gives `5.2.0`, which cannot model a closed-ended vault
+at all, with no notice pointing anywhere: semver reads backwards, the pre-release is newer in
+protocol coverage than the stable that supersedes it. `xrpl-py` has no counterparty prefix at all,
+so origination is impossible from Python while the tutorials present it as a peer of JavaScript.
 
 **Proposed fix.** One release with both, and a version-to-feature matrix on the lending docs
 landing page: which client version covers V1, which covers V1.1.
@@ -99,6 +92,24 @@ The divergences we hit, each verified against the shipped code rather than infer
 
 ## What the protocol made hard
 
+**Impairment does not move `AssetsTotal`, so the obvious share price is wrong.** We walked a loan to
+default and snapshotted the vault at each step. On impairment, `LossUnrealized` went to 2000000 and
+`AssetsTotal` stayed at 5000000, so `AssetsTotal / OutstandingAmount`, the only formula the field
+names suggest, still read 1.00 for a vault whose lenders were carrying a forty percent write-down.
+We shipped that bug in our own dashboard and found it by impairing a loan on chain, not by reading
+anything. The ledger settles `VaultWithdraw` against `AssetsTotal - LossUnrealized`, so the correct
+formula exists only in the source. *Proposal: put the net asset value formula on the vault concepts
+page, and expose it as a field.*
+
+**"First-loss capital" absorbs a rate of the debt, not the first loss.** Same run, cover 1000000
+against a 2000000 loan at `CoverRateMinimum: 10000`, ten percent. On default the vault lost 1800000
+and the cover lost 200000: exactly the configured rate, with the lenders taking the other ninety
+percent, although the posted cover could have absorbed half the loan. Price per share went from 1.00
+to 0.64. For a product whose promise to lenders is indemnification, the distance between that name
+and that behaviour is the most expensive misunderstanding in XLS-66, and nothing in the field tables
+corrects it. *Proposal: document the default settlement arithmetic with a worked example, and treat
+a cover rate of 100000 as the documented way to express full indemnity.*
+
 **A closed-ended vault protects the calendar, not the cash.** `LoanSet` is refused with
 `tecNO_PERMISSION` when the amortisation schedule would end after `RedemptionDate`, so the ledger
 does enforce something. But a loan created inside the window and left unpaid leaves the vault
@@ -125,43 +136,21 @@ succeeds. An institution cannot give an operations key the right to call `LoanMa
 `LoanBrokerCoverDeposit`. For a product whose whole premise is an agent acting for others, this is
 the single biggest custody blocker in XLS-66 today.
 
-**You cannot ask the ledger which phase a vault is in.** The entry exposes two dates and no phase,
-and the comparison clock is the parent ledger close time, which appears only in a C++ comment. We
-derived phase dates from the machine clock and waited on the same clock, and spent a full probe run
-submitting into a phase we thought we had left. Every client will reimplement this, and some will
-reimplement it wrong. *Proposal: return a `phase` field from `vault_info`, and say in the docs which
-clock decides.*
-
-**The amount due is not representable.** `tecINSUFFICIENT_PAYMENT` does not carry the amount owed;
-fetching it from the `Loan` entry gives `PeriodicPayment: "1000000.142695042164"` on a token whose
-`AssetScale` is 0. No payment can equal that value, the client must round, and nothing says in which
-direction or whether rounding up crosses into `tfLoanOverpayment` and its fee. In the same family,
-`VaultWithdraw` denominated in assets silently under-delivers one unit: asked 500000, received
-499999, `tesSUCCESS`. Withdraw by shares.
-
-**Reading a position takes four calls and two divisions.** Price per share is the number that
-matters most and it is not on the vault: shares outstanding live on the share `MPTokenIssuance` as
-`OutstandingAmount`, and nothing points there. Utilisation is client-side arithmetic. Loans are
-listed neither from the vault nor from the broker owner but from the `LoanBroker` pseudo-account.
-*Proposal: `SharesTotal` and `SharePrice` on the vault entry, or a `vault_info` that returns the
-dashboard view in one call.*
-
 ---
 
 ## Smaller things, one line each
 
 | Category | Finding | Proposed fix |
 |---|---|---|
-| client libraries | `LoanSet` is missing from `txToFlag`, so its documented object form of `Flags` always throws | add the entry |
-| client libraries | `autofill` prints an unconditional console line on every `LoanSet`, even with no counterparty | remove it, or expose the multiplier on the returned transaction |
-| client libraries | `vault_info` is untyped, forcing `(client as any).request` in every consumer | add the request and response types |
-| protocol | `VaultCreate` costs 2 XRP on one hackathon network and 0.2 XRP on the other, undocumented on both | document it as one incremental owner reserve, network dependent |
-| protocol | Lending transactions are excluded from `Batch` at compile time, a mitigation for a counterparty-signature bypass, while a Ripple product manager publicly describes repo settlement built on co-signed atomic batches | say so in the Batch documentation and in the XLS-66 roadmap |
-| infrastructure | The two event faucets return incompatible JSON and fund by amounts differing tenfold, and neither shape is what `client.fundWallet()` expects | serve one shape, or document both next to the URLs |
-| documentation | Around forty result codes returned by the lending transactors appear on no reference page | generate the code tables from the transactors |
-| documentation | The XLS-89 metadata validator reveals conditional requirements only after the unconditional ones are satisfied, one submitted transaction at a time | validate the whole schema at once and link the standard in the warning |
-
----
+| protocol | No way to ask the ledger which phase a vault is in, and the deciding clock (parent ledger close time) is in a C++ comment. It cost us a full run | return a `phase` from `vault_info` and name the clock |
+| protocol | `tecINSUFFICIENT_PAYMENT` hides the amount owed, and `PeriodicPayment` publishes `1000000.142695042164` on an `AssetScale: 0` token | return a payable figure in the error |
+| protocol | Reading one lender position takes four calls and two client-side divisions | a `vault_info` that returns the dashboard view |
+| protocol | `VaultWithdraw` in assets under-delivers one unit on an integral asset, `tesSUCCESS`, asked 500000 got 499999 | document the rounding, or recommend withdrawing by shares |
+| protocol | `VaultCreate` costs 2 XRP on one hackathon network and 0.2 XRP on the other, documented on neither | document it as one incremental owner reserve |
+| protocol | Lending transactions are excluded from `Batch` at compile time, a mitigation for a counterparty-signature bypass, while a Ripple product manager publicly describes repo settlement built on co-signed atomic batches | say so in the Batch docs and the XLS-66 roadmap |
+| client libraries | `LoanSet` is missing from `txToFlag`, so its documented object form of `Flags` always throws; `autofill` also prints a console line on every `LoanSet` | add the entry, drop the line |
+| infrastructure | The two event faucets return incompatible JSON, fund by amounts differing tenfold, and neither shape is what `client.fundWallet()` expects | serve one shape |
+| documentation | Around forty result codes returned by the lending transactors appear on no reference page | generate the tables from the transactors |
 
 ## What we contributed back
 

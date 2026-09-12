@@ -109,7 +109,10 @@ Check `SUBMISSION.md` against the brief itself, not against our summary of it:
 - [ ] README states what it does, setup, track, environment, library version and every XLS-65/66
       transaction used. Count the transactions in the table against the transactions in `scripts/`:
       anything we use and do not list is a gap.
-- [ ] The developer report is at the repository root and is three pages or fewer.
+- [ ] The developer report is at the repository root and is **three pages or fewer when rendered**.
+      It is currently around 1760 words across four tables, which is close to the limit. If it runs
+      over, cut the "Smaller things, one line each" table first: it is the only section whose items
+      are also filed through the event hook, so nothing is lost.
 - [ ] The slide deck is ten slides or fewer.
 - [ ] The DevEx form is submitted with both members and both GitHub handles.
 - [ ] The demo runs from a clean state in under four minutes.
