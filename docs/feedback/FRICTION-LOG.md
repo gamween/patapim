@@ -2,7 +2,7 @@
 
 Running log. Every entry is written the moment it happens, with the exact command, the exact
 output and a concrete proposed fix. The three-page manual report required at the repository
-root is generated from this file at the end.
+root is written from it by hand, by us.
 
 Environment under test:
 - rippled `3.4.0-rc1` on the custom hackathon devnet (network_id 4001)
@@ -235,7 +235,7 @@ discovering that layout by enumerating objects on every address in sight.
 **Proposed fix** Document the pseudo-account topology in the Lending Protocol concepts page with a
 diagram, and note that listing a broker book means calling `account_objects` on `LoanBroker.Account`.
 
-## F-011 · The two hackathon networks enforce different lending rules behind an identical amendment list
+## F-011 · The two hackathon networks enforce different lending rules behind the same lending amendments
 **Category** other / protocol · **Severity** high · **CORRECTS F-004**
 
 Same transaction, same library, same amendment set, opposite outcome:

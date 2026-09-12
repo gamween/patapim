@@ -41,7 +41,12 @@ const main = async () => {
   console.log(`  OutstandingAmount ${outstanding ?? '(illisible: ' + JSON.stringify(iss).slice(0, 120) + ')'}`)
   const assets = Number(v.AssetsTotal ?? 0)
   const shares = Number(outstanding ?? 0)
-  console.log(`  price per share   ${shares > 0 ? (assets / shares).toFixed(8) : 'n/a (0 share)'}  [AssetsTotal / OutstandingAmount, calcul client]`)
+  // Net off the unrealised loss. An impaired loan stays inside AssetsTotal and only shows up in
+  // LossUnrealized, so AssetsTotal / shares overstates what a lender owns. The ledger withdraws
+  // against the same difference: xrpl.org, single asset vaults, Exchange Algorithm.
+  const loss = Number(v.LossUnrealized ?? 0)
+  const nav = assets - loss
+  console.log(`  price per share   ${shares > 0 ? (nav / shares).toFixed(8) : 'n/a (0 share)'}  [(AssetsTotal - LossUnrealized) / OutstandingAmount, calcul client]`)
   console.log(`  utilisation       ${assets > 0 ? (((assets - Number(v.AssetsAvailable ?? 0)) / assets) * 100).toFixed(2) + ' %' : 'n/a'}  [(AssetsTotal - AssetsAvailable) / AssetsTotal, calcul client]`)
 
   if (holder) {

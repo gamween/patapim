@@ -52,7 +52,7 @@ so origination is impossible from Python while the tutorials present it as a pee
 **Proposed fix.** One release with both, and a version-to-feature matrix on the lending docs
 landing page: which client version covers V1, which covers V1.1.
 
-## 3. The two hackathon networks enforce different rules behind an identical amendment list
+## 3. The two hackathon networks enforce different lending rules behind the same lending amendments
 
 We ran the same `LoanBrokerSet` against an open-ended vault on both networks:
 
@@ -61,11 +61,13 @@ We ran the same `LoanBrokerSet` against an open-ended vault on both networks:
 | custom hackathon devnet, network_id 4001 | 3.4.0-rc1 | `tesSUCCESS`, `59496BAE17EEE32D4E1E4E6BFD1A0764FEA645A4A42BCCB13F038F691D606F85` |
 | public XRPL devnet, network_id 2 | 3.4.0-rc5 | `tecNO_PERMISSION`, `DD751B834867010B29ABDC73A965D0AA33DCC00AEAA3C784210FFA067B7A95D5` |
 
-Both report `LendingProtocol` and `LendingProtocolV1_1` enabled, read from the Amendments ledger
-entry and mapped against `features.macro`. `TicketBatch` also differs between them. So the brief's
-appendix warning was right and the custom devnet keeps V1 behaviour, but a participant cannot
-discover that: `build_version` names no published tag, the amendment set is identical, and the only
-way to learn which semantics apply is to send a transaction and read the rejection.
+Both report `LendingProtocol` **and** `LendingProtocolV1_1` enabled, read from the Amendments ledger
+entry and mapped against `features.macro`. The two sets are not identical overall, 48 entries against
+89: the public devnet has run longer and carries amendments since retired from `features.macro`, and
+`TicketBatch` differs too. That is precisely the point. On the amendments that gate this behaviour
+the two agree exactly, and the behaviour still differs. A participant cannot discover which semantics
+apply, because `build_version` names no published tag, so the only way to learn is to send a
+transaction and read the rejection.
 
 **Proposed fix.** Expose the effective lending protocol version, publish the source for the build
 each network runs, and put a one-page amendment diff in the event brief. It is two lines of `jq`

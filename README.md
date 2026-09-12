@@ -31,7 +31,8 @@ securities, that market does not exist yet. Every primitive it needs already shi
 3. **Borrow.** A market maker escrows XRP and signs a request; the agent counter-signs. One
    transaction, two signatures.
 4. **Return.** At maturity the borrower returns the securities with the fee and recovers the
-   collateral. The lenders' share price rises by the fee actually delivered.
+   collateral. The lender's return is the interest the loan carries; the lending fee, measured, goes
+   to the agent rather than to the vault, which is finding F-016.
 5. **Default.** Past the grace period the agent declares default: the cover repays the vault in
    securities and the collateral rebuilds the cover.
 
@@ -106,7 +107,8 @@ hundred percent.
 | Primitive | What it does here | Hash |
 |---|---|---|
 | `MPTokenIssuanceCreate` | the tokenised security, require-auth so the transfer agent keeps control | [`B1F39818`](https://devnet.xrpl.org/transactions/B1F39818B7C96E4A25541B89285726B8E1485383D5AC6D720C35896784C8C0A2) |
-| `CredentialCreate` / `CredentialAccept` | eligibility, issued by the agent, accepted by the lender | in the evidence file |
+| `CredentialCreate` | eligibility, issued by the agent to the lender | [`16807269`](https://devnet.xrpl.org/transactions/16807269E4228770A1AE6BBCE465C2C387964CA7854533182F10FAEEAC52E9A8) |
+| `CredentialAccept` | the lender accepts it, which is what the domain checks | [`40C8CB8B`](https://devnet.xrpl.org/transactions/40C8CB8B8B7C9ABF6D051330D8F56C5B773BFA1D1DBF4496C52DEB64404B58FD) |
 | `PermissionedDomainSet` | the whitelist the vault's share issuance carries | [`006858D1`](https://devnet.xrpl.org/transactions/006858D1930599611342CCA5F49F05CA3F2B19B061D43F67F580C9B2BDD35BEF) |
 | `EscrowCreate` | the borrower's XRP collateral, held bilaterally | [`387AFEE3`](https://devnet.xrpl.org/transactions/387AFEE307549019CAE5555EE5599894BA75B3BCFEB0925C33AF8125BBD380FC) |
 
