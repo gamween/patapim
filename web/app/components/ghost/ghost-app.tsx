@@ -386,7 +386,7 @@ export default function GhostApp({
         aria-hidden={!revealed}
       >
         <a className="brand" href="/" aria-label="Patapim home">
-          <img src="/reference/site/ghost.svg" alt="" width="45" height="74" />
+
           <span>patapim</span>
         </a>
         {landing ? (
