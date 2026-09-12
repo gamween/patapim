@@ -1,132 +1,249 @@
-import { DEMO_VAULT, NETWORK } from '@/lib/config'
-
-const PROBLEM = [
-  {
-    h: 'Issuance is solved. Usage is not.',
-    p: 'Tokenised treasuries and money market funds are landing on XRPL. A holder can hold them, and that is all. No lending fee, and nobody can borrow them to post as collateral.',
-  },
-  {
-    h: 'Regulated assets have no lending market on chain.',
-    p: 'In traditional finance, agency securities lending is what makes long-only portfolios work: the lender earns a fee, the borrower gets high quality collateral, an agent guarantees the return. On chain, for regulated securities, that market does not exist yet.',
-  },
-  {
-    h: 'Every piece already shipped.',
-    p: 'Vaults, loan brokers, first-loss cover, credentials, permissioned domains, multi-purpose tokens, escrow. What was missing is the product that assembles them for capital markets.',
-  },
-]
+import { DEMO_VAULT, NETWORK, REPO } from '@/lib/config'
 
 const STEPS = [
-  {
-    h: 'Subscription',
-    p: 'Eligible holders, carrying an on-chain credential accepted by the agent’s permissioned domain, deposit the tokenised security into a fixed-term vault. The vault’s asset is the security itself, not cash.',
-  },
-  {
-    h: 'Indemnity',
-    p: 'The lending agent owns the vault and the loan broker, and posts first-loss cover denominated in the same security. The ledger refuses to originate any loan the cover cannot absorb.',
-  },
-  {
-    h: 'Borrow',
-    p: 'A market maker who needs high quality collateral signs a request and escrows XRP. The agent checks eligibility and concentration, then counter-signs. Two signatures, one transaction.',
-  },
-  {
-    h: 'Return',
-    p: 'At maturity the borrower returns the securities with the fee. The collateral is released. The lenders’ share price rises by the fee actually delivered, not by the fee scheduled.',
-  },
-  {
-    h: 'Default',
-    p: 'Past the grace period the agent declares default. The first-loss cover, sized at one hundred percent of the loan, repays the vault in securities: the vault does not shrink and the lenders’ share price does not move. Verified on chain, not asserted.',
-  },
+  [
+    'Subscription',
+    'Eligible holders deposit tokenised securities into a fixed-term vault. Credentials and a permissioned domain gate access to the lender pool.',
+  ],
+  [
+    'Indemnity',
+    'The lending agent posts first-loss capital in the same security. A 100% cover rate is the configuration used for the fully covered default demonstration.',
+  ],
+  [
+    'Borrow',
+    'A market maker escrows XRP as bilateral collateral. The agent checks borrower eligibility and counter-signs the loan: two signatures, one transaction.',
+  ],
+  [
+    'Return',
+    'The borrower returns the securities with the fee and recovers the collateral. Lenders earn the fee actually delivered, reflected in the value of their shares.',
+  ],
+  [
+    'Default',
+    'After the grace period, the agent declares default. In our fully covered run, the agent’s capital repays the vault in securities, restoring the lenders’ net share price.',
+  ],
 ]
-
-const MAPPING: [string, string, string][] = [
-  ['Lender pool', 'Closed-ended Single Asset Vault', 'XLS-65, asset is the tokenised security'],
-  ['Lending agent', 'LoanBroker', 'XLS-66, owns the vault and the loan book'],
-  ['Agent indemnity', 'First-loss cover', 'posted and paid in the security itself'],
-  ['Eligibility', 'Credentials plus Permissioned Domain', 'gate carried by the vault’s share issuance'],
-  ['The security', 'Multi-purpose token', 'issuer keeps clawback, lock and authorisation'],
-  ['Settlement delay', 'GracePeriod', 'on the loan, before default can be declared'],
-  ['Collateral', 'Escrowed XRP', 'held bilaterally, released on return'],
-  ['Loan of securities', 'LoanSet, two signatures', 'agent signs, borrower counter-signs'],
+const MAPPING = [
+  [
+    'Lender pool',
+    'Closed-ended Single Asset Vault',
+    'XLS-65 · the security is the asset',
+  ],
+  ['Lending agent', 'LoanBroker', 'XLS-66 · manages the loan book'],
+  ['Agent indemnity', 'First-loss cover', 'Posted and paid in the security'],
+  [
+    'Lender eligibility',
+    'Credentials + Permissioned Domain',
+    'Authorisation on the lender position',
+  ],
+  [
+    'The security',
+    'Multi-purpose token',
+    'Issuer-controlled authorisation, lock and clawback',
+  ],
+  ['Settlement window', 'GracePeriod', 'Time before default can be declared'],
+  ['Bilateral collateral', 'XRP Escrow', 'Released separately on return'],
+  ['Origination', 'LoanSet', 'Agent and borrower signatures'],
 ]
 
 export default function Home() {
   return (
     <>
-      <section className="section">
-        <div className="eyebrow">XRPL Lending Protocol Hackathon · Paris · September 2026</div>
-        <h1>
-          Securities lending,
-          <br />
-          native on the XRP Ledger.
-        </h1>
-        <p className="lede">
-          patapim lets holders of tokenised securities lend them through a lending agent, for a fee.
-          If the borrower does not return them in time, the agent’s own capital repays the vault and
-          the ledger’s default logic makes the lenders whole. No smart contract: only native XRPL
-          objects.
-        </p>
-        <div className="row" style={{ marginTop: 28 }}>
-          {DEMO_VAULT ? (
-            <a className="btn btn-primary" href={`/vault/${DEMO_VAULT}`}>
-              Open the live vault
+      <section className="hero" aria-labelledby="hero-title">
+        <div>
+          <div className="eyebrow">Securities lending · Native on XRPL</div>
+          <h1 id="hero-title">
+            Good assets.
+            <br />
+            Put to <span>work.</span>
+          </h1>
+          <p className="lede">
+            A lending market for tokenised securities. Holders earn a fee.
+            Borrowers get the securities they need. The lending agent puts its
+            own capital behind the trade.
+          </p>
+          <div className="row hero-actions">
+            {DEMO_VAULT && (
+              <a className="btn btn-primary" href={`/vault/${DEMO_VAULT}`}>
+                Open the live vault
+              </a>
+            )}
+            <a className="btn" href="#how">
+              Follow the trade
             </a>
-          ) : null}
-          <a className="btn" href="#how">
-            How it works
-          </a>
-          <span className="mono muted">Live on {NETWORK.name}</span>
+          </div>
+          <p className="hero-note">
+            Built on {NETWORK.name} · Track 2 / Loaded
+            <br />
+            XRPL Lending Protocol Hackathon · Paris, 2026
+          </p>
         </div>
+        <figure className="trade">
+          <figcaption>The trade / Securities, end to end</figcaption>
+          <div className="trade-node">
+            <strong>Eligible holders</strong>
+            <span>
+              Deposit securities
+              <br />
+              Receive vault shares
+            </span>
+          </div>
+          <div className="trade-node vault">
+            <strong>patapim vault</strong>
+            <span>
+              Fixed term
+              <br />
+              Permissioned access
+            </span>
+          </div>
+          <div className="trade-node">
+            <strong>Borrower</strong>
+            <span>
+              Borrow securities
+              <br />
+              Return them + a fee
+            </span>
+          </div>
+          <div className="trade-cover">
+            Backed by the lending agent
+            <small>First-loss capital, denominated in the same security.</small>
+          </div>
+        </figure>
       </section>
+      <div className="protocol-strip">
+        <span>Native XRPL objects</span>
+        <span>XLS-65 Vaults</span>
+        <span>XLS-66 Lending</span>
+        <span>MPTs + Credentials + Domains + Escrow</span>
+      </div>
 
-      <section className="section">
-        <div className="eyebrow">The problem</div>
+      <section className="section" id="why">
+        <div className="section-heading">
+          <div>
+            <div className="eyebrow">01 / The opportunity</div>
+            <h2>Tokenisation is just the beginning.</h2>
+          </div>
+          <p>
+            Issuance gives a security a place on the ledger. Securities lending
+            gives holders another way to use it.
+          </p>
+        </div>
         <div className="grid grid-3">
-          {PROBLEM.map((c) => (
-            <div className="card" key={c.h}>
-              <h3>{c.h}</h3>
-              <p>{c.p}</p>
-            </div>
-          ))}
+          <article className="card">
+            <span className="problem-number">01 / HOLDERS</span>
+            <h3>Make holding productive.</h3>
+            <p>
+              Lend the security you already own through an agent, for a fee,
+              within a defined term.
+            </p>
+          </article>
+          <article className="card">
+            <span className="problem-number">02 / BORROWERS</span>
+            <h3>Access the asset you need.</h3>
+            <p>
+              Borrow tokenised securities through a co-signed loan, with XRP
+              held as bilateral collateral.
+            </p>
+          </article>
+          <article className="card">
+            <span className="problem-number">03 / AGENTS</span>
+            <h3>Put capital behind trust.</h3>
+            <p>
+              Manage the loan book and post first-loss cover in the same asset.
+              The configured rate determines what a default absorbs.
+            </p>
+          </article>
         </div>
       </section>
 
       <section className="section" id="how">
-        <div className="eyebrow">How it works</div>
-        <h2>Five steps, all of them on ledger</h2>
-        <div className="steps" style={{ marginTop: 24 }}>
-          {STEPS.map((s) => (
-            <div className="step" key={s.h}>
-              <div className="step-n" />
+        <div className="section-heading">
+          <div>
+            <div className="eyebrow">02 / How it works</div>
+            <h2>
+              One trade.
+              <br />
+              Five moments that matter.
+            </h2>
+          </div>
+          <p>
+            The vault holds securities. The ledger enforces the calendar. The
+            agent manages eligibility, collateral and default.
+          </p>
+        </div>
+        <div className="steps">
+          {STEPS.map(([title, copy]) => (
+            <article className="step" key={title}>
+              <div className="step-n" aria-hidden="true" />
               <div>
-                <h3>{s.h}</h3>
-                <p className="muted" style={{ fontSize: 14, marginTop: 2 }}>
-                  {s.p}
-                </p>
+                <h3>{title}</h3>
+                <p>{copy}</p>
               </div>
-            </div>
+            </article>
           ))}
+        </div>
+        <div className="proof">
+          <div className="eyebrow">Verified default / 100% cover rate</div>
+          <h3>The agent takes the loss.</h3>
+          <div className="grid grid-3">
+            <div>
+              <strong>2,000,000</strong>
+              <p>Securities repaid by the cover</p>
+            </div>
+            <div>
+              <strong>5,000,000</strong>
+              <p>Vault assets after default</p>
+            </div>
+            <div>
+              <strong>1.00</strong>
+              <p>Net price per share restored after default</p>
+            </div>
+          </div>
+          <p style={{ marginTop: 'var(--space-3)' }}>
+            Historical Devnet run. During impairment, net share price is 0.60;
+            after the covered default, it returns to 1.00.{' '}
+            <a
+              href={`${NETWORK.explorer}/transactions/95AD6692375BFD184155472FA105571BA9C9A836B221BB36F11CAA4F699C81D4`}
+            >
+              Inspect the default transaction
+            </a>
+            .
+          </p>
         </div>
       </section>
 
       <section className="section" id="mapping">
-        <div className="eyebrow">On the ledger</div>
-        <h2>Every piece of the trade maps to a native object</h2>
-        <div className="table-wrap" style={{ marginTop: 20 }}>
+        <div className="section-heading">
+          <div>
+            <div className="eyebrow">03 / On the ledger</div>
+            <h2>
+              Native building blocks.
+              <br />A complete lending trade.
+            </h2>
+          </div>
+          <p>
+            No deployed smart contract. Each part of the product maps to a
+            native XRPL object or transaction.
+          </p>
+        </div>
+        <div
+          className="table-wrap"
+          tabIndex={0}
+          role="region"
+          aria-label="XRPL object mapping, scroll horizontally on small screens"
+        >
           <table>
             <thead>
               <tr>
-                <th>Securities lending</th>
-                <th>XRPL object</th>
-                <th>Notes</th>
+                <th>Product role</th>
+                <th>XRPL primitive</th>
+                <th>What it does</th>
               </tr>
             </thead>
             <tbody>
               {MAPPING.map(([a, b, c]) => (
                 <tr key={a}>
                   <td>{a}</td>
-                  <td>
-                    <span className="mono">{b}</span>
-                  </td>
+                  <td className="mono">{b}</td>
                   <td className="muted">{c}</td>
                 </tr>
               ))}
@@ -135,15 +252,26 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section">
-        <div className="eyebrow">What we ship</div>
-        <h2>A prototype that is not mocked, and a report that is not vague</h2>
-        <p className="lede">
-          The full cycle runs against XRPL Devnet: issuance, eligibility, subscription, origination
-          with two signatures, repayment, phase gating and redemption, every step with a transaction
-          hash. Alongside it, a developer report written transaction by transaction on what the
-          protocol, its SDKs and its documentation got in our way, each item with a proposed fix.
-        </p>
+      <section className="section closing">
+        <div>
+          <div className="eyebrow">04 / Built, tested, documented</div>
+          <h2>See what the ledger says.</h2>
+          <p className="lede">
+            A live vault, transaction evidence, and a developer report with
+            concrete fixes for the protocol and its tools.
+          </p>
+        </div>
+        <div className="grid">
+          <a className="btn btn-primary" href={`/vault/${DEMO_VAULT}`}>
+            Explore the live vault
+          </a>
+          <a className="btn" href={`${REPO}/blob/main/DEVELOPER-REPORT.md`}>
+            Read the developer report
+          </a>
+          <a className="btn" href="/deck/index.html">
+            Open the pitch deck
+          </a>
+        </div>
       </section>
     </>
   )
