@@ -40,22 +40,41 @@ securities, that market does not exist yet. Every primitive it needs already shi
 All verified on the public XRPL Devnet. One full lifecycle, end to end, from
 [`docs/evidence/recall-t2.json`](./docs/evidence/recall-t2.json).
 
+<!-- evidence:start -->
+
 | Transaction | Role in patapim | Result | Hash |
 |---|---|---|---|
-| `VaultCreate` | the fixed-term lender pool, `VaultKind: 1`, asset is the security, gated by `DomainID` | `tesSUCCESS` | [`0CBE12AB`](https://devnet.xrpl.org/transactions/0CBE12AB9ACDD12E2659A5FD0EC9505A37EFF55D56A0447AF83D4967D93CC246) |
-| `VaultDeposit` | an eligible holder subscribes | `tesSUCCESS` | [`CE5C7E59`](https://devnet.xrpl.org/transactions/CE5C7E595B0D9761B10BE9114AEF38597A03A9620A1590EE7DEC56528B47D06C) |
-| `VaultDeposit` | a holder with no credential is refused by the domain | `tecNO_AUTH` | [`D4C93863`](https://devnet.xrpl.org/transactions/D4C938639DD005D8B4AD6ADB06425AC6E15047C15C02B80386AAA2E07C3DBC88) |
-| `VaultDeposit` | subscription window closed, the phase gate fires | `tecEXPIRED` | [`7B9D16FA`](https://devnet.xrpl.org/transactions/7B9D16FA25DA3F54B7B3A13A63C21AB06775346264A4D1EC12228EBCFD709291) |
-| `LoanBrokerSet` | the lending agent, with its debt ceiling and cover rates | `tesSUCCESS` | [`B3974D7F`](https://devnet.xrpl.org/transactions/B3974D7F04236070B8C03FA2B3B637EFC8C980010ABE74514784D29892D3DDA2) |
-| `LoanBrokerCoverDeposit` | first-loss capital, posted in the security | `tesSUCCESS` | [`2365CA11`](https://devnet.xrpl.org/transactions/2365CA117DE89E212E2C19B03C603328BE76E6967FEBC07CA591FD1D1D9AD607) |
-| `LoanSet` | the loan of securities, agent signs, borrower counter-signs | `tesSUCCESS` | [`318A74E5`](https://devnet.xrpl.org/transactions/318A74E5F7083E919F316531B08F81AFFF5F409C35EDD40B21422D53DE516927) |
-| `LoanPay` | the borrower returns the securities and the fee | `tesSUCCESS` | [`CAF24C84`](https://devnet.xrpl.org/transactions/CAF24C84D9ED1DAC098C0D85FC069BD878719B374FF2FAEC9595C132E91C0AFE) |
-| `LoanSet` | new lending refused once redemption opens | `tecEXPIRED` | [`61FFF1E1`](https://devnet.xrpl.org/transactions/61FFF1E1E12CEF9924FB3F68E072292B6DD69B4DEE70F0F3903A71A09027B432) |
-| `VaultWithdraw` | the lender redeems, by shares | `tesSUCCESS` | [`CD270519`](https://devnet.xrpl.org/transactions/CD270519367CD55D2818F91D1BD8389C4971DC7B01B3A9EEAE34E4D92DAB5591) |
+| `MPTokenIssuanceCreate` | the tokenised security, require-auth so the transfer agent keeps control | `tesSUCCESS` | [`7679B968`](https://devnet.xrpl.org/transactions/7679B968F09FF0F798E47A37D46B36906163A80CCCF846504EAEC4C770912B10) |
+| `PermissionedDomainSet` | the eligibility whitelist the vault carries on its share issuance | `tesSUCCESS` | [`AB5472A6`](https://devnet.xrpl.org/transactions/AB5472A6C2FCC11F420EA8EB6D1F51AC5E7F28582808BF6CAE3CD041BD3F7AC7) |
+| `VaultCreate` | the fixed-term lender pool, `VaultKind: 1`, asset is the security, gated by `DomainID` | `tesSUCCESS` | [`B7DB66AE`](https://devnet.xrpl.org/transactions/B7DB66AE66F3E27EE91273ACE67AA63276BBB19ADA27AFE2344CA647FF9A6B2C) |
+| `VaultDeposit` | an eligible holder subscribes | `tesSUCCESS` | [`B805D0A8`](https://devnet.xrpl.org/transactions/B805D0A8A13C65A244131AABED6087397A87E82AF8A6FF2AC5AD99B7399826D5) |
+| `VaultDeposit` | a holder with no credential is refused by the domain | `tecNO_AUTH` | [`81A6043E`](https://devnet.xrpl.org/transactions/81A6043E1DE7512590274BD2A0A35243D64BE3E9520BA071604BBBCBD53F3C41) |
+| `LoanBrokerSet` | the lending agent, with its debt ceiling and cover rates | `tesSUCCESS` | [`6C5715F2`](https://devnet.xrpl.org/transactions/6C5715F2C7B89F92C80B8DF82F29B704F38C6086713565A3BAF088538DFB152B) |
+| `CoverDeposit` | first-loss capital, posted in the security | `tesSUCCESS` | [`B440E96E`](https://devnet.xrpl.org/transactions/B440E96EA895A20A38D4C0F7451CE01D451B42E5A3A194A5FD2231F58A5D548E) |
+| `VaultDeposit` | the subscription window has closed, the phase gate fires | `tecEXPIRED` | [`AAF85BB5`](https://devnet.xrpl.org/transactions/AAF85BB5EF807F97BC24ED2142B070C7BFAF3A6EBB17F1D518BC820C3CD8BA8D) |
+| `VaultWithdraw` | capital is locked for the term, the second phase gate | `tecTOO_SOON` | [`2541A17D`](https://devnet.xrpl.org/transactions/2541A17D6B30672E75BA3018F9319050B1F437932D1618FED2F270072902F6D2) |
+| `LoanSet` | the loan of securities, agent signs, borrower counter-signs | `tesSUCCESS` | [`784DA553`](https://devnet.xrpl.org/transactions/784DA553098DD10D4E35F45FC7BB8BC55081FA86DE2D509B5161D5F05F67A72A) |
+| `EscrowCreate` | the borrower posts XRP collateral, held bilaterally | `tesSUCCESS` | [`939E88A6`](https://devnet.xrpl.org/transactions/939E88A6786DC1C49BC9DB91F69975111658BA91B645FE81C9240B08565EDAFA) |
+| `LoanPay` | the borrower returns the securities and the fee | `tesSUCCESS` | [`FD3E8AE8`](https://devnet.xrpl.org/transactions/FD3E8AE83AA89FA104ECFEADE7D4333A0CE863A1F08AE4D22667CD32D706A799) |
+| `LoanSet` | new lending refused once redemption opens, the third phase gate | `tecEXPIRED` | [`531EB6E9`](https://devnet.xrpl.org/transactions/531EB6E9A8A5F5F86834F5F029A833A4003CF60B072EF5F484E395189DD8E424) |
+| `VaultWithdraw` | the lender redeems, denominated in shares | `tesSUCCESS` | [`1C206948`](https://devnet.xrpl.org/transactions/1C2069485728A1243E87F9EE2E952531C0B4B438CC57D9F481ADA4C923CC7B07) |
 
-The remaining phase gate, `VaultWithdraw` refused during Investment with `tecTOO_SOON`, and
-`LoanSet` refused during Subscription with `tecTOO_SOON`, are in
+<!-- evidence:end -->
+
+All three phase rejections the minimum bar asks for are in that table, on this vault. A fourth,
+`LoanSet` refused during Subscription with `tecTOO_SOON`, is in
 [`scripts/probe-t2.mjs`](./scripts/probe-t2.mjs), which walks the three phases on an XRP vault.
+
+Regenerate the table from the chain record with `node scripts/gen-evidence-table.mjs` after any run,
+so the hashes on this page cannot drift from the hashes on the ledger.
+
+**On yield.** A lender's return here is interest, and interest over a term compressed into minutes
+rounds to nothing: this loan repaid 2,000,001 on a principal of 2,000,000. That is not a shortcut we
+took, it is a property of the protocol we measured. `LoanOriginationFee` does not help, it is taken
+from the drawdown and paid to the broker rather than the vault. The mechanism the Lending Protocol
+workshop teaches for injecting yield into a closed-ended vault, a `VaultDeposit` carrying
+`tfVaultDonation`, does not exist in the implementation. Findings F-006 and F-016 in
+[`DEVELOPER-REPORT.md`](./DEVELOPER-REPORT.md).
 
 ## The default arc
 

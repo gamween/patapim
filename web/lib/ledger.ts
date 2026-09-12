@@ -148,9 +148,18 @@ export const LSF_LOAN_IMPAIRED = 0x00020000
 export type LoanStatus = 'paid off' | 'defaulted' | 'impaired' | 'overdue' | 'current'
 
 export function loanStatus(loan: Json, clock: number): LoanStatus {
-  if (Number(loan.TotalValueOutstanding ?? 0) === 0) return 'paid off'
+  // We deliberately diverge from the XRPL Explorer here, and only here. Its formatLoanStatus
+  // returns "paid off" whenever the outstanding balance is zero, whatever the flags say, and that
+  // is a deliberate choice: an explicit test asserts it, and both the Default tab filter and the
+  // broker's defaulted-loan counter require TotalValueOutstanding > 0 to agree with it. From the
+  // vault's side the loan is indeed settled.
+  // A lender-facing view cannot afford that shortcut. After a default the borrower did not pay, the
+  // first-loss cover did, and a loan book that reads "paid off" hides the counterparty that failed.
+  // Default is terminal, so it wins. Impairment is reversible with tfLoanUnimpair, so a zero
+  // balance after an impairment really is a repayment and keeps its "paid off".
   // eslint-disable-next-line no-bitwise
   if (loan.Flags & LSF_LOAN_DEFAULT) return 'defaulted'
+  if (Number(loan.TotalValueOutstanding ?? 0) === 0) return 'paid off'
   // eslint-disable-next-line no-bitwise
   if (loan.Flags & LSF_LOAN_IMPAIRED) return 'impaired'
   const due = Number(loan.NextPaymentDueDate ?? 0)

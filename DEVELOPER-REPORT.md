@@ -92,6 +92,21 @@ The divergences we hit, each verified against the shipped code rather than infer
 
 ## What the protocol made hard
 
+**The lender's yield cannot be demonstrated at all, and the fee does not go to the lender.** We added
+`LoanOriginationFee: 100000` to a 2000000 loan expecting the lender's position to rise, because a
+securities lending fee is what a lender is paid. The metadata of tx `784DA553…A72A` says otherwise:
+the borrower received 1900000, the principal minus the fee, the broker's own account received the
+whole 100000, the vault's `AssetsTotal` did not move, and the loan still records 2000000 of principal
+outstanding. Nothing documents that. The consequence is worse than the naming: a lender's only return
+is `InterestRate`, and on a schedule compressed to fit a devnet that cannot be fast-forwarded,
+interest rounds to nothing, our loan repaid 2000001 on 2000000. So "withdraw capital plus accrued
+yield", which the Track 2 minimum bar asks for, is not demonstrable in the time the event allows. The
+mechanism that would fix it is the one the Lending Protocol workshop teaches, a `VaultDeposit`
+carrying `tfVaultDonation` to raise the share price without minting shares, and that flag exists
+nowhere in the source or in `server_definitions`. *Proposal: document who pays and who receives each
+fee with the drawdown arithmetic, document the time basis of `InterestRate`, and either ship the
+donation flag the deck teaches or correct the deck.*
+
 **Impairment does not move `AssetsTotal`, so the obvious share price is wrong.** We walked a loan to
 default and snapshotted the vault at each step. On impairment, `LossUnrealized` went to 2000000 and
 `AssetsTotal` stayed at 5000000, so `AssetsTotal / OutstandingAmount`, the only formula the field
