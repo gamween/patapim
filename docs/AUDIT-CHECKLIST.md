@@ -75,12 +75,46 @@ overstated claim costs more than a missing feature.
       refused and confirm the ledger returns the code the page promised.
 - [ ] **The page holds at 400px wide** and in both colour schemes.
 
+## 3b. The interface, every control and every link
+
+Armand's art direction is merged. The landing page and the dashboard are one client app
+(`web/app/components/ghost/`); `/` renders it with `DEMO_VAULT` from `web/lib/config.ts`. Run
+`cd web && npm run build && npm run start` and drive the real thing, not the source.
+
+- [ ] **`DEMO_VAULT` points at a vault that holds something.** Open `/` and read the figures. If
+      assets, price per share and utilisation are zero or `—`, the hero sends a judge to an empty
+      vault: a spine run ends by redeeming the lender and leaves exactly that. Report it as
+      blocking.
+- [ ] **Every control does what it says.** Click each one: every button, tab, card, toggle,
+      disclosure and copy affordance in the app. Name any that is decorative, dead, or whose label
+      does not match its effect.
+- [ ] **Every link resolves.** Extract every `href` in the rendered pages and in `README.md`,
+      `DEVELOPER-REPORT.md`, `SUBMISSION.md` and `docs/ON-CHAIN.md`, then check each one: explorer
+      links land on the object they name and show the state we claim; GitHub links resolve, including
+      the two profiles and the explorer PR; no `localhost`, no `example.com`, no 404.
+- [ ] **The explorer agrees with us.** Open the vault, the broker and the loan in
+      `devnet.xrpl.org` beside our dashboard. Any figure that differs is either their bug, ours, or
+      a deliberate divergence: `loanStatus()` in `web/lib/ledger.ts` treats default as terminal over
+      a zero balance, and says so in a comment. Confirm that is the only one.
+- [ ] **There is no wallet connect.** Nothing in the app asks a visitor to sign, and nothing claims
+      it can. If any control implies a connected wallet, it is a claim we cannot honour: report it.
+- [ ] **The read path is the only path.** `web/` must never hold a seed or submit a transaction.
+      `grep -rn "Wallet.fromSeed\|submit(" web/ --include=*.ts --include=*.tsx`. Expected: nothing.
+- [ ] **The app degrades honestly.** Stop the network mid-session: the page must say the ledger
+      could not be read, not show stale figures as live. Pass a malformed vault id: the API returns
+      400 with a readable message and the page does not crash.
+- [ ] **The tab icon is ours**, not the Next.js triangle (`web/app/icon.svg`), and the title names
+      patapim.
+- [ ] **No dead route.** `find web/app -name 'page.tsx'` against what the build prints. Every route
+      is reachable from the app or is deliberate.
+
 ## 4. Security
 
 - [ ] **No seed, secret or private key anywhere in the repository or its history.**
       `git log -p --all | grep -nE "\bs[Ee]d[A-Za-z0-9]{27,}|\"secret\"|PRIVATE_KEY"` must return nothing.
       The faucet hands out seeds on every run: none of them may be committed, including inside
-      `docs/evidence/*.json` and `docs/research/*.md`.
+      `docs/evidence/*.json` (`standing-demo.json` is written from `.demo/state.json` with the seeds
+      stripped: confirm the stripping actually happened) and `docs/research/*.md`.
       Every account we create is a throwaway Devnet account holding test XRP only. If the grep
       surfaces anything, say where and decide whether it is worth rewriting history mid-event.
 - [ ] **`.xrpl-devex/` is gitignored** and no identity file, buffer or report is tracked.
@@ -107,9 +141,11 @@ Check `SUBMISSION.md` against the brief itself, not against our summary of it:
       transaction used. Count the transactions in the table against the transactions in `scripts/`:
       anything we use and do not list is a gap.
 - [ ] The developer report is at the repository root and is **three pages or fewer when rendered**.
-      It is currently around 1760 words across four tables, which is close to the limit. If it runs
-      over, cut the "Smaller things, one line each" table first: it is the only section whose items
-      are also filed through the event hook, so nothing is lost.
+      Render it and count. It is around 1800 words across four tables and has been measured at
+      roughly five pages, so assume it is over until you have measured it yourself. If it runs over,
+      cut the "Smaller things, one line each" table first: it is the only section whose items are
+      also filed through the event hook, so nothing is lost. Say how many pages you measured and
+      how.
 - [ ] The slide deck is ten slides or fewer.
 - [ ] The DevEx form is submitted with both members and both GitHub handles.
 - [ ] The demo runs from a clean state in under four minutes.
