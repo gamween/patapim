@@ -210,7 +210,6 @@
   width: 42px;
   height: 72px;
   object-fit: contain;
-  filter: brightness(0) invert(1);
 }
 .ghost-root .brand > span {
   font-size: 32px;
@@ -521,9 +520,6 @@
 .ghost-root.about-open .header {
   background: none;
   color: #000;
-}
-.ghost-root.about-open .brand img {
-  filter: brightness(0);
 }
 .ghost-root.about-open .header .muted {
   color: #28603a;
