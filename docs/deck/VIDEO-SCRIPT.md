@@ -1,20 +1,20 @@
 # Video demo, script and shot list
 
-App only, no slides. Target 3:30, hard ceiling 4:00. Spoken lines in English, for the jury; the
-directions are what to do on screen. Every number below was read from the deployed app on
-13 September 2026 at 12:05 CEST; the app reads the ledger, so re-check them on the day.
+App only, no slides. Target 3:30, hard ceiling 4:00. Spoken lines in English, for the jury. Every
+number below was read from the deployed app on 13 September 2026 at 12:05 CEST; the app reads the
+ledger, so re-check them on the day.
 
 ## Before recording
 
 | | |
 |---|---|
 | URL | https://patapim-gamma.vercel.app in a clean browser profile, window 1440 px wide, no extension popups |
-| Keys | `.demo/standing.json` → `seeds.investorIneligible` then `seeds.investorEligible`, ready in a clipboard manager. The seed field is a password field: nothing is shown on screen. Never show the JSON file. |
-| Signer | The Devnet demo key path, proven on the deployed app. Use Xaman only if the single-sign fix passes `npm test` locally and you record on http://localhost:3000 with `npm run dev`: the deployed app runs the unpatched xrpl-connect rc.2 until you deploy. |
-| Demo accounts | eligible `rM7nDFZZ…VnNC` holds 999,000 TBL and 1,000 Fund II shares; ineligible `rKsP5GqU…22EN` holds 1,000,000 TBL and no shares |
+| Wallet | Xaman on the phone, on **XRPL Devnet**, with the two demo investors imported: eligible `rM7nDFZZ…VnNC` and ineligible `rKsP5GqU…22EN`. Connection by XRPL Commons' xrpl-connect, with the single-signature fix from commit `e699d06` deployed. |
+| Demo accounts | eligible holds 999,000 TBL and 1,000 Fund II shares; ineligible holds 1,000,000 TBL and no shares |
 | Fund II | open for subscription until 16 September 18:00 CEST; `VaultDeposit` and `VaultWithdraw` allowed, `LoanSet` refused `tecTOO_SOON` |
 | Fund I | in term until 16 September; `VaultDeposit` refused `tecEXPIRED`, `VaultWithdraw` refused `tecTOO_SOON` |
-| Timing | after **Sign VaultDeposit**, the panel walks through "Reading sequence and fee", "Signing in this browser", "Submitting", "Waiting for a validated ledger": 5 to 10 seconds. Keep rolling, the wait is the point. |
+| Phone on screen | film the phone or mirror it: the slide-to-sign in Xaman is the proof that the wallet signs and the server only relays |
+| Timing | after **Sign VaultDeposit in Xaman**, the panel reads "Waiting for Xaman", then "Submitting", then "Waiting for a validated ledger": 10 to 20 seconds including the phone. Keep rolling, the wait is the point. |
 | Fallback | if Devnet is slow, the outcome link opens the explorer page of the same transaction; hashes from the last rehearsal are in `docs/evidence/fund-offering.json` |
 | Sound | record the voice separately if the room is noisy; the on-screen text is enough to follow without sound |
 
@@ -66,9 +66,6 @@ One day of grace before the agent can declare default, the settlement cycle of a
 **Say.** "In the investment period the ledger itself refuses a late subscription and an early
 redemption. These are not app rules. Sign one and the ledger answers with the code you see here."
 
-Optional, adds 25 s: **Sign** tab, **No wallet? Use a Devnet demo key**, load the eligible key,
-**Sign VaultDeposit**, and show the live `tecEXPIRED`. Then **Forget key** before switching fund.
-
 ### 1:40 · Fund II, open for subscription (15 s)
 
 **Do.** Click the header button **CHANGE VAULT / HOLDER**, then **Fund II · Open for subscription**.
@@ -79,34 +76,36 @@ The heading reads Fund II, phase **SUBSCRIPTION**. Show the **Subscription capac
 **Say.** "Fund II is in its subscription period until Tuesday. Deposits are open, lending is not yet:
 the ledger refuses a LoanSet until the investment period starts."
 
-### 1:55 · Sign, eligibility the ledger enforces (70 s)
+### 1:55 · Sign with Xaman, eligibility the ledger enforces (75 s)
 
-**Do.** Click the **Sign** tab. Click **No wallet? Use a Devnet demo key**.
+**Do.** Click the **Sign** tab, then **Connect wallet**. The xrpl-connect modal opens with Xaman
+first. Scan the QR code with the phone.
 
-1. Paste the **ineligible** seed, **Load key**. The panel shows `rKsP5GqU…22EN`, TBL held
-   1,000,000, fund shares held 0. Leave **Subscribe `VaultDeposit`** selected, amount **1000**. Read
-   the footnote: "This fund is private…". Click **Sign VaultDeposit**. Wait. Result in red:
-   **tecNO_AUTH**, "Refused by the ledger: this account holds no credential accepted by the fund's
-   permissioned domain." Click the explorer link, show the same `tecNO_AUTH` on devnet.xrpl.org,
-   come back.
-2. **Forget key**. Paste the **eligible** seed, **Load key**. `rM7nDFZZ…VnNC`, TBL held 999,000,
-   shares 1,000. Same amount, **Sign VaultDeposit**. Wait. Result in green: **tesSUCCESS**,
-   "Accepted. The fund minted shares to this account." Shares held now read 2,000.
+1. In Xaman, approve the sign-in with the **ineligible** account. The panel shows Wallet **Xaman**,
+   Account `rKsP5GqU…22EN`, TBL held 1,000,000, fund shares held 0. Leave **Subscribe
+   `VaultDeposit`** selected, amount **1000**. Read the footnote: "This fund is private…". Click
+   **Sign VaultDeposit in Xaman**. Show the phone: the VaultDeposit payload, slide to sign. Back on
+   screen, result in red: **tecNO_AUTH**, "Refused by the ledger: this account holds no credential
+   accepted by the fund's permissioned domain." Click the explorer link, show the same `tecNO_AUTH`
+   on devnet.xrpl.org, come back.
+2. **Disconnect**, then **Connect wallet** again and approve the sign-in with the **eligible**
+   account. `rM7nDFZZ…VnNC`, TBL held 999,000, shares 1,000. Same amount, **Sign VaultDeposit in
+   Xaman**, slide to sign on the phone. Result in green: **tesSUCCESS**, "Accepted. The fund minted
+   shares to this account." Shares held now read 2,000.
 3. Click the **Vault** tab: a new card, **Your position**, and **Fund assets** now 3,002,000.
 
-**Say.** "Two demo investors. Both hold the security, both were authorised by the transfer agent. Only
-one carries the credential the fund's permissioned domain accepts. The key signs here in the browser
-with the mandated xrpl.js beta; only the signed transaction reaches our server, which relays it to
-Devnet and reads the result from a validated ledger. The account without a credential: refused,
-tecNO_AUTH, by the ledger, not by us. The account with the credential: accepted, shares minted, and
-the position reads back from the vault. Holding the security is not enough to lend it: the share
-issuance carries the domain, so eligibility is enforced on the fund position itself."
+**Say.** "Two investors, both in the same Xaman wallet. Both hold the security, both were authorised
+by the transfer agent. Only one carries the credential the fund's permissioned domain accepts. The
+wallet signs on the phone; only the signed transaction reaches our server, which relays it to Devnet
+and reads the result from a validated ledger. The account without a credential: refused, tecNO_AUTH,
+by the ledger, not by us. The account with the credential: accepted, shares minted, and the position
+reads back from the vault. Holding the security is not enough to lend it: the share issuance carries
+the domain, so eligibility is enforced on the fund position itself."
 
-### 3:05 · Provenance (20 s)
+### 3:10 · Provenance (15 s)
 
 **Do.** On the **Vault** tab, click **Ledger provenance**, 7 READS. Expand one or two of the
-requests, for example "the reference price, on the Price Oracle the vault Data names". Click
-**Inspect vault owner on the explorer** if there is time.
+requests, for example "the reference price, on the Price Oracle the vault Data names".
 
 **Say.** "Every figure on this page comes from these calls, server-side, against a validated ledger:
 the vault, its shares, the loan broker, the loans, the oracle price, the collateral escrows. Nothing is
@@ -126,6 +125,8 @@ is linked and re-verified against the ledger in the repository. patapim."
 
 | Symptom | Do |
 |---|---|
+| Xaman connects on the wrong network | the panel says "Xaman is on Mainnet. Switch it to XRPL Devnet and reconnect": switch in Xaman's settings, **Disconnect**, reconnect |
+| "Xaman returned unexpected multi-signing account data" | the deployed app predates commit `e699d06`; redeploy, or record on http://localhost:3000 with `npm run dev` |
 | **STALE SNAPSHOT** in the header, or "Refresh failed" | click **Retry ledger**; Devnet hiccups clear in seconds |
 | "No validated result after 40 seconds" | open the explorer link in the outcome; the transaction is there, the poll timed out |
 | `tefPAST_SEQ` or `tefMAX_LEDGER` | sign again, the panel says so |
