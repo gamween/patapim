@@ -25,8 +25,8 @@ the vault the landing page opens: subscribed, closed, 2,000,000 TBL on loan to a
 | Lending agent: credential issuer, domain owner, vault owner, loan broker owner | [`rU57MqUw…V6ks`](https://devnet.xrpl.org/accounts/rU57MqUwaPcKF4rTYx4cN8osyT8SkDV6ks) |
 | Beneficial owner, the lender | [`rpHuHbBy…yUrK`](https://devnet.xrpl.org/accounts/rpHuHbBytD3CG6DXvNpm3odFHLkvmSyUrK) |
 | Borrower, the market maker | [`rnLnMVxh…43cE`](https://devnet.xrpl.org/accounts/rnLnMVxhicYy3Jg4LGFoCvXwbnejyx43cE) |
-| Demo investor with a credential, seed published in `docs/DEMO-ACCOUNTS.md` | [`rM7nDFZZ…VnNC`](https://devnet.xrpl.org/accounts/rM7nDFZZPqHnS1UqRBgdsrVSxNWqpMVnNC) |
-| Demo investor without a credential, seed published in `docs/DEMO-ACCOUNTS.md` | [`rKsP5GqU…22EN`](https://devnet.xrpl.org/accounts/rKsP5GqUeHHnJsgRnXmK8Q4QryxfRR22EN) |
+| Demo investor with a credential, see `docs/DEMO-ACCOUNTS.md` | [`rM7nDFZZ…VnNC`](https://devnet.xrpl.org/accounts/rM7nDFZZPqHnS1UqRBgdsrVSxNWqpMVnNC) |
+| Demo investor without a credential, see `docs/DEMO-ACCOUNTS.md` | [`rKsP5GqU…22EN`](https://devnet.xrpl.org/accounts/rKsP5GqUeHHnJsgRnXmK8Q4QryxfRR22EN) |
 | Vault pseudo-account, holds the pooled securities | [`rPu8zCzm…WJ4n`](https://devnet.xrpl.org/accounts/rPu8zCzmdcTrovrXNaeJApxqCznsx9WJ4n) |
 | Loan broker pseudo-account, holds the loans | [`rJoiZDjD…jXpH`](https://devnet.xrpl.org/accounts/rJoiZDjDv8qNTzjEKqyi22Dn59ho1XjXpH) |
 
@@ -86,8 +86,8 @@ subscription open until Wednesday 16 September 18:00 CEST, then a 91 day term. T
 | Lending agent: credential issuer, domain owner, vault owner, loan broker owner | [`rU57MqUw…V6ks`](https://devnet.xrpl.org/accounts/rU57MqUwaPcKF4rTYx4cN8osyT8SkDV6ks) |
 | Beneficial owner, the lender | [`rpHuHbBy…yUrK`](https://devnet.xrpl.org/accounts/rpHuHbBytD3CG6DXvNpm3odFHLkvmSyUrK) |
 | Borrower, the market maker | [`rnLnMVxh…43cE`](https://devnet.xrpl.org/accounts/rnLnMVxhicYy3Jg4LGFoCvXwbnejyx43cE) |
-| Demo investor with a credential, seed published in `docs/DEMO-ACCOUNTS.md` | [`rM7nDFZZ…VnNC`](https://devnet.xrpl.org/accounts/rM7nDFZZPqHnS1UqRBgdsrVSxNWqpMVnNC) |
-| Demo investor without a credential, seed published in `docs/DEMO-ACCOUNTS.md` | [`rKsP5GqU…22EN`](https://devnet.xrpl.org/accounts/rKsP5GqUeHHnJsgRnXmK8Q4QryxfRR22EN) |
+| Demo investor with a credential, see `docs/DEMO-ACCOUNTS.md` | [`rM7nDFZZ…VnNC`](https://devnet.xrpl.org/accounts/rM7nDFZZPqHnS1UqRBgdsrVSxNWqpMVnNC) |
+| Demo investor without a credential, see `docs/DEMO-ACCOUNTS.md` | [`rKsP5GqU…22EN`](https://devnet.xrpl.org/accounts/rKsP5GqUeHHnJsgRnXmK8Q4QryxfRR22EN) |
 | Vault pseudo-account, holds the pooled securities | [`rEShUHu6…KDVq`](https://devnet.xrpl.org/accounts/rEShUHu6FeH2W3JnG467tstZ2pFzXQKDVq) |
 | Loan broker pseudo-account, holds the loans | [`r3KiR6ty…U5ix`](https://devnet.xrpl.org/accounts/r3KiR6tyTUojaahYRpp6WtoKXv2JpnU5ix) |
 

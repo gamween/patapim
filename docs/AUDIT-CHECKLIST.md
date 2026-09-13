@@ -111,7 +111,7 @@ Armand's art direction is merged. The landing page and the dashboard are one cli
       `web/lib/wallet-manager.ts` registers. A connected wallet's position appears, and the Sign tab says
       what that wallet can sign (F-019). Xaman appears only with `NEXT_PUBLIC_XAMAN_API_KEY` set.
 - [ ] **The demo-key fallback signs in the browser, never on the server.** Load a key from
-      `docs/DEMO-ACCOUNTS.md` on Fund II and sign a `VaultDeposit`: the eligible key gets `tesSUCCESS`,
+      the team (accounts in `docs/DEMO-ACCOUNTS.md`) on Fund II and sign a `VaultDeposit`: the eligible key gets `tesSUCCESS`,
       the other `tecNO_AUTH`, each with an explorer link. In the network panel, no request carries the
       seed; `/api/submit` receives a signed blob only.
 - [ ] **The server holds no key and relays only a lender's own transactions.** `Wallet.fromSeed`
@@ -129,10 +129,9 @@ Armand's art direction is merged. The landing page and the dashboard are one cli
 
 ## 4. Security
 
-- [ ] **No seed, secret or private key in the working tree, except the two published on purpose.**
-      `git grep -nE "\bs[Ee]d[A-Za-z0-9]{27,}" -- . ':!docs/DEMO-ACCOUNTS.md'` must return nothing, and
-      the two seeds in `docs/DEMO-ACCOUNTS.md` must derive the two addresses that page names and hold
-      nothing but test XRP and TBL. `git log -p --all -- . ':!docs/DEMO-ACCOUNTS.md'` greps the history.
+- [ ] **No seed, secret or private key in the working tree.** `git grep -nE "\bs[Ee]d[A-Za-z0-9]{27,}"` must
+      return nothing. The Xaman API key in the deployment is the public browser key; the Xaman API secret
+      must appear nowhere, in the repository or in Vercel. `git log -p --all` greps the history.
       The faucet hands out seeds on every run: none of them may be committed, including inside
       `docs/evidence/*.json` (`standing-demo.json` is written from `.demo/state.json` with the seeds
       stripped: confirm the stripping actually happened) and `docs/research/*.md`.

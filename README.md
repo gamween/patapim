@@ -48,7 +48,7 @@ with one loan of securities out. The vault picker also lists **Fund II**, open f
 Wednesday 16 September 18:00 CEST.
 
 1. Open Fund II and choose **Connect Wallet** in the header, or go to the **Sign** tab.
-2. Connect a wallet holding one of the two demo accounts in [`docs/DEMO-ACCOUNTS.md`](./docs/DEMO-ACCOUNTS.md).
+2. Connect a Xaman wallet on XRPL Devnet holding one of the two demo accounts in [`docs/DEMO-ACCOUNTS.md`](./docs/DEMO-ACCOUNTS.md); the team shares their keys with judges on request.
 3. Sign a `VaultDeposit`. The investor with a credential gets `tesSUCCESS` and a position; the one
    without gets `tecNO_AUTH`, refused by the permissioned domain. The same deposit into Fund I gets
    `tecEXPIRED`: its subscription period is over.
@@ -59,7 +59,7 @@ reads the result from a validated ledger. Wallets differ in what they can sign (
 
 | Wallet | Offered | Can sign a vault transaction with an MPT amount |
 |---|---|---|
-| Xaman | when `NEXT_PUBLIC_XAMAN_API_KEY` is set and the site origin is registered with Xaman | yes in its code: Single Asset Vault support since Xaman 5.1, Devnet network; not yet tested live |
+| Xaman | on the deployed app | yes in its code, Single Asset Vault support since Xaman 5.1, and its backend accepts a `VaultDeposit` payload forced to `DEVNET` |
 | Otsu | always, if installed | yes, in its code (ripple-binary-codec 2.7.0); a developer build |
 | WalletConnect | when `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` is set | depends on the wallet; none we checked documents XRPL Devnet. The app re-encodes the signed `tx_json` the adapter returns |
 | Crossmark, GemWallet | always, if installed | no: their signing libraries predate vault transactions |
@@ -232,7 +232,7 @@ web/                  the app: Next.js; server routes read the ledger and relay 
   lib/finance.ts      every lending metric the dashboard shows, with its definition
 docs/
   ON-CHAIN.md         every account and object we created, with explorer links
-  DEMO-ACCOUNTS.md    the two demo keys, published on purpose
+  DEMO-ACCOUNTS.md    the two demo investor accounts and what the ledger answers them
   ONE-PAGER.en.md     the product on one page, and ONE-PAGER.fr.md in French
   evidence/           transaction hashes per run, machine readable
   research/           the sourced notes behind the report and the lending conventions

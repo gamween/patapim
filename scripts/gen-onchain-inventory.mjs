@@ -21,8 +21,8 @@ const ROLE = {
   agent: 'Lending agent: credential issuer, domain owner, vault owner, loan broker owner',
   lender: 'Beneficial owner, the lender',
   borrower: 'Borrower, the market maker',
-  investorEligible: 'Demo investor with a credential, seed published in `docs/DEMO-ACCOUNTS.md`',
-  investorIneligible: 'Demo investor without a credential, seed published in `docs/DEMO-ACCOUNTS.md`',
+  investorEligible: 'Demo investor with a credential, see `docs/DEMO-ACCOUNTS.md`',
+  investorIneligible: 'Demo investor without a credential, see `docs/DEMO-ACCOUNTS.md`',
 }
 
 const short = (s, n = 10) => (s ? `${s.slice(0, n)}…${s.slice(-4)}` : '')

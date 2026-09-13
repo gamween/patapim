@@ -19,8 +19,8 @@
 //   - the borrower posts cash collateral at 102% of the loan's market value, priced from an
 //     on-ledger Price Oracle, in a token escrow the agent can only claim after the grace period
 //
-// Seeds go to .demo/standing.json, which is gitignored. The two demo investor accounts are
-// published on purpose in docs/DEMO-ACCOUNTS.md, and nowhere else.
+// Seeds go to .demo/standing.json, which is gitignored. The two demo investor accounts are listed in
+// docs/DEMO-ACCOUNTS.md, without their keys, which the team shares with judges on request.
 import fs from 'node:fs'
 import { Wallet } from 'xrpl'
 import { connect, hex, sleep, createdId, submit, submitLoanSet, RIPPLE_EPOCH } from './lib/lending.mjs'

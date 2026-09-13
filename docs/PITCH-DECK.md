@@ -33,7 +33,7 @@ Evidence: README.md · The trade · docs/research/lending-conventions.md
 
 ## 3. Eligibility,  enforced. — 0:30–1:30
 
-Open Fund II, which is open for subscription, and go to the Sign tab. Load the demo key without a credential and sign a VaultDeposit: the ledger refuses it, tecNO_AUTH. Load the key with a credential: tesSUCCESS, and the position appears. Both keys are published in docs/DEMO-ACCOUNTS.md; the page signs in the browser and the server only relays the signed blob.
+Open Fund II, which is open for subscription, and connect the Xaman wallet holding the demo account without a credential, or load its key in the Sign tab. Sign a VaultDeposit: the ledger refuses it, tecNO_AUTH. Switch to the account with a credential: tesSUCCESS, and the position appears. The wallet signs; the server only relays the signed blob.
 
 Evidence: <a href="https://devnet.xrpl.org/transactions/F018B9251EDAC42FF724928A653DD4FC70107D49122D815797D62B856C1D33DB" target="_blank" rel="noreferrer">Eligible · F018B925</a> · <a href="https://devnet.xrpl.org/transactions/F8492DE06B84745498EE8A6DA34AF7C1119BBFBBD11C4F54A05895E45497AC0E" target="_blank" rel="noreferrer">Refused · F8492DE0</a> · docs/DEMO-ACCOUNTS.md
 

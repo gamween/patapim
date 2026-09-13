@@ -47,7 +47,7 @@ period is 180 seconds, so the default arc is shown from its hashes.
 | risk | mitigation |
 |---|---|
 | devnet is slow or unreachable during the pitch | the explorer pages and the deck's verified hashes, open in tabs |
-| a judge moves the demo investors' tokens or deletes the credential | `node scripts/standing.mjs` re-provisions in about eight minutes; update `web/lib/config.ts` and `docs/DEMO-ACCOUNTS.md` |
+| a judge moves the demo investors' tokens or deletes the credential | `node scripts/standing.mjs` re-provisions in about eight minutes; update `web/lib/config.ts` and `docs/DEMO-ACCOUNTS.md`, and send the new keys to the judges |
 | Fund I's loan passes its due date | it falls due on 15 September 12:00 CEST, after the judging |
 | a late change breaks the front at 12:29 | freeze the front at 11:00 and touch nothing but copy after that |
 | the DevEx form link never arrives | ask a mentor in person during the Sunday morning coaching slot |
