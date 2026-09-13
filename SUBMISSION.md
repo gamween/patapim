@@ -4,7 +4,7 @@ XRPL Lending Protocol Hackathon, Paris, 13 September 2026, 13:00 CEST.
 
 | | Deliverable | State |
 |---|---|---|
-| ☐ | **DevEx feedback form**, team members and GitHub handles | **link not published anywhere**: not in either version of the brief, not in the three decks, not on the Notion page. Ask the organizers for it, then fill it with the team block below. |
+| ☑ | **DevEx feedback form**, team members and GitHub handles | filled on 13 September with the team block below |
 | ☑ | Public GitHub repository | [gamween/patapim](https://github.com/gamween/patapim) |
 | ☑ | README: what it does, setup, track, environment, library version, every XLS-65/66 transaction used | [`README.md`](./README.md) |
 | ☑ | Links to verified on-chain transactions | the README table, and [`docs/ON-CHAIN.md`](./docs/ON-CHAIN.md): 76 transactions re-verified against the ledger |
@@ -14,6 +14,7 @@ XRPL Lending Protocol Hackathon, Paris, 13 September 2026, 13:00 CEST.
 | ☑ | Slide deck, ten slides maximum | nine slides, [live](https://patapim-gamma.vercel.app/deck/index.html) and [`docs/PATAPIM-DECK.pdf`](./docs/PATAPIM-DECK.pdf) |
 | ☑ | Deployed app a judge can use | [patapim-gamma.vercel.app](https://patapim-gamma.vercel.app): Fund I in term, Fund II open for subscription, wallet connect by xrpl-connect, Sign tab with a demo-key fallback, accounts in [`docs/DEMO-ACCOUNTS.md`](./docs/DEMO-ACCOUNTS.md) |
 | ☑ | Borrower eligibility gap | nothing to disclose privately: publicly tracked as XRPL-Standards #484 and rippled #6517, both open. Mention it to a mentor as courtesy. Finding F-018 |
+| ☐ | Video demo, appreciated | app only, no slides: script and shot list in [`docs/deck/VIDEO-SCRIPT.md`](./docs/deck/VIDEO-SCRIPT.md); link it from the README header once uploaded |
 | ☐ | Live demo rehearsed | Fund I and Fund II stand until 16 September; for a live phase flip, `node scripts/demo.mjs provision 4 10` about ten minutes before the slot |
 | ☑ | One-pagers | [English](./docs/ONE-PAGER.en.md), [français](./docs/ONE-PAGER.fr.md) |
 
