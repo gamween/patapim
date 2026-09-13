@@ -2,7 +2,7 @@
 
 **XRPL Lending Protocol Hackathon, Paris, September 2026 · Track 2, closed-ended vaults · public XRPL Devnet**
 
-App: https://patapim-gamma.vercel.app · Code: https://github.com/gamween/patapim · Team: Sofiane Ben Taleb (@gamween), Armand Séchon (@STOOOKEEE)
+App: https://patapim-gamma.vercel.app · Video: https://youtu.be/rl5IiE9Bn8A · Code: https://github.com/gamween/patapim · Team: Sofiane Ben Taleb (@gamween), Armand Séchon (@STOOOKEEE)
 
 ## The problem
 

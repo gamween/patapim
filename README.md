@@ -12,7 +12,7 @@
 
 **XRPL Lending Protocol Hackathon · Paris · 12-13 September 2026**
 
-**[Open the app](https://patapim-gamma.vercel.app)** · **[Jury deck](https://patapim-gamma.vercel.app/deck/index.html)** · **[Developer report](./DEVELOPER-REPORT.md)** · **[One-pager](./docs/ONE-PAGER.en.md)** · **[En français](./docs/ONE-PAGER.fr.md)**
+**[Open the app](https://patapim-gamma.vercel.app)** · **[Video demo](https://youtu.be/rl5IiE9Bn8A)** · **[Jury deck](https://patapim-gamma.vercel.app/deck/index.html)** · **[Developer report](./DEVELOPER-REPORT.md)** · **[One-pager](./docs/ONE-PAGER.en.md)** · **[En français](./docs/ONE-PAGER.fr.md)**
 
 </div>
 
@@ -45,7 +45,7 @@ figure in the app is read from the validated ledger.
 
 The app is deployed at **https://patapim-gamma.vercel.app**. It opens **Fund I**, a fund in its term
 with one loan of securities out. The vault picker also lists **Fund II**, open for subscription until
-Wednesday 16 September 18:00 CEST.
+Wednesday 16 September 18:00 CEST. A video demo of the app is on [YouTube](https://youtu.be/rl5IiE9Bn8A).
 
 1. Open Fund II and choose **Connect Wallet** in the header, or go to the **Sign** tab.
 2. Connect a Xaman wallet on XRPL Devnet holding one of the two demo accounts in [`docs/DEMO-ACCOUNTS.md`](./docs/DEMO-ACCOUNTS.md); the team shares their keys with judges on request.
