@@ -2,20 +2,20 @@
 
 Nine slides in English, 16:9. The deck uses the exact black, white, DM Mono and #1eff66 palette of the deployed ghost frontend, with original intro frames and the original ghost silhouette throughout.
 
-Presentation: https://ways-stake-equations-suitable.trycloudflare.com/deck/index.html
+Presentation: https://patapim-gamma.vercel.app/deck/index.html
 PDF: docs/PATAPIM-DECK.pdf (also served at /deck/PATAPIM-DECK.pdf).
 
 Arrow keys / Page Up / Page Down / Space navigate. Home and End jump. N toggles speaker notes; O toggles the overview. Fullscreen and a PDF download are available. Print exports every slide without controls or notes. Reduced-motion preferences disable slide transitions.
 
 Content sources: README.md, DEVELOPER-REPORT.md, docs/PLAN.md and docs/evidence/. The developer report takes precedence over old gross share-price fields. Slide 6 recomputes net prices from the raw ledger evidence during generation: 1.00 → 0.60 → 1.00. This is a verified historical run, not live data.
 
-Choose either the phase walk or default arc live. The other uses verified hashes: both cannot fit live into four minutes. The dashboard is read-only. No provisioning or transaction is triggered by viewing the slides.
+Choose either the phase walk or default arc live. The other uses verified hashes: both cannot fit live into four minutes. The dashboard reads the ledger; its Sign tab relays a transaction the visitor signs in their own browser with a published demo key. Viewing the slides triggers nothing.
 
 The Explorer contribution is a pull request, not described as merged. It was verified OPEN on 12 September 2026.
 
 ## Regenerate
 
-`python3 scripts/build-deck.py --app-url https://ways-stake-equations-suitable.trycloudflare.com`
+`python3 scripts/build-deck.py --app-url https://patapim-gamma.vercel.app`
 
 Styles and controls: scripts/deck/. Speaker notes: docs/deck/slide-notes.json. Run `node scripts/export-deck.mjs` to export the PDF and slide PNGs. First install the web dependencies with `npm ci --prefix web` and a browser with `cd web && npx playwright install chromium`. Alternatively, set `CHROMIUM_PATH` to an existing Chromium executable. The export checks image and font loading, navigation, speaker notes, overview selection and mobile framing.
 
@@ -27,15 +27,15 @@ Evidence: README.md · Why / The trade
 
 ## 2. A market with an agent  on the hook. — 0:15–0:30
 
-The asset in the vault is the security itself. The agent owns the vault and loan broker, checks borrower eligibility and posts cover. Loan interest accrues to the vault; origination fees go to the broker. The compressed demo does not demonstrate meaningful lender yield. XRP collateral is a separate bilateral escrow; do not describe escrow and default settlement as one atomic transaction.
+The asset in the vault is the security itself. The agent owns the vault and the loan broker, posts first-loss capital in the same security and keeps a tenth of the lending fee, a 90/10 split. The borrower posts cash collateral at 102% of market value in a separate token escrow, priced by an on-ledger oracle. The ledger gates lenders, not borrowers: say so if asked, it is finding F-018. Do not describe escrow and default settlement as one atomic transaction.
 
-Evidence: README.md · The trade / The other primitives
+Evidence: README.md · The trade · docs/research/lending-conventions.md
 
 ## 3. Eligibility,  enforced. — 0:30–1:30
 
-Switch to the live vault provisioned by the protocol operator. The link uses DEMO_VAULT from lib/config.ts at deck-generation time; use the fresh vault URL when rehearsing. Trigger deposits from the existing operator script. The dashboard is read-only and does not submit transactions. If the phase walk is not the live arc, open verified transaction links.
+Open Fund II, which is open for subscription, and go to the Sign tab. Load the demo key without a credential and sign a VaultDeposit: the ledger refuses it, tecNO_AUTH. Load the key with a credential: tesSUCCESS, and the position appears. Both keys are published in docs/DEMO-ACCOUNTS.md; the page signs in the browser and the server only relays the signed blob.
 
-Evidence: <a href="https://devnet.xrpl.org/transactions/CE5C7E595B0D9761B10BE9114AEF38597A03A9620A1590EE7DEC56528B47D06C" target="_blank" rel="noreferrer">Eligible · CE5C7E59</a> · <a href="https://devnet.xrpl.org/transactions/D4C938639DD005D8B4AD6ADB06425AC6E15047C15C02B80386AAA2E07C3DBC88" target="_blank" rel="noreferrer">Refused · D4C93863</a>
+Evidence: <a href="https://devnet.xrpl.org/transactions/F018B9251EDAC42FF724928A653DD4FC70107D49122D815797D62B856C1D33DB" target="_blank" rel="noreferrer">Eligible · F018B925</a> · <a href="https://devnet.xrpl.org/transactions/F8492DE06B84745498EE8A6DA34AF7C1119BBFBBD11C4F54A05895E45497AC0E" target="_blank" rel="noreferrer">Refused · F8492DE0</a> · docs/DEMO-ACCOUNTS.md
 
 ## 4. Time is part  of the protocol. — 1:30–2:00
 
@@ -45,19 +45,19 @@ Evidence: <a href="https://devnet.xrpl.org/transactions/7B9D16FA25DA3F54B7B3A13A
 
 ## 5. Two signatures.  One loan. — 2:00–2:30
 
-Show the co-signed origination transaction and the resulting loan book row. The browser reads the ledger server-side; the protocol operator submits the transaction. The required beta SDK needs our counterparty-signing workaround, described later.
+Show Fund I's loan book: 2,000,000 TBL on loan at 25 bps a year, returning Tuesday 15 September, collateral margin 102%. The loan was originated with one LoanSet carrying two signatures; the mandated beta SDK needs our counterparty-signing workaround, described later.
 
-Evidence: <a href="https://devnet.xrpl.org/transactions/EDF107402242DB11C46B0DB87CDD97704CBB851840A3A49CC0BD31DD14B61C41" target="_blank" rel="noreferrer">Origination · EDF10740</a> · README.md / The trade
+Evidence: <a href="https://devnet.xrpl.org/transactions/1A37017921F7AEFC76A76933CF937716EBF090EF8078860B3192C08B726E5646" target="_blank" rel="noreferrer">Origination · 1A370179</a> · <a href="https://devnet.xrpl.org/transactions/DDF576E8ADF005B4D3EDE412ED9AF289DD47C9FF064A37C093A345F3E5258B51" target="_blank" rel="noreferrer">Collateral · DDF576E8</a>
 
 ## 6. The borrower defaults.  The agent pays. — 2:30–3:15
 
-Use the fully covered default arc. During impairment, the correct net price is 0.60: (5,000,000 − 2,000,000) / 5,000,000. The historical evidence file records the old gross-ratio price of 1.00 at that step; the net figure here is recomputed from its raw fields, consistent with lib/ledger.ts and the developer report. After default, cover restores net price to 1.00. Do not say that the price never moves. At a 10% cover rate, the same default ends at 0.64; the configured rate, not merely the posted balance, decides absorption.
+Use the fully covered default arc. During impairment, the correct net price is 0.60: (5,000,000 − 2,000,000) / 5,000,000. The evidence file records the net price at each step, computed from its raw fields, consistent with lib/ledger.ts and the developer report. After default, cover restores net price to 1.00. Do not say that the price never moves. At a 10% cover rate, the same default ends at 0.64; the configured rate, not merely the posted balance, decides absorption.
 
 Evidence: <a href="https://devnet.xrpl.org/transactions/95AD6692375BFD184155472FA105571BA9C9A836B221BB36F11CAA4F699C81D4" target="_blank" rel="noreferrer">Covered default · 95AD6692</a> · docs/evidence/default-arc-cover100000.json
 
 ## 7. We built the product.  Found the friction. — 3:15–3:35
 
-Keep this to twenty seconds. The mandated beta has closed-ended types but uses the wrong signing prefix. Stable signs correctly but lacks the V1.1 types. Both hackathon networks enable the same lending amendments while enforcing different lending rules; their full amendment sets differ. These are observed development findings in the report; do not change networks in the demo.
+Keep this to twenty seconds. The mandated beta has the closed-ended types but the wrong signing prefix; stable signs correctly but lacks the types; beta.1, published during the event, has both and the brief does not point at it. Both hackathon networks enable the same lending amendments while enforcing different lending rules. Do not change networks in the demo.
 
 Evidence: <a href="https://github.com/gamween/patapim/blob/main/DEVELOPER-REPORT.md" target="_blank" rel="noreferrer">DEVELOPER-REPORT.md · Findings 1–3</a>
 

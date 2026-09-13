@@ -12,7 +12,7 @@ root = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
     "--app-url",
-    default="https://ways-stake-equations-suitable.trycloudflare.com",
+    default="https://patapim-gamma.vercel.app",
     help="Public app URL used by the presentation and PDF links.",
 )
 args = parser.parse_args()
@@ -107,18 +107,18 @@ bodies = [
     ghost("metal")
     + '<div class="flow-rail"><div class="flow-node"><small>01 / SUPPLY</small><h3>Eligible holders</h3><p>Deposit securities.<br>Receive vault shares.</p></div><div class="flow-node focus"><small>02 / POOL</small><h3>Fixed-term vault</h3><p>The security is the asset.<br>The lending window is defined.</p></div><div class="flow-node"><small>03 / DEMAND</small><h3>Borrowers</h3><p>Borrow securities.<br>Repay principal and interest.</p></div></div><p class="under-flow">The agent posts <span>first-loss capital</span> in the same security.</p>',
     ghost("white")
-    + '<div class="gate" aria-hidden="true"></div><div class="results"><div class="result"><span>Eligible holder / VaultDeposit</span><strong class="green">tesSUCCESS</strong></div><div class="result"><span>Non-member / VaultDeposit</span><strong class="blocked">tecNO_AUTH</strong></div></div><p class="eligible-note">Lender access is gated by Credentials<br>and a Permissioned Domain.</p>'
+    + '<div class="gate" aria-hidden="true"></div><div class="results"><div class="result"><span>Eligible holder / VaultDeposit</span><strong class="green">tesSUCCESS</strong></div><div class="result"><span>Non-member / VaultDeposit</span><strong class="blocked">tecNO_AUTH</strong></div></div><p class="eligible-note">Lender access is gated by Credentials<br>and a Permissioned Domain. Sign it yourself.</p>'
     + app_link,
     ghost("glass")
     + f'<div class="timeline"><div class="period"><img src="{ghost_svg}" alt=""><small>01 / SUBSCRIPTION</small><h3>Deposit.</h3><p>LoanSet refused<br><code>tecTOO_SOON</code></p></div><div class="period active"><img src="{ghost_svg}" alt=""><small>02 / INVESTMENT</small><h3>Lend.</h3><p>VaultDeposit refused<br><code>tecEXPIRED</code></p></div><div class="period"><img src="{ghost_svg}" alt=""><small>03 / REDEMPTION</small><h3>Withdraw.</h3><p>LoanSet refused<br><code>tecEXPIRED</code></p></div></div><p class="clock-note">IMMUTABLE VAULT DATES + LEDGER CLOSE TIME. THE BROWSER DOES NOT SET THE PHASE.</p>',
     ghost("metal")
-    + '<div class="signature"><span>Lending agent</span><b>+</b><span>Borrower</span><b>=</b><strong>LoanSet</strong></div><div class="asset-rail"><div><small>THE ASSET</small><h3>MPT security</h3><p>Delivered to the borrower.</p></div><div><small>THE CAPITAL</small><h3>First-loss cover</h3><p>Agent-funded, in securities.</p></div><div><small>THE COLLATERAL</small><h3>XRP escrow</h3><p>Managed bilaterally; separate settlement.</p></div></div>',
+    + '<div class="signature"><span>Lending agent</span><b>+</b><span>Borrower</span><b>=</b><strong>LoanSet</strong></div><div class="asset-rail"><div><small>THE ASSET</small><h3>MPT security</h3><p>Delivered to the borrower.</p></div><div><small>THE CAPITAL</small><h3>First-loss cover</h3><p>Agent-funded, in securities.</p></div><div><small>THE COLLATERAL</small><h3>Cash in escrow</h3><p>102% of market value, priced by an on-ledger oracle.</p></div></div>',
     ghost("glass")
     + f'<div class="loss-total"><strong>{covered:,.0f}</strong><h3>Securities absorbed by agent cover.</h3><p>AGENT COVER &nbsp; 2,500,000 → 500,000<br>VAULT ASSETS AFTER DEFAULT &nbsp; 5,000,000</p></div>'
     + chart
     + '<p class="formula">NET SHARE PRICE = (ASSETSTOTAL − LOSSUNREALIZED) / OUTSTANDINGAMOUNT · 100% COVER RATE IN THIS VERIFIED RUN</p>',
     ghost("metal")
-    + '<div class="findings-list"><div class="finding"><b>01</b><h3>The signature prefix.</h3><div><p>The mandated beta cannot co-sign.</p><small>BACKPORT COUNTERPARTY SIGNING.</small></div></div><div class="finding"><b>02</b><h3>Split SDK support.</h3><div><p>V1.1 types or working signatures.</p><small>SHIP BOTH IN ONE RELEASE.</small></div></div><div class="finding"><b>03</b><h3>The network mismatch.</h3><div><p>Same lending amendments. Different rules.</p><small>PUBLISH EFFECTIVE PROTOCOL VERSIONS.</small></div></div></div><p class="findings-caption">OBSERVED WHILE BUILDING ON PUBLIC XRPL DEVNET · XRPL.JS 5.2.0-BETA.0 · SEPTEMBER 2026</p>',
+    + '<div class="findings-list"><div class="finding"><b>01</b><h3>The signature prefix.</h3><div><p>The mandated beta cannot co-sign.</p><small>POINT THE BRIEF AT 5.2.0-BETA.1.</small></div></div><div class="finding"><b>02</b><h3>Split SDK support.</h3><div><p>V1.1 types or working signatures.</p><small>PUBLISH A VERSION MATRIX.</small></div></div><div class="finding"><b>03</b><h3>The network mismatch.</h3><div><p>Same lending amendments. Different rules.</p><small>PUBLISH EFFECTIVE PROTOCOL VERSIONS.</small></div></div></div><p class="findings-caption">OBSERVED WHILE BUILDING ON PUBLIC XRPL DEVNET · XRPL.JS 5.2.0-BETA.0 · SEPTEMBER 2026</p>',
     ghost("metal")
     + '<div class="orbit" aria-hidden="true"></div><div class="proposal"><small>PROPOSED / NOT IMPLEMENTED</small><strong>tfLoanCall</strong><p>Call the loan before term.<br>Use the borrower’s grace period.</p></div>',
     ghost("green")
@@ -126,7 +126,7 @@ bodies = [
     + external(f"{app_url}/vault/{vault}", "A working trade ↗")
     + "</div><div><small>02 / THE FINDINGS</small>"
     + external(
-        "https://github.com/gamween/patapim/blob/feat/patapim-art-direction/DEVELOPER-REPORT.md",
+        "https://github.com/gamween/patapim/blob/main/DEVELOPER-REPORT.md",
         "Developer report ↗",
     )
     + "</div><div><small>03 / THE CONTRIBUTION</small>"
@@ -166,7 +166,7 @@ md = [
     "",
     "Content sources: README.md, DEVELOPER-REPORT.md, docs/PLAN.md and docs/evidence/. The developer report takes precedence over old gross share-price fields. Slide 6 recomputes net prices from the raw ledger evidence during generation: 1.00 → 0.60 → 1.00. This is a verified historical run, not live data.",
     "",
-    "Choose either the phase walk or default arc live. The other uses verified hashes: both cannot fit live into four minutes. The dashboard is read-only. No provisioning or transaction is triggered by viewing the slides.",
+    "Choose either the phase walk or default arc live. The other uses verified hashes: both cannot fit live into four minutes. The dashboard reads the ledger; its Sign tab relays a transaction the visitor signs in their own browser with a published demo key. Viewing the slides triggers nothing.",
     "",
     "The Explorer contribution is a pull request, not described as merged. It was verified OPEN on 12 September 2026.",
     "",

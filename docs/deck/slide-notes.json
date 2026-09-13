@@ -10,15 +10,15 @@
     "time": "0:15–0:30",
     "tag": "The product",
     "title": "A market with an agent<br /><em>on the hook.</em>",
-    "note": "The asset in the vault is the security itself. The agent owns the vault and loan broker, checks borrower eligibility and posts cover. Loan interest accrues to the vault; origination fees go to the broker. The compressed demo does not demonstrate meaningful lender yield. XRP collateral is a separate bilateral escrow; do not describe escrow and default settlement as one atomic transaction.",
-    "source": "README.md · The trade / The other primitives"
+    "note": "The asset in the vault is the security itself. The agent owns the vault and the loan broker, posts first-loss capital in the same security and keeps a tenth of the lending fee, a 90/10 split. The borrower posts cash collateral at 102% of market value in a separate token escrow, priced by an on-ledger oracle. The ledger gates lenders, not borrowers: say so if asked, it is finding F-018. Do not describe escrow and default settlement as one atomic transaction.",
+    "source": "README.md · The trade · docs/research/lending-conventions.md"
   },
   {
     "time": "0:30–1:30",
     "tag": "Demo / Subscription",
     "title": "Eligibility the ledger<br /><em>actually enforces.</em>",
-    "note": "Switch to the live vault provisioned by the protocol operator. The link uses DEMO_VAULT from lib/config.ts at deck-generation time; use the fresh vault URL when rehearsing. Trigger deposits from the existing operator script. The dashboard is read-only and does not submit transactions. If the phase walk is not the live arc, open verified transaction links.",
-    "source": "<a href=\"https://devnet.xrpl.org/transactions/CE5C7E595B0D9761B10BE9114AEF38597A03A9620A1590EE7DEC56528B47D06C\" target=\"_blank\" rel=\"noreferrer\">Eligible · CE5C7E59</a> · <a href=\"https://devnet.xrpl.org/transactions/D4C938639DD005D8B4AD6ADB06425AC6E15047C15C02B80386AAA2E07C3DBC88\" target=\"_blank\" rel=\"noreferrer\">Refused · D4C93863</a>"
+    "note": "Open Fund II, which is open for subscription, and go to the Sign tab. Load the demo key without a credential and sign a VaultDeposit: the ledger refuses it, tecNO_AUTH. Load the key with a credential: tesSUCCESS, and the position appears. Both keys are published in docs/DEMO-ACCOUNTS.md; the page signs in the browser and the server only relays the signed blob.",
+    "source": "<a href=\"https://devnet.xrpl.org/transactions/F018B9251EDAC42FF724928A653DD4FC70107D49122D815797D62B856C1D33DB\" target=\"_blank\" rel=\"noreferrer\">Eligible · F018B925</a> · <a href=\"https://devnet.xrpl.org/transactions/F8492DE06B84745498EE8A6DA34AF7C1119BBFBBD11C4F54A05895E45497AC0E\" target=\"_blank\" rel=\"noreferrer\">Refused · F8492DE0</a> · docs/DEMO-ACCOUNTS.md"
   },
   {
     "time": "1:30–2:00",
@@ -31,21 +31,21 @@
     "time": "2:00–2:30",
     "tag": "Demo / Origination",
     "title": "Two signatures.<br /><em>One loan.</em>",
-    "note": "Show the co-signed origination transaction and the resulting loan book row. The browser reads the ledger server-side; the protocol operator submits the transaction. The required beta SDK needs our counterparty-signing workaround, described later.",
-    "source": "<a href=\"https://devnet.xrpl.org/transactions/EDF107402242DB11C46B0DB87CDD97704CBB851840A3A49CC0BD31DD14B61C41\" target=\"_blank\" rel=\"noreferrer\">Origination · EDF10740</a> · README.md / The trade"
+    "note": "Show Fund I's loan book: 2,000,000 TBL on loan at 25 bps a year, returning Tuesday 15 September, collateral margin 102%. The loan was originated with one LoanSet carrying two signatures; the mandated beta SDK needs our counterparty-signing workaround, described later.",
+    "source": "<a href=\"https://devnet.xrpl.org/transactions/1A37017921F7AEFC76A76933CF937716EBF090EF8078860B3192C08B726E5646\" target=\"_blank\" rel=\"noreferrer\">Origination · 1A370179</a> · <a href=\"https://devnet.xrpl.org/transactions/DDF576E8ADF005B4D3EDE412ED9AF289DD47C9FF064A37C093A345F3E5258B51\" target=\"_blank\" rel=\"noreferrer\">Collateral · DDF576E8</a>"
   },
   {
     "time": "2:30–3:15",
     "tag": "Verified default / 100% cover rate",
     "title": "The borrower defaults.<br /><em>The agent pays.</em>",
-    "note": "Use the fully covered default arc. During impairment, the correct net price is 0.60: (5,000,000 − 2,000,000) / 5,000,000. The historical evidence file records the old gross-ratio price of 1.00 at that step; the net figure here is recomputed from its raw fields, consistent with lib/ledger.ts and the developer report. After default, cover restores net price to 1.00. Do not say that the price never moves. At a 10% cover rate, the same default ends at 0.64; the configured rate, not merely the posted balance, decides absorption.",
+    "note": "Use the fully covered default arc. During impairment, the correct net price is 0.60: (5,000,000 − 2,000,000) / 5,000,000. The evidence file records the net price at each step, computed from its raw fields, consistent with lib/ledger.ts and the developer report. After default, cover restores net price to 1.00. Do not say that the price never moves. At a 10% cover rate, the same default ends at 0.64; the configured rate, not merely the posted balance, decides absorption.",
     "source": "<a href=\"https://devnet.xrpl.org/transactions/95AD6692375BFD184155472FA105571BA9C9A836B221BB36F11CAA4F699C81D4\" target=\"_blank\" rel=\"noreferrer\">Covered default · 95AD6692</a> · docs/evidence/default-arc-cover100000.json"
   },
   {
     "time": "3:15–3:35",
     "tag": "Developer experience / Three fixes",
     "title": "What building it<br /><em>made visible.</em>",
-    "note": "Keep this to twenty seconds. The mandated beta has closed-ended types but uses the wrong signing prefix. Stable signs correctly but lacks the V1.1 types. Both hackathon networks enable the same lending amendments while enforcing different lending rules; their full amendment sets differ. These are observed development findings in the report; do not change networks in the demo.",
+    "note": "Keep this to twenty seconds. The mandated beta has the closed-ended types but the wrong signing prefix; stable signs correctly but lacks the types; beta.1, published during the event, has both and the brief does not point at it. Both hackathon networks enable the same lending amendments while enforcing different lending rules. Do not change networks in the demo.",
     "source": "<a href=\"https://github.com/gamween/patapim/blob/main/DEVELOPER-REPORT.md\" target=\"_blank\" rel=\"noreferrer\">DEVELOPER-REPORT.md · Findings 1–3</a>"
   },
   {

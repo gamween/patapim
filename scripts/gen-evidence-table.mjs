@@ -14,9 +14,9 @@ const ROLE = {
   'VaultDeposit after close': 'the subscription window has closed, the phase gate fires',
   'VaultWithdraw during Investment': 'capital is locked for the term, the second phase gate',
   LoanSet: 'the loan of securities, agent signs, borrower counter-signs',
-  'EscrowCreate collateral': 'the borrower posts XRP collateral, held bilaterally',
-  'LoanPay full': 'the borrower returns the securities and the fee',
-  'EscrowCancel collateral': 'the collateral is released back to the borrower',
+  'EscrowCreate collateral': 'the borrower posts XRP in escrow to the agent, reclaimable after CancelAfter',
+  'LoanPay full': 'the borrower returns the securities with the interest, in full',
+  'EscrowCancel collateral': 'the borrower recovers the collateral after CancelAfter',
   'LoanSet in redemption': 'new lending refused once redemption opens, the third phase gate',
   'VaultWithdraw by shares': 'the lender redeems, denominated in shares',
 }
@@ -25,7 +25,8 @@ const ev = JSON.parse(fs.readFileSync('docs/evidence/recall-t2.json', 'utf8'))
 const rows = ev.events
   .filter((e) => e.hash)
   .map((e) => {
-    const tx = e.step.split(' ')[0].replace(/[^A-Za-z]/g, '')
+    const first = e.step.split(' ')[0].replace(/[^A-Za-z]/g, '')
+    const tx = first === 'CoverDeposit' ? 'LoanBrokerCoverDeposit' : first
     const role = ROLE[e.step] ?? e.step
     const short = e.hash.slice(0, 8)
     return `| \`${tx}\` | ${role} | \`${e.code}\` | [\`${short}\`](https://devnet.xrpl.org/transactions/${e.hash}) |`

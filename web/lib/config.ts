@@ -12,6 +12,9 @@ export const LIBRARY = 'xrpl.js@5.2.0-beta.0'
 export const REPO = 'https://github.com/gamween/patapim'
 export const DEMO_ACCOUNTS_URL = `${REPO}/blob/main/docs/DEMO-ACCOUNTS.md`
 
+/** The vault the landing page opens: Fund I, whose loan stays current until 15 September. */
+export const DEMO_VAULT = 'B5EC8B2CFF11828C7A3B2552FD14F370659D1CB6857547A3A720E568E1F14730'
+
 /**
  * The two funds `node scripts/standing.mjs` provisioned, both run by the same lending agent. A
  * directory for the vault picker, nothing more: every figure the app shows is read from the ledger,
@@ -19,7 +22,7 @@ export const DEMO_ACCOUNTS_URL = `${REPO}/blob/main/docs/DEMO-ACCOUNTS.md`
  */
 export const FUNDS = [
   {
-    id: 'B5EC8B2CFF11828C7A3B2552FD14F370659D1CB6857547A3A720E568E1F14730',
+    id: DEMO_VAULT,
     label: 'Fund I',
     detail: 'In term, one loan out',
   },
@@ -29,6 +32,3 @@ export const FUNDS = [
     detail: 'Open for subscription',
   },
 ] as const
-
-/** The vault the landing page opens: Fund I, whose loan stays current until 15 September. */
-export const DEMO_VAULT = FUNDS[0].id

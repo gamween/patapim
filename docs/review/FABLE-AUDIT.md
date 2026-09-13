@@ -1,5 +1,36 @@
 # Audit externe, 12 septembre 2026, 23:30 CEST
 
+## Résolution, 13 septembre 2026, nuit
+
+Tout ce qui suit a été corrigé et revérifié contre le ledger, le code et l'app déployée. L'audit
+d'origine est conservé tel quel en dessous.
+
+| Point | Résolution | Où le vérifier |
+|---|---|---|
+| B-1 beta.1 | Finding 2 et la proposition du finding 1 réécrits ; README et F-001/F-002 corrigés ; repro hors ligne sur les trois versions | `DEVELOPER-REPORT.md`, `scripts/experiments/counterparty-signature.mjs` |
+| B-2 donation | Ligne du tableau spec et essai yield pointent rippled #6383 `tfVaultDonate` | rapport, README « On yield », F-016 |
+| B-3 pages | Rapport réécrit : 3 pages en A4 11 pt, Letter 12 pt et style GitHub, aucun finding perdu | `DEVELOPER-REPORT.md` |
+| B-4 deck | Lien vers Fund I sur l'app Vercel, slide 2 corrigée, collatéral réel, PDF régénéré, 6 hashes vérifiés | `web/public/deck/`, `docs/PATAPIM-DECK.pdf` |
+| B-5 réseau | Les trois hashes du devnet custom marqués † et l'en-tête le dit | rapport |
+| B-6 VaultCreate | Ligne réécrite avec la preuve `8D50A1D9…F93D` ; F-012 réécrit | rapport, F-012 |
+| B-7 vault vivant | Nouveau carnet : Fund I, prêt courant jusqu'au 15 septembre 12:00 CEST ; Fund II ouvert à la souscription ; evidence complète | `scripts/standing.mjs`, `docs/ON-CHAIN.md` |
+| B-8 éligibilité | Phrase du README remplacée par le mécanisme réel, prouvé par le compte de démo sans credential | README « On the ledger » |
+| N-1 à N-10 | Batch sourcé (#6360), trois codes et non quarante, #589 attribué au co-auteur, plafond `CoverAvailable`, buffer de 60 s, destination tierce, frais au `LoanSet` | rapport, F-021, F-022, README |
+| §3 | NAV net partout, labels d'impairment, casse des codes, sorties en anglais, `pay` dans `demo.mjs`, `xrpl` épinglé côté app | scripts, `web/` |
+| Bug trouvé en cours | Le dashboard prenait le premier `LoanBroker` du propriétaire : filtré sur `VaultID` | `web/lib/ledger.ts` |
+
+**Le wallet connect, décision révisée sur preuve.** `xrpl-connect` n'est pas livré. Les extensions
+Crossmark 0.2.19 et GemWallet 3.8.2 ne savent encoder ni `VaultDeposit` ni un montant MPT : GemWallet
+verrouille `xrpl` 3.1.0 et `ripple-binary-codec` 2.1.0, qui lèvent sur les deux, et aucun des deux bundles
+ne contient `VaultDeposit` ni `mpt_issuance_id`. `xrpl-connect@1.0.0-rc.2` casse en plus le build Turbopack
+et exclut `xrpl` 5 de ses peers. À la place : l'onglet Sign signe dans le navigateur avec
+`xrpl.js@5.2.0-beta.0` et une des deux clés publiées dans `docs/DEMO-ACCOUNTS.md` ; le serveur ne relaie
+qu'un blob signé `VaultDeposit` ou `VaultWithdraw`. Prouvé sur la production : `tesSUCCESS` pour
+l'investisseur éligible, `tecNO_AUTH` pour l'autre. Constats F-019 et F-020.
+
+---
+
+
 Dépôt audité : `main` à `51cf263`, plus l'arbre de travail au moment de la lecture. Ledger : devnet
 public, `server_info` → rippled `3.4.0-rc5`, `network_id 2`. Devnet custom joint par websocket pour
 les hashes qu'on y attendait : `3.4.0-rc1`, `network_id 4001`.

@@ -70,6 +70,7 @@ Loan: flags `0`, principal `2000000`, outstanding `2000035`, interest rate `250`
 | LoanSet | `tesSUCCESS` | yes, `LoanSet` | [`1A370179`](https://devnet.xrpl.org/transactions/1A37017921F7AEFC76A76933CF937716EBF090EF8078860B3192C08B726E5646) |
 | EscrowCreate collateral | `tesSUCCESS` | yes, `EscrowCreate` | [`DDF576E8`](https://devnet.xrpl.org/transactions/DDF576E8ADF005B4D3EDE412ED9AF289DD47C9FF064A37C093A345F3E5258B51) |
 | VaultSet reference price pointer | `tesSUCCESS` | yes, `VaultSet` | [`A77D656A`](https://devnet.xrpl.org/transactions/A77D656A8B6D6A265C4F9756224D42F99B016A9522361E2DBE2E2A442607F62F) |
+| app relay: deposit into Fund I in its term | `tecEXPIRED` | yes, `VaultDeposit` | [`CFA26C7C`](https://devnet.xrpl.org/transactions/CFA26C7C94884B24451FBD385D83F5C9054C5E773CCD91B611A1B83816F1CFE4) |
 
 ## Fund II, open for subscription: where a judge signs
 
@@ -126,6 +127,9 @@ Broker: cover `2500000`, debt `0`, ceiling `16000000`, cover rate `100000` and l
 | VaultDeposit ineligible investor | `tecNO_AUTH` | yes, `VaultDeposit` | [`F8492DE0`](https://devnet.xrpl.org/transactions/F8492DE06B84745498EE8A6DA34AF7C1119BBFBBD11C4F54A05895E45497AC0E) |
 | LoanSet during offering | `tecTOO_SOON` | yes, `LoanSet` | [`1AC3D6C2`](https://devnet.xrpl.org/transactions/1AC3D6C28A8DD2A493E270BAAD12E50C69210CD5D6AF426D2642B2150C4D558F) |
 | VaultSet reference price pointer | `tesSUCCESS` | yes, `VaultSet` | [`27DCF904`](https://devnet.xrpl.org/transactions/27DCF90448CD18E32B80CBACE66875B20FBFD49D54EC6918B43B7822D91EAB1C) |
+| app relay: eligible investor subscribes 500 | `tesSUCCESS` | yes, `VaultDeposit` | [`64820971`](https://devnet.xrpl.org/transactions/64820971F7A3E6098944C2BA582E6AB6520C598DEC77B43995E40F8360F186DB) |
+| app relay: ineligible investor is refused | `tecNO_AUTH` | yes, `VaultDeposit` | [`2EEFECAD`](https://devnet.xrpl.org/transactions/2EEFECAD83C5F0C70DD4EA66DE77D1EFEA1D4AFB31B9BBFA96A3630BF3A28780) |
+| app relay: eligible investor redeems 500 shares | `tesSUCCESS` | yes, `VaultWithdraw` | [`8A78590F`](https://devnet.xrpl.org/transactions/8A78590F118605C72E137DF1F6B931C2C06DD71AF52AAC92C52719EB4F415736) |
 
 ## Flagship lifecycle, 12 September
 
@@ -313,4 +317,4 @@ Loan: flags `0`, principal `2000000`, outstanding `2000183`, interest rate `5000
 
 ---
 
-72 transactions re-verified against the ledger, 0 mismatches.
+76 transactions re-verified against the ledger, 0 mismatches.

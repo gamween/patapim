@@ -20,7 +20,11 @@ low = friction without a blocker.
 `signLoanSetByCounterparty()` builds a `CounterpartySignature` that rippled rejects. The
 identical transaction, on the identical network, succeeds with stable `xrpl.js@5.2.0`.
 
-Repro, custom hackathon devnet, `scripts/probe.mjs t1 open`:
+Repro, offline, one second: `node scripts/experiments/counterparty-signature.mjs`. It signs one `LoanSet`
+as the counterparty with the library helper and with our workaround, then verifies each signature
+against `encodeForSigningCounterparty`: on `5.2.0-beta.0` the helper's signature verifies only under the
+ordinary transaction prefix; on `5.2.0-beta.1` and `5.2.0` it verifies under the counterparty prefix.
+Observed on the ledger first, custom hackathon devnet:
 
 | library | result |
 |---|---|
@@ -49,10 +53,9 @@ Cause, from the published sources of both packages:
 cannot originate a loan, so minimum-bar step 3 is unreachable for any team that follows the
 brief and trusts the SDK.
 
-**Proposed fix** Backport the `role` argument to the beta line: two call sites in
-`counterpartySigner.ts` (single-signer and multisign branches). Better, publish one release that
-carries both the V1.1 vault types and the counterparty fix, and retire the beta requirement from
-the brief.
+**Proposed fix** Already shipped upstream: `xrpl@5.2.0-beta.1`, published on 11 September 2026, carries
+the `role` argument and the V1.1 vault types. Point the brief at it, and say in beta.0's release notes
+that its counterparty helper cannot originate a loan.
 
 **Workaround shipped here** `scripts/lib/lending.mjs → signCounterparty()` calls
 `encodeForSigningCounterparty` from the codec directly, so the mandated beta can be used.
@@ -61,6 +64,11 @@ the brief.
 
 ## F-002 · No published xrpl.js version carries both halves of the lending feature
 **Category** client libraries · **Severity** high · **Library** xrpl.js 5.2.0 / 5.2.0-beta.0
+
+**Correction, 13 September.** `xrpl@5.2.0-beta.1`, published on npm on 11 September 2026 at 16:59 UTC,
+carries both: the closed-ended vault types and the `role: 'counterparty'` argument
+(`src/Wallet/counterpartySigner.ts:88,101` in the tarball). What stays true is that the version the brief
+mandates, beta.0, has one half, and `npm install xrpl` returns stable 5.2.0, which has the other.
 
 The two releases diverge in opposite directions, verified by diffing the published tarballs:
 
@@ -101,6 +109,8 @@ environment table next to the faucet URLs.
 
 ## F-004 · The brief's Track 1 amendment warning does not match the ledger
 **Category** documentation · **Severity** medium
+
+**Superseded by F-011**, which corrects the conclusion below.
 
 The brief's appendix states that Track 1 "must remain a V1 environment for new open-ended-vault
 loans" and that enabling Lending Protocol V1.1 on the same ledger "would restrict new loans to
@@ -164,8 +174,10 @@ by firing transactions.
 ## F-007 · A closed-ended vault guarantees the loan schedule ends before redemption, not that the loan is repaid
 **Category** missing primitive · **Severity** high · **Track 2**
 
-`LoanSet` is refused with `tecNO_PERMISSION` when the amortisation schedule would end after
-`RedemptionDate` (tx `60E499EA…B2BC`), so the ledger does enforce something. But a loan created
+`LoanSet` is refused with `tecNO_PERMISSION` when the amortisation schedule would end within 60 seconds
+of `RedemptionDate` (`LoanSet.cpp`, `kLoanRedemptionBuffer`; tx `60E499EA…B2BC`), so the ledger does
+enforce something. The XLS-66 co-author named the underlying need in a comment on XRPL-Standards
+discussion #589: "the funds for that loan must be reserved". But a loan created
 inside the window and simply not repaid leaves the vault illiquid at redemption: `AssetsTotal`
 40000000 against `AssetsAvailable` 30000000, and the lender withdrawal returns
 `tecINSUFFICIENT_FUNDS` (tx `D5879394…6E68`, vault `33EAD348…DB6B`).
@@ -262,22 +274,29 @@ network-to-semantics mapping in the brief's environment table. Right now the tab
 
 ---
 
-## F-012 · `VaultCreate` costs 10x more on one hackathon network than the other, silently
-**Category** UX · **Severity** medium
+## F-012 · `VaultCreate` is charged an owner reserve by xrpl.js that rippled does not require
+**Category** client libraries · **Severity** medium · **Rewritten 13 September**
 
-Identical `VaultCreate`, autofilled by the same xrpl.js version:
+We first logged this as "`VaultCreate` costs 10x more on one hackathon network than the other". The
+two fees we paid are real: 2 XRP on the custom devnet (`44B98E6A…59AA`) and 0.2 XRP on the public one
+(`13F8E75B…9C6D`), one incremental owner reserve on each. But checking where the number comes from
+changes the finding:
 
-- custom hackathon devnet: `Fee` **2000000 drops**, 2 XRP (tx `44B98E6A…59AA`)
-- public XRPL devnet: `Fee` **200000 drops**, 0.2 XRP (tx `13F8E75B…9C6D`)
+- `xrpl@5.2.0-beta.0/src/sugar/autofill.ts:379-381` lists `VaultCreate` with `AccountDelete` and
+  `AMMCreate` as the transactions whose fee is set to `reserve_inc`.
+- rippled `develop` at `9403736`: only `LedgerStateFix.cpp:90`, `AMMCreate.cpp:91` and
+  `AccountDelete.cpp:63` call `calculateOwnerReserveFee`. `VaultCreate.cpp` has no fee override.
+- On the public devnet, a `VaultCreate` with `Fee: '12'` returns `tesSUCCESS`:
+  `8D50A1D91E85B8CEA7EDBAEB7BCA82AD8320F6B6892BFF9D87711F201C5BF93D`, with `reserve_inc` 200000.
+- XLS-65 §3.2.4 and the xrpl.org `VaultCreate` page ("must destroy an incremental owner reserve,
+  currently 0.2 XRP") both say the reserve is burned. The xrpl.org pseudo-accounts page says instead that
+  an owned pseudo-account increases the owner's reserve, and reserves burning for unowned ones.
 
-The fee is derived from the network's owner reserve, which differs between the two, and xrpl.js
-autofill applies it without a word. A team that sizes its account budget on one network, where the
-faucet also hands out 1000 XRP instead of 100, gets a nasty surprise on the other. Nothing in the
-brief mentions that creating a vault costs a reserve-scaled fee at all.
+So the specification and the reference page describe a burn the ledger does not enforce, a second docs
+page describes a reserve increase, and the library burns the reserve on every call.
 
-**Proposed fix** Document the vault creation cost as "one incremental owner reserve, network
-dependent" in the `VaultCreate` reference, and have the environment table state the reserve and the
-faucet amount per network.
+**Proposed fix** Decide which is intended. Either implement `calculateBaseFee` in `VaultCreate`, or remove
+`VaultCreate` from the autofill special-fee list and correct XLS-65 §3.2.4 and the reference page.
 
 ## F-013 · Impairment leaves `AssetsTotal` untouched, so the obvious share price overstates the position
 **Category** documentation / protocol · **Severity** high · **Track 2**
@@ -296,8 +315,12 @@ computes price per share as `AssetsTotal / OutstandingAmount`, which is the only
 derive from the field names, shows 1.00 for a vault whose lenders are carrying a 40% write-down. We
 shipped that bug ourselves and only found it by impairing a loan on chain and reading the snapshot.
 
-The ledger knows better: `VaultWithdraw` settles against `AssetsTotal - LossUnrealized`. The correct
-formula is therefore visible only in the source.
+The ledger knows better: `VaultWithdraw` settles against `AssetsTotal - LossUnrealized`.
+
+**Correction after checking the documentation.** The formula is published: the Single Asset Vault concepts
+page has an Exchange Algorithm section with `(AssetsTotal - LossUnrealized) / SharesTotal` and a worked
+example. The failure is navigation: the `Vault` ledger entry page defines both fields and never links to
+it, and `vault_info` returns neither a net asset value nor a share price.
 
 **Proposed fix** State the net asset value formula on the vault concepts page, and either expose it
 as a field or name `AssetsTotal` in a way that does not read as "what the vault is worth".
@@ -339,7 +362,8 @@ and `default-arc-cover100000` in `docs/evidence/`, identical but for that one nu
 **Correction after checking the documentation.** The arithmetic is published and correct:
 `xrpl.org/docs/concepts/tokens/lending-protocol` gives
 `DefaultCovered = min((DebtTotal × CoverRateMinimum) × CoverRateLiquidation, DefaultAmount)` with a
-worked example, and 200000 is exactly what it predicts for our numbers. What we hit is a navigation
+worked example, and 200000 is exactly what it predicts for our numbers. `LoanManage.cpp` additionally
+caps the result by `CoverAvailable`, so both the rate and the posted balance bound the payout. What we hit is a navigation
 failure, not an absence: we were reading `LoanBrokerSet`'s field table and the `LoanBroker` ledger
 entry page, which is where a developer building the transaction looks, and neither says that the
 parameter named as a minimum to post also caps what is paid out, nor links to the worked example.
@@ -395,9 +419,12 @@ interest rounds to nothing: our 2000000 loan over two minutes repaid 2000001, on
 "withdraw capital plus accrued yield", which the minimum bar asks for, in the time the event allows.
 
 The mechanism that would solve it is the one the workshop deck teaches: "Interest injected via
-`tfVaultDonation`. PPS rises without minting new shares." That flag does not exist, in the source or
-in `server_definitions` (finding F-006). So the documented way to put yield into a closed-ended vault
-is missing from the implementation, and that is why nobody can show yield on a compressed timeline.
+`tfVaultDonation`. PPS rises without minting new shares." That flag does not exist in the source or in
+`server_definitions` today. It is not undiscovered either: rippled pull request #6383, "feat: Add
+tfVaultDonate feature", open since 18 February 2026, adds `tfVaultDonate` on `VaultDeposit` behind
+`LendingProtocolV1_2`, which is `Supported::No`. No specification text for it was found. So the
+workshop teaches a flag that is still a pull request, and that is why nobody can show yield on a
+compressed timeline.
 
 **Proposed fix** Three things. State on the `LoanSet` reference page who pays each fee and who
 receives it, with the drawdown arithmetic. State the time basis of `InterestRate`. And either ship
@@ -473,3 +500,63 @@ borrower eligibility are two different domains by design.
 amendment and list the pending fields as pending. Failing that, a line on `LoanBrokerSet` and on the
 Lending Protocol concept page saying that a vault's permissioned domain restricts depositors only,
 and linking #484, would have saved us the entire investigation.
+
+---
+
+## F-019 · Neither Crossmark nor GemWallet can sign a vault transaction
+**Category** client libraries · **Severity** high · **Wallets** Crossmark 0.2.19, GemWallet 3.8.2
+
+We planned the judge's path through `xrpl-connect` with the Crossmark and GemWallet adapters, the two that
+need no application credentials. Before writing it we checked what each extension can encode:
+
+- GemWallet 3.8.2, released 11 December 2024, locks `xrpl` 3.1.0 and `ripple-binary-codec` 2.1.0
+  (`yarn.lock`). With exactly those versions, `codec.encode` of a `VaultDeposit` throws
+  `Unable to interpret "TransactionType: VaultDeposit"`, and an MPT `Amount` throws
+  `Invalid type to construct an Amount`.
+- The published bundles of both extensions contain definitions for `AMMDeposit`, `NFTokenMint` and
+  `EscrowCreate`, and no occurrence of `VaultDeposit`, `VaultCreate`, `MPTokenAuthorize`,
+  `mpt_issuance_id` or `CredentialAccept`.
+
+So no Single Asset Vault transaction, and no transaction carrying an MPT amount, can be signed from
+either extension today, whatever the connection library. patapim signs in the browser with the mandated
+`xrpl.js@5.2.0-beta.0` instead, using two demo keys published in `docs/DEMO-ACCOUNTS.md`.
+
+**Proposed fix** A support matrix of transaction types per wallet on the XRPL wallets page, and wallet
+releases on a codec that knows XLS-33 amounts and XLS-65/66 transactions.
+
+## F-020 · xrpl-connect 1.0.0-rc.2 breaks a Next.js 16 build and excludes xrpl.js 5
+**Category** client libraries · **Severity** medium · **Library** xrpl-connect 1.0.0-rc.2
+
+- `peerDependencies.xrpl` is `^3.0.0 || ^4.0.0`; the range on `develop`, after pull request #195, adds
+  `^5.0.0`, which still excludes the pre-release the brief mandates.
+- `next build` with Turbopack fails: `Module not found: Can't resolve './core'`, from a bundled crypto-js
+  AMD `define(["./core"])` inside `xrpl-connect.mjs`. It builds only with a `resolveAlias` to an empty shim.
+- In 0.8.2, the latest tag on npm, the Crossmark and GemWallet adapters record the requested network
+  without asking the wallet (issue #179, fixed in #186 for the 1.0 line).
+- `signAndSubmit` returns a hash only, never `meta.TransactionResult`.
+
+**Proposed fix** A 1.0 release with an ESM-clean bundle and `xrpl` 5 in its peer range, and a note in the
+docs that a returned hash is not a validated result.
+
+## F-021 · Lending transactions are excluded from Batch, and the reason is not written anywhere
+**Category** documentation · **Severity** low
+
+`include/xrpl/tx/transactors/system/Batch.h:60-76` lists every Vault and Loan transaction in
+`kDisabledTxTypes`, and `Batch.cpp:290-295` refuses them as inner transactions with
+`temINVALID_INNER_BATCH`. XLS-66 still describes `LoanSet` as a Batch inner transaction. We had written that
+the exclusion mitigates a counterparty-signature bypass: no comment or pull request says so, and the
+bypass rippled #8162 documents was fixed with signature prefixes. Lending in Batch is open as rippled pull
+request #6360, "feat: Support lending in batch", since 12 February 2026.
+
+**Proposed fix** One sentence in the Batch documentation naming the excluded types and linking #6360.
+
+## F-022 · Three result codes the lending pages name appear on no result-code page
+**Category** documentation · **Severity** low
+
+Every Vault and Loan reference page on xrpl.org has an Error Cases table; across the fifteen pages, 25
+distinct codes are named. Three of them are missing from `tec-codes.md`: `tecLIMIT_EXCEEDED`,
+`tecLOCKED` and `tecWRONG_ASSET`. `loanbrokerdelete.md:50` also spells `tec_NO_PERMISSION`. We had estimated
+"around forty" missing codes; counted against the documentation, it is three and a typo.
+
+**Proposed fix** Add the three codes and fix the typo.
+
