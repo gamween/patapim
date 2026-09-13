@@ -168,7 +168,7 @@ Check `SUBMISSION.md` against the brief itself, not against our summary of it:
       Render it and count. Measured on 13 September at three pages in each of three renderings,
       Markdown to HTML with `marked` then Chrome headless `--print-to-pdf`: A4 at 11 pt with 20 mm
       margins, US Letter at 12 pt with one-inch margins, and GitHub's 16 px style. Say how you measured.
-- [ ] The slide deck is ten slides or fewer: nine, `docs/PATAPIM-DECK.pdf`, and every hash in
+- [ ] The slide deck is ten slides or fewer: ten, `docs/PATAPIM-DECK.pdf`, and every hash in
       `web/public/deck/index.html` resolves on network_id 2.
 - [ ] The DevEx form is submitted with both members and both GitHub handles.
 - [ ] The demo runs from a clean state in under four minutes.

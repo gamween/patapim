@@ -1,74 +1,104 @@
-# Patapim — four-minute jury deck
+# Patapim — Track 2 / Loaded / Developer feedback
 
-Nine slides in English, 16:9. The deck uses the exact black, white, DM Mono and #1eff66 palette of the deployed ghost frontend, with original intro frames and the original ghost silhouette throughout.
+10 slides in English, 16:9, with the existing black / white / #1eff66 ghost art direction. Four-minute script: 3 slides on the product, Loaded and KPI evidence; 7 on developer feedback and the contribution.
 
-Presentation: https://patapim-gamma.vercel.app/deck/index.html
-PDF: docs/PATAPIM-DECK.pdf (also served at /deck/PATAPIM-DECK.pdf).
+Presentation: https://ways-stake-equations-suitable.trycloudflare.com/deck/index.html
+PDF: https://ways-stake-equations-suitable.trycloudflare.com/deck/PATAPIM-DECK.pdf (also docs/PATAPIM-DECK.pdf).
 
-Arrow keys / Page Up / Page Down / Space navigate. Home and End jump. N toggles speaker notes; O toggles the overview. Fullscreen and a PDF download are available. Print exports every slide without controls or notes. Reduced-motion preferences disable slide transitions.
+Source revision: `59964c8d7da07eb42bd3d35d9a32048f76ca7613`. PR and ledger checks: `docs/deck/verification.json`, 2026-09-13.
 
-Content sources: README.md, DEVELOPER-REPORT.md, docs/PLAN.md and docs/evidence/. The developer report takes precedence over old gross share-price fields. Slide 6 recomputes net prices from the raw ledger evidence during generation: 1.00 → 0.60 → 1.00. This is a verified historical run, not live data.
+## Evidence and scope
 
-Choose either the phase walk or default arc live. The other uses verified hashes: both cannot fit live into four minutes. The dashboard reads the ledger; its Sign tab relays a transaction the visitor signs in their own browser with a published demo key. Viewing the slides triggers nothing.
+Read against README.md, DEVELOPER-REPORT.md, the friction log through F-022, the contribution report, current audit resolutions, Track 2 requirements, fund/default/lifecycle evidence, web/lib/config.ts, finance.ts, wallet-manager.ts, the signing panel and transaction relay. Historical reviews are used for requirement wording, not as the current implementation status.
 
-The Explorer contribution is a pull request, not described as merged. It was verified OPEN on 12 September 2026.
+The redemption-plus-yield KPI is PARTIAL: the compressed lifecycle redeems capital with zero realised interest. Day-based funds show scheduled interest, not an already demonstrated redemption with yield. Wallet connection is integrated; the demo-key flow is proven on chain, Xaman is configured on the canonical Vercel deployment with Devnet payload acceptance documented; Otsu support was inspected in code. Neither is claimed as a completed wallet-signed ledger test here. The Explorer PR remains open, not merged. Financial comparisons are historical evidence, not live quotes.
 
-## Regenerate
+Full amendment sets differ even though the two lending amendments match. Beta.1 already fixes signing and closed-ended typing. Borrower eligibility and donation have existing upstream proposals; tfLoanCall is our proposal, not implemented. The corrected net NAV and cover payouts are recomputed from raw evidence during generation.
 
-`python3 scripts/build-deck.py --app-url https://patapim-gamma.vercel.app`
+## Regenerate and present
 
-Styles and controls: scripts/deck/. Speaker notes: docs/deck/slide-notes.json. Run `node scripts/export-deck.mjs` to export the PDF and slide PNGs. First install the web dependencies with `npm ci --prefix web` and a browser with `cd web && npx playwright install chromium`. Alternatively, set `CHROMIUM_PATH` to an existing Chromium executable. The export checks image and font loading, navigation, speaker notes, overview selection and mobile framing.
+`python3 scripts/build-deck.py --app-url https://patapim-gamma.vercel.app --deck-url https://ways-stake-equations-suitable.trycloudflare.com`
+
+`node scripts/export-deck.mjs` exports the PDF and screenshots. Requires `npm ci --prefix web` and Chromium (`cd web && npx playwright install chromium`), or set `CHROMIUM_PATH`.
+
+Arrow keys / Page Up / Page Down / Space navigate; Home / End jump; N opens notes with a short timed script and optional Q&A detail; O opens overview. Printing includes all ten slides without notes or controls. No transaction is triggered by the presentation or export.
 
 ## 1. Good assets. Put to  work. — 0:00–0:15
 
-Tokenised treasuries and money market funds need more than issuance. We built agency securities lending: holders lend securities through an agent, for a fee. This is a Devnet prototype with a fictitious security, not a production fund.
+We chose Track 2: a closed-ended vault on public XRPL Devnet, Lending Protocol V1.1, with the mandated beta. patapim lends tokenised securities through an agent. A fixed term fits the fund; we chose Loaded because eligibility and collateral need more than a vault and a loan.
 
-Evidence: README.md · Why / The trade
+If asked: The securities and cash tokens are fictitious Devnet assets. There is no mainnet, partnership or production-fund claim.
 
-## 2. A market with an agent  on the hook. — 0:15–0:30
+Evidence: <a class="" href="https://github.com/gamween/patapim/blob/59964c8d7da07eb42bd3d35d9a32048f76ca7613/README.md" target="_blank" rel="noreferrer">README · Track, environment & trade</a>
 
-The asset in the vault is the security itself. The agent owns the vault and the loan broker, posts first-loss capital in the same security and keeps a tenth of the lending fee, a 90/10 split. The borrower posts cash collateral at 102% of market value in a separate token escrow, priced by an on-ledger oracle. The ledger gates lenders, not borrowers: say so if asked, it is finding F-018. Do not describe escrow and default settlement as one atomic transaction.
+## 2. Why  Loaded. — 0:15–0:40
 
-Evidence: README.md · The trade · docs/research/lending-conventions.md
+Loaded means the Vanilla baseline plus a useful ledger primitive. We use five: MPTs for securities and cash; Credentials and a Permissioned Domain for lender eligibility; Token Escrow for cash collateral; and a Price Oracle for its value. Each has an on-chain proof. Fund I lends at 25 basis points, with 102 percent collateral and a 90/10 lender-agent fee split.
 
-## 3. Eligibility,  enforced. — 0:30–1:30
+If asked: XLS-65 and XLS-66 are the baseline. Cover belongs to that baseline; do not count it as an additional primitive. The standing fund uses USDX token escrow; the older compressed lifecycle used XRP escrow. Escrow settlement and loan default are separate, not atomic.
 
-Open Fund II, which is open for subscription, and connect the Xaman wallet holding the demo account without a credential, or load its key in the Sign tab. Sign a VaultDeposit: the ledger refuses it, tecNO_AUTH. Switch to the account with a credential: tesSUCCESS, and the position appears. The wallet signs; the server only relays the signed blob.
+Evidence: <a class="" href="https://github.com/gamween/patapim/blob/59964c8d7da07eb42bd3d35d9a32048f76ca7613/docs/evidence/fund-term.json" target="_blank" rel="noreferrer">Standing-fund evidence</a> · <a class="" href="https://github.com/gamween/patapim/blob/59964c8d7da07eb42bd3d35d9a32048f76ca7613/docs/review/kpi-track2.md" target="_blank" rel="noreferrer">Loaded definition</a>
 
-Evidence: <a href="https://devnet.xrpl.org/transactions/F018B9251EDAC42FF724928A653DD4FC70107D49122D815797D62B856C1D33DB" target="_blank" rel="noreferrer">Eligible · F018B925</a> · <a href="https://devnet.xrpl.org/transactions/F8492DE06B84745498EE8A6DA34AF7C1119BBFBBD11C4F54A05895E45497AC0E" target="_blank" rel="noreferrer">Refused · F8492DE0</a> · docs/DEMO-ACCOUNTS.md
+## 3. Track 2.  Proven on the ledger. — 0:40–1:15
 
-## 4. Time is part  of the protocol. — 1:30–2:00
+Here is the Track 2 checklist: dated vault, subscription deposit, a funded loan within the term, all three wrong-phase rejections, and redemption. Each link is a validated transaction. The yield KPI remains partial: the compressed run returned capital, but interest rounded to zero. Our standing funds use real dates instead. Fund I shows the loan; Fund II lets a judge try an eligible or refused deposit, signed in the browser.
 
-The phase comes from immutable vault dates compared with the ledger close time. The page refreshes every ten seconds and never advances the phase from the browser clock. Show the deposit rejection at the phase boundary. The complete phase walk and default arc cannot both run live in four minutes: the minimum investment period is 180 seconds. Choose one and use verified evidence for the other.
+If asked: For the demo, use Fund II’s Sign tab with accounts listed in docs/DEMO-ACCOUNTS.md; their keys are provided by the team on request, not published in the repository. The browser-key path is proven on chain. Xaman is enabled on the canonical Vercel deployment and its backend accepts a VaultDeposit payload on Devnet; this is not evidence of a completed Xaman-signed ledger transaction. Otsu was inspected in code only. Never call expected interest already paid. Fund I loan return is 15 September 2026; redemption 16 September. Fund II subscription ends 16 September and redemption opens 16 December. Use existing transaction proofs if the live demo would exceed the pitch time.
 
-Evidence: <a href="https://devnet.xrpl.org/transactions/7B9D16FA25DA3F54B7B3A13A63C21AB06775346264A4D1EC12228EBCFD709291" target="_blank" rel="noreferrer">Closed subscription · 7B9D16FA</a> · docs/PLAN.md
+Evidence: <a class="" href="https://github.com/gamween/patapim/blob/59964c8d7da07eb42bd3d35d9a32048f76ca7613/docs/evidence/recall-t2.json" target="_blank" rel="noreferrer">Compressed lifecycle</a> · <a class="" href="https://github.com/gamween/patapim/blob/59964c8d7da07eb42bd3d35d9a32048f76ca7613/docs/evidence/fund-offering.json" target="_blank" rel="noreferrer">Browser-signing proofs</a> · <a class="" href="https://github.com/gamween/patapim/blob/59964c8d7da07eb42bd3d35d9a32048f76ca7613/web/lib/finance.ts" target="_blank" rel="noreferrer">Cash-basis metrics</a>
 
-## 5. Two signatures.  One loan. — 2:00–2:30
+## 4. The right code.  The wrong release. — 1:15–1:40
 
-Show Fund I's loan book: 2,000,000 TBL on loan at 25 bps a year, returning Tuesday 15 September, collateral margin 102%. The loan was originated with one LoanSet carrying two signatures; the mandated beta SDK needs our counterparty-signing workaround, described later.
+The brief’s beta types the vault but signs LoanSet with the wrong prefix. Stable signs correctly but lacks the closed-ended types. Beta one already fixes both: our recommendation is to update the brief, not request a fix that shipped. We used the codec directly. Wallet connection has the same trap: Crossmark and GemWallet connect, but cannot encode these vault transactions. Publish one capability matrix.
 
-Evidence: <a href="https://devnet.xrpl.org/transactions/1A37017921F7AEFC76A76933CF937716EBF090EF8078860B3192C08B726E5646" target="_blank" rel="noreferrer">Origination · 1A370179</a> · <a href="https://devnet.xrpl.org/transactions/DDF576E8ADF005B4D3EDE412ED9AF289DD47C9FF064A37C093A345F3E5258B51" target="_blank" rel="noreferrer">Collateral · DDF576E8</a>
+If asked: Report findings 1–2; F-001/F-002/F-019/F-020. The offline counterparty-signature reproduction verifies the helper and workaround against the counterparty prefix without submitting a transaction. xrpl-connect 1.0.0-rc.2 is pinned with an xrpl override and a narrow Turbopack ignore for a dead crypto-js AMD branch. Xaman is configured on the canonical Vercel deployment and its backend accepted a Devnet VaultDeposit payload; a completed wallet-signed ledger transaction has not been evidenced here. Otsu support is source-inspected only. API keys and wallet availability condition the options shown.
 
-## 6. The borrower defaults.  The agent pays. — 2:30–3:15
+Evidence: <a class="" href="https://github.com/gamween/patapim/blob/59964c8d7da07eb42bd3d35d9a32048f76ca7613/DEVELOPER-REPORT.md" target="_blank" rel="noreferrer">Developer Report §§1–2</a> · <a class="" href="https://github.com/gamween/patapim/blob/59964c8d7da07eb42bd3d35d9a32048f76ca7613/scripts/experiments/counterparty-signature.mjs" target="_blank" rel="noreferrer">Offline reproduction</a> · <a class="" href="https://github.com/gamween/patapim/blob/59964c8d7da07eb42bd3d35d9a32048f76ca7613/web/lib/wallet-manager.ts" target="_blank" rel="noreferrer">Wallet capabilities</a>
 
-Use the fully covered default arc. During impairment, the correct net price is 0.60: (5,000,000 − 2,000,000) / 5,000,000. The evidence file records the net price at each step, computed from its raw fields, consistent with lib/ledger.ts and the developer report. After default, cover restores net price to 1.00. Do not say that the price never moves. At a 10% cover rate, the same default ends at 0.64; the configured rate, not merely the posted balance, decides absorption.
+## 5. Same lending flags.  Different rules. — 1:40–2:00
 
-Evidence: <a href="https://devnet.xrpl.org/transactions/95AD6692375BFD184155472FA105571BA9C9A836B221BB36F11CAA4F699C81D4" target="_blank" rel="noreferrer">Covered default · 95AD6692</a> · docs/evidence/default-arc-cover100000.json
+One LoanBrokerSet against an open-ended vault: success on the custom network, rejection on public Devnet. Both advertise the same two lending amendments, although their complete amendment sets differ. We corrected our first conclusion after testing both. Expose the effective lending version and publish the network-to-rules mapping. The application stays on public Devnet.
 
-## 7. We built the product.  Found the friction. — 3:15–3:35
+If asked: Report finding 3; F-011 supersedes F-004. Custom network 4001 / rippled 3.4.0-rc1, public network 2 / 3.4.0-rc5. Historical observed results, not a new transaction replay. The custom-network proof has no public-Devnet explorer link; use the report and research evidence. Full amendment counts: 48 versus 89, not identical sets.
 
-Keep this to twenty seconds. The mandated beta has the closed-ended types but the wrong signing prefix; stable signs correctly but lacks the types; beta.1, published during the event, has both and the brief does not point at it. Both hackathon networks enable the same lending amendments while enforcing different lending rules. Do not change networks in the demo.
+Evidence: <a class="" href="https://github.com/gamween/patapim/blob/59964c8d7da07eb42bd3d35d9a32048f76ca7613/DEVELOPER-REPORT.md" target="_blank" rel="noreferrer">Developer Report §3 · custom-network proofs marked †</a> · <a class="" href="https://github.com/gamween/patapim/blob/59964c8d7da07eb42bd3d35d9a32048f76ca7613/docs/feedback/FRICTION-LOG.md" target="_blank" rel="noreferrer">F-011 corrects F-004</a>
 
-Evidence: <a href="https://github.com/gamween/patapim/blob/main/DEVELOPER-REPORT.md" target="_blank" rel="noreferrer">DEVELOPER-REPORT.md · Findings 1–3</a>
+## 6. The fields were there.  The meaning was not. — 2:00–2:30
 
-## 8. A fixed end date.  A missing recall. — 3:35–3:45
+The most expensive friction was accounting. Impairment leaves AssetsTotal unchanged: we initially displayed one instead of a net share value of point six. We fixed it. At default, ten-percent cover pays two hundred thousand; one-hundred-percent cover pays two million. The rate and available cover both cap recovery. Origination fees go to the broker, not lenders. These formulas need links from the fields where developers actually look.
 
-This is a proposal for LendingProtocolV1_2, not a transaction the prototype can execute. Close the findings with a specific protocol ask: an early recall path so an agent can manage the vault’s maturity.
+If asked: F-013/F-014/F-016; web/lib/finance.ts now computes exit NAV as (AssetsTotal − LossUnrealized) / shares. Entry price remains AssetsTotal / shares by design. Historical default runs: 10% cover had 1,000,000 posted and settled at NAV 0.64; 100% cover had 2,500,000 posted and settled at 1.00. Both impaired at 0.60. They differ in posted cover as well as configured rate. The formulas exist in concepts: this is discoverability friction, not missing mathematics. Interest enters assets when paid under cash-basis accounting.
 
-Evidence: DEVELOPER-REPORT.md · What the protocol made hard
+Evidence: <a class="" href="https://github.com/gamween/patapim/blob/59964c8d7da07eb42bd3d35d9a32048f76ca7613/docs/evidence/default-arc-cover10000.json" target="_blank" rel="noreferrer">10% cover run</a> · <a class="" href="https://github.com/gamween/patapim/blob/59964c8d7da07eb42bd3d35d9a32048f76ca7613/docs/evidence/default-arc-cover100000.json" target="_blank" rel="noreferrer">100% cover run</a> · <a class="" href="https://github.com/gamween/patapim/blob/59964c8d7da07eb42bd3d35d9a32048f76ca7613/web/lib/finance.ts" target="_blank" rel="noreferrer">Net NAV + cover formulas</a>
 
-## 9. patapim — 3:45–4:00
+## 7. Permissioned.  But for whom? — 2:30–2:55
 
-The Explorer PR was verified open when this deck was prepared; do not call it merged. Close on the actual contribution and invite the jury to inspect the live vault, transaction evidence and developer report. Submission: Sunday 13 September 2026 at 13:00 CEST; code freeze 12:30. Rehearse with a fresh vault and retain a recorded run for network failure.
+A domain refused a non-member’s deposit, then allowed a loan to that same account. It gates lenders, not borrowers. We did not discover an unknown vulnerability: the borrower-domain fix is already in two open proposals behind an unshipped amendment. Name that dependency on the reference pages. Separately, none of the fifteen lending transaction types is delegable. An agent needs a scoped operations key, starting with LoanManage.
 
-Evidence: ripple/explorer#1342 · README.md · DEVELOPER-REPORT.md
+If asked: F-018 and Developer Report “No lending transaction is delegable”. Borrower-domain work: XRPL-Standards #484 and rippled #6517, LendingPermissionedDomain. The proposed broker DomainID is separate from the vault DomainID. Fifteen DelegateSet failures were compared with a successful Payment control. No sensitive new exploit is presented. Grace is separate: impairment can begin after the due date while GracePeriod is still running; a one-sentence LoanManage precondition would clarify it.
+
+Evidence: <a class="" href="https://devnet.xrpl.org/transactions/30C4B86FF9456761892943E69E0C2EC338A1EFE9F7CCF4AE1160ED831AEDB6F9" target="_blank" rel="noreferrer">Deposit refused</a> · <a class="" href="https://devnet.xrpl.org/transactions/DDD611413B8354071CB27DD291652E01424C52D82901611CC6DE042036972C12" target="_blank" rel="noreferrer">Loan allowed</a> · <a class="" href="https://github.com/XRPLF/rippled/pull/6517" target="_blank" rel="noreferrer">#6517</a> · <a class="" href="https://github.com/gamween/patapim/blob/59964c8d7da07eb42bd3d35d9a32048f76ca7613/docs/research/batch-delegation-escrow.md" target="_blank" rel="noreferrer">Delegation evidence</a>
+
+## 8. A fixed end date.  A missing recall. — 2:55–3:15
+
+The ledger rejects a loan schedule that runs too close to redemption. But an unpaid loan can still strand liquidity: thirty million available against forty million in assets, and a refused withdrawal. The calendar is enforced; repayment is not guaranteed. Our proposal is an early recall path, tfLoanCall, with a grace period and visibility into liquidity expected at redemption.
+
+If asked: F-007; the schedule buffer is 60 seconds. Historical withdrawal D5879394…6E68 returned tecINSUFFICIENT_FUNDS. tfLoanCall is a proposal, not a flag implemented by patapim or enabled on either network. Default recovery remains available under its own preconditions and cover bounds; do not say default can never restore liquidity.
+
+Evidence: <a class="" href="https://github.com/gamween/patapim/blob/59964c8d7da07eb42bd3d35d9a32048f76ca7613/DEVELOPER-REPORT.md" target="_blank" rel="noreferrer">Developer Report · calendar, cash & recall</a> · <a class="" href="https://github.com/gamween/patapim/blob/59964c8d7da07eb42bd3d35d9a32048f76ca7613/docs/feedback/FRICTION-LOG.md" target="_blank" rel="noreferrer">F-007 · D5879394…6E68</a>
+
+## 9. We fixed the  search dead end. — 3:15–3:45
+
+We also fixed a problem outside our app. Searching a loan or broker ID returned not found, although the explorer already displayed both inside the vault. PR 1342 resolves the object type and follows the parent to that vault: no extra request for a broker, one for a loan. We added regression coverage, handled review feedback and guarded malformed objects. It is open, awaiting review, not merged.
+
+If asked: PR head 6420ea0. Repository documentation records local tests, lint and typecheck passing. The live GitHub snapshot reports REVIEW_REQUIRED and a successful Semgrep check; do not describe all required CI as approved. The PermissionedDomain not-found regression from #1320 is preserved. Limitation: no selection of the searched broker’s tab in a multi-broker vault; offered as follow-up. Broader generic ledger-entry navigation already exists as draft #1146.
+
+Evidence: <a class="" href="https://github.com/ripple/explorer/pull/1342" target="_blank" rel="noreferrer">ripple/explorer#1342</a> · <a class="" href="https://github.com/gamween/patapim/blob/59964c8d7da07eb42bd3d35d9a32048f76ca7613/docs/CONTRIBUTION-explorer-search.md" target="_blank" rel="noreferrer">Contribution, tests, prior art & limitation</a>
+
+## 10. Built it.  Fed it back. — 3:45–4:00
+
+Our contribution is a working Track 2 product, a three-page Developer Report and an Explorer pull request. The asks are concrete: publish SDK, wallet and network capabilities; link field documentation to the actual accounting and pending amendments; and add recall and scoped delegation. Every headline leads back to code, a transaction or a pull request.
+
+If asked: Also in the report: LoanPay type 83 in the spec versus 84 in the ledger; VaultCreate accepted a 12-drop fee while autofill charged a reserve; tfVaultDonate is open rippled #6383, not the workshop’s available tfVaultDonation. F-021 tracks lending excluded from Batch (#6360); F-022 counts three missing result codes and a typo, not forty. The friction log has 22 numbered entries including superseded/corrected observations; do not advertise 22 independent bugs. Submission items such as the DevEx form and second-machine hook are not automatically certified by this deck.
+
+Evidence: <a class="" href="https://github.com/gamween/patapim/blob/59964c8d7da07eb42bd3d35d9a32048f76ca7613/DEVELOPER-REPORT.md" target="_blank" rel="noreferrer">3-page Developer Report</a> · <a class="" href="https://github.com/gamween/patapim/blob/59964c8d7da07eb42bd3d35d9a32048f76ca7613/docs/ON-CHAIN.md" target="_blank" rel="noreferrer">On-chain inventory</a> · <a class="" href="https://github.com/gamween/patapim/blob/59964c8d7da07eb42bd3d35d9a32048f76ca7613/docs/review/FABLE-AUDIT.md" target="_blank" rel="noreferrer">External audit & corrections</a>

@@ -1,0 +1,516 @@
+{
+  "checkedAt": "2026-09-13T09:09:35.567083+00:00",
+  "sourceCommit": "59964c8d7da07eb42bd3d35d9a32048f76ca7613",
+  "network": "XRPL public Devnet (2)",
+  "transactions": [
+    {
+      "file": "recall-t2.json",
+      "step": "VaultCreate",
+      "hash": "565318B02FEAC00080F137BE3B66C1E3B080B0580A06F6FD1A1A78A55B1B0C5E",
+      "type": "VaultCreate",
+      "result": "tesSUCCESS",
+      "validated": true
+    },
+    {
+      "file": "recall-t2.json",
+      "step": "VaultDeposit lender",
+      "hash": "F8D70563711AFC3EFBA0EF61F3DA6E7944DDB6B2A34F3632DBB78049C0D83391",
+      "type": "VaultDeposit",
+      "result": "tesSUCCESS",
+      "validated": true
+    },
+    {
+      "file": "recall-t2.json",
+      "step": "VaultDeposit after close",
+      "hash": "E4F68FB08B8DDA19E962A7B3A90485CF94CD3168C688D776000EC1ADBDEB9D7C",
+      "type": "VaultDeposit",
+      "result": "tecEXPIRED",
+      "validated": true
+    },
+    {
+      "file": "recall-t2.json",
+      "step": "VaultWithdraw during Investment",
+      "hash": "32077697369163583D1D1BD43F18325D6608A70EC2814A49EDA60DDF38F44CAF",
+      "type": "VaultWithdraw",
+      "result": "tecTOO_SOON",
+      "validated": true
+    },
+    {
+      "file": "recall-t2.json",
+      "step": "LoanSet",
+      "hash": "DDD611413B8354071CB27DD291652E01424C52D82901611CC6DE042036972C12",
+      "type": "LoanSet",
+      "result": "tesSUCCESS",
+      "validated": true
+    },
+    {
+      "file": "recall-t2.json",
+      "step": "LoanSet in redemption",
+      "hash": "3C01AF182E2D99FBEE493459B61E381D8B90A1BDA13A2A118CA338CBA8E43FFD",
+      "type": "LoanSet",
+      "result": "tecEXPIRED",
+      "validated": true
+    },
+    {
+      "file": "recall-t2.json",
+      "step": "VaultWithdraw by shares",
+      "hash": "2FAB3F9D56AE3E331E3427741FDFA5F192A4592A294B011074B5B04089D79138",
+      "type": "VaultWithdraw",
+      "result": "tesSUCCESS",
+      "validated": true
+    },
+    {
+      "file": "fund-term.json",
+      "step": "OracleSet",
+      "hash": "B512F0BECC2C1BF95456556DB88E359A47B654B7CBB271CBB1BCFF42BCED1E73",
+      "type": "OracleSet",
+      "result": "tesSUCCESS",
+      "validated": true
+    },
+    {
+      "file": "fund-term.json",
+      "step": "LoanSet",
+      "hash": "1A37017921F7AEFC76A76933CF937716EBF090EF8078860B3192C08B726E5646",
+      "type": "LoanSet",
+      "result": "tesSUCCESS",
+      "validated": true
+    },
+    {
+      "file": "fund-term.json",
+      "step": "EscrowCreate collateral",
+      "hash": "DDF576E8ADF005B4D3EDE412ED9AF289DD47C9FF064A37C093A345F3E5258B51",
+      "type": "EscrowCreate",
+      "result": "tesSUCCESS",
+      "validated": true
+    },
+    {
+      "file": "fund-offering.json",
+      "step": "app relay: eligible investor subscribes 500",
+      "hash": "64820971F7A3E6098944C2BA582E6AB6520C598DEC77B43995E40F8360F186DB",
+      "type": "VaultDeposit",
+      "result": "tesSUCCESS",
+      "validated": true
+    },
+    {
+      "file": "fund-offering.json",
+      "step": "app relay: ineligible investor is refused",
+      "hash": "2EEFECAD83C5F0C70DD4EA66DE77D1EFEA1D4AFB31B9BBFA96A3630BF3A28780",
+      "type": "VaultDeposit",
+      "result": "tecNO_AUTH",
+      "validated": true
+    }
+  ],
+  "pullRequests": {
+    "ripple/explorer#1342": {
+      "headRefOid": "6420ea0f1fb3678916625472a892496e350ad1a3",
+      "mergedAt": null,
+      "reviewDecision": "REVIEW_REQUIRED",
+      "state": "OPEN",
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-12T18:12:36Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://semgrep.dev/orgs/ripple_x/projects/3597232/scans/226495574",
+          "name": "semgrep-cloud-platform/scan",
+          "startedAt": "2026-09-12T18:10:43Z",
+          "status": "COMPLETED",
+          "workflowName": ""
+        }
+      ],
+      "title": "feat(search): resolve loan broker and loan ids to their vault",
+      "url": "https://github.com/ripple/explorer/pull/1342"
+    },
+    "XRPLF/rippled#6517": {
+      "headRefOid": "710dd81e8368479fd680e00d7b7edbe41d7cb415",
+      "mergedAt": null,
+      "reviewDecision": "CHANGES_REQUESTED",
+      "state": "OPEN",
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-06-06T20:43:51Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://semgrep.dev/orgs/ripple_x/projects/3597028/scans/177268393",
+          "name": "semgrep-cloud-platform/scan",
+          "startedAt": "2026-06-06T20:41:31Z",
+          "status": "COMPLETED",
+          "workflowName": ""
+        }
+      ],
+      "title": "feat: Integrate Permissioned Domain & Credential Checks for Lending Protocol",
+      "url": "https://github.com/XRPLF/rippled/pull/6517"
+    },
+    "XRPLF/XRPL-Standards#484": {
+      "headRefOid": "73b3f961f921f99e48e823a89d2f0d398e4f8ed9",
+      "mergedAt": null,
+      "reviewDecision": "REVIEW_REQUIRED",
+      "state": "OPEN",
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-08T22:09:46Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/XRPLF/XRPL-Standards/actions/runs/34284386084/job/102256437968",
+          "name": "run-hooks / run-hooks",
+          "startedAt": "2026-09-08T22:09:01Z",
+          "status": "COMPLETED",
+          "workflowName": "Run pre-commit hooks"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-08T22:09:13Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/XRPLF/XRPL-Standards/actions/runs/34284385653/job/102256436336",
+          "name": "Validate XLS Document Parsing",
+          "startedAt": "2026-09-08T22:09:01Z",
+          "status": "COMPLETED",
+          "workflowName": "Validate XLS Documents"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-08T22:09:09Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/XRPLF/XRPL-Standards/actions/runs/34284385653/job/102256436575",
+          "name": "[Beta CI Check] Validate XLS Template Compliance",
+          "startedAt": "2026-09-08T22:09:01Z",
+          "status": "COMPLETED",
+          "workflowName": "Validate XLS Documents"
+        }
+      ],
+      "title": "Add PermissionedDomain to LoanBroker",
+      "url": "https://github.com/XRPLF/XRPL-Standards/pull/484"
+    },
+    "XRPLF/rippled#6383": {
+      "headRefOid": "6c617b7a27c5fe43956cdef978da582d462504e6",
+      "mergedAt": null,
+      "reviewDecision": "REVIEW_REQUIRED",
+      "state": "OPEN",
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:14:19Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349560909/job/102459197660",
+          "name": "build",
+          "startedAt": "2026-09-09T12:11:06Z",
+          "status": "COMPLETED",
+          "workflowName": "Build and publish documentation"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:11:11Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349559675/job/102459192330",
+          "name": "check_commits / check_commits",
+          "startedAt": "2026-09-09T12:11:06Z",
+          "status": "COMPLETED",
+          "workflowName": "Check PR commits"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:11:14Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349561034/job/102459196873",
+          "name": "check_description",
+          "startedAt": "2026-09-09T12:11:07Z",
+          "status": "COMPLETED",
+          "workflowName": "Check PR description"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:11:21Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349561441/job/102459198191",
+          "name": "check_title / check_title",
+          "startedAt": "2026-09-09T12:11:07Z",
+          "status": "COMPLETED",
+          "workflowName": "Check PR title"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:21:13Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349558929/job/102459190503",
+          "name": "main",
+          "startedAt": "2026-09-09T12:11:05Z",
+          "status": "COMPLETED",
+          "workflowName": "Label PRs with merge conflicts"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:11:07Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349557699/job/102459185658",
+          "name": "main",
+          "startedAt": "2026-09-09T12:11:04Z",
+          "status": "COMPLETED",
+          "workflowName": "Label PRs with merge conflicts"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:11:31Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349561675/job/102459200316",
+          "name": "should-run",
+          "startedAt": "2026-09-09T12:11:07Z",
+          "status": "COMPLETED",
+          "workflowName": "PR"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:13:26Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349561656/job/102459199133",
+          "name": "run-hooks / run-hooks",
+          "startedAt": "2026-09-09T12:11:07Z",
+          "status": "COMPLETED",
+          "workflowName": "Run pre-commit hooks"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:14:19Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349560909/job/102460207902",
+          "name": "deploy",
+          "startedAt": "2026-09-09T12:14:20Z",
+          "status": "COMPLETED",
+          "workflowName": "Build and publish documentation"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:11:54Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349561675/job/102459340857",
+          "name": "check-autogen / autogen",
+          "startedAt": "2026-09-09T12:11:35Z",
+          "status": "COMPLETED",
+          "workflowName": "PR"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:11:44Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349561675/job/102459340850",
+          "name": "check-levelization / levelization",
+          "startedAt": "2026-09-09T12:11:36Z",
+          "status": "COMPLETED",
+          "workflowName": "PR"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:13:50Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349561675/job/102459340878",
+          "name": "check-rename / rename",
+          "startedAt": "2026-09-09T12:11:35Z",
+          "status": "COMPLETED",
+          "workflowName": "PR"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:12:00Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349561675/job/102459340770",
+          "name": "clang-tidy / determine-files / Determine files to check",
+          "startedAt": "2026-09-09T12:11:35Z",
+          "status": "COMPLETED",
+          "workflowName": "PR"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:15:05Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349561675/job/102459490590",
+          "name": "clang-tidy / Run clang tidy",
+          "startedAt": "2026-09-09T12:12:02Z",
+          "status": "COMPLETED",
+          "workflowName": "PR"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:11:41Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349561675/job/102459340683",
+          "name": "build-test (linux) / generate-matrix / generate-matrix",
+          "startedAt": "2026-09-09T12:11:35Z",
+          "status": "COMPLETED",
+          "workflowName": "PR"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:42:36Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349561675/job/102459392465",
+          "name": "build-test (linux) / build-test-config (ubuntu-gcc-debug-amd64-coverage, -Dtests=ON -Dwerr=ON -Dxrpld=ON -Dwextra=ON -... / ubuntu-gcc-debug-amd64-coverage",
+          "startedAt": "2026-09-09T12:11:43Z",
+          "status": "COMPLETED",
+          "workflowName": "PR"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:25:01Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349561675/job/102459392868",
+          "name": "build-test (linux) / build-test-config (ubuntu-clang-release-amd64, -Dtests=ON -Dwerr=ON -Dxrpld=ON -Dwextra=ON -Drust... / ubuntu-clang-release-amd64",
+          "startedAt": "2026-09-09T12:11:43Z",
+          "status": "COMPLETED",
+          "workflowName": "PR"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:11:43Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349561675/job/102459340796",
+          "name": "build-test (macos) / generate-matrix / generate-matrix",
+          "startedAt": "2026-09-09T12:11:35Z",
+          "status": "COMPLETED",
+          "workflowName": "PR"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:24:07Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349561675/job/102459401530",
+          "name": "build-test (macos) / build-test-config (macos-arm64-release, -Dtests=ON -Dwerr=ON -Dxrpld=ON -Dwextra=ON -Drust=ON -DC... / macos-arm64-release",
+          "startedAt": "2026-09-09T12:11:45Z",
+          "status": "COMPLETED",
+          "workflowName": "PR"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:11:44Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349561675/job/102459340861",
+          "name": "build-test (windows) / generate-matrix / generate-matrix",
+          "startedAt": "2026-09-09T12:11:36Z",
+          "status": "COMPLETED",
+          "workflowName": "PR"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:28:21Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349561675/job/102459406839",
+          "name": "build-test (windows) / build-test-config (windows-amd64-release, -Dtests=ON -Dwerr=ON -Dxrpld=ON -Dwextra=ON -Drust=ON, ... / windows-amd64-release",
+          "startedAt": "2026-09-09T12:11:46Z",
+          "status": "COMPLETED",
+          "workflowName": "PR"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:12:22Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349561675/job/102459340322",
+          "name": "rust / clippy",
+          "startedAt": "2026-09-09T12:11:34Z",
+          "status": "COMPLETED",
+          "workflowName": "PR"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:12:58Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349561675/job/102459340377",
+          "name": "rust / coverage",
+          "startedAt": "2026-09-09T12:11:34Z",
+          "status": "COMPLETED",
+          "workflowName": "PR"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:12:52Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349561675/job/102459340316",
+          "name": "rust / doc",
+          "startedAt": "2026-09-09T12:11:35Z",
+          "status": "COMPLETED",
+          "workflowName": "PR"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:42:36Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349561675/job/102469295860",
+          "name": "package",
+          "startedAt": "2026-09-09T12:42:36Z",
+          "status": "COMPLETED",
+          "workflowName": "PR"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:42:36Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349561675/job/102469295716",
+          "name": "upload-recipe",
+          "startedAt": "2026-09-09T12:42:36Z",
+          "status": "COMPLETED",
+          "workflowName": "PR"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:42:36Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349561675/job/102469296211",
+          "name": "notify-clio",
+          "startedAt": "2026-09-09T12:42:37Z",
+          "status": "COMPLETED",
+          "workflowName": "PR"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:42:44Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/XRPLF/rippled/actions/runs/34349561675/job/102469295608",
+          "name": "passed",
+          "startedAt": "2026-09-09T12:42:41Z",
+          "status": "COMPLETED",
+          "workflowName": "PR"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:11:01Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://dependabot-api.githubapp.com",
+          "name": ".github/dependabot.yml",
+          "startedAt": "2026-09-09T12:11:00Z",
+          "status": "COMPLETED",
+          "workflowName": ""
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T20:43:15Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://app.codecov.io/gh/XRPLF/rippled/pull/6383",
+          "name": "codecov/patch",
+          "startedAt": "2026-09-09T20:43:14Z",
+          "status": "COMPLETED",
+          "workflowName": ""
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:20:06Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://depthfirst.com",
+          "name": "depthfirst Bot",
+          "startedAt": "2026-09-09T12:20:05Z",
+          "status": "COMPLETED",
+          "workflowName": ""
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-09T12:13:21Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://semgrep.dev/orgs/ripple_x/projects/3597028/scans/224482361",
+          "name": "semgrep-cloud-platform/scan",
+          "startedAt": "2026-09-09T12:11:00Z",
+          "status": "COMPLETED",
+          "workflowName": ""
+        }
+      ],
+      "title": "feat: Add tfVaultDonate feature",
+      "url": "https://github.com/XRPLF/rippled/pull/6383"
+    }
+  },
+  "sourceUpdate": "Included 59964c8: demo keys supplied by the team; Xaman payload acceptance documented. The 12 verified transaction proofs are unchanged."
+}

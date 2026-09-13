@@ -32,7 +32,11 @@ function show(index, updateHash = true) {
     `<strong>${String(current + 1).padStart(2, "0")}</strong> / ${String(slides.length).padStart(2, "0")}`;
   document.querySelector(".progress").style.width =
     `${((current + 1) / slides.length) * 100}%`;
-  document.querySelector("#speaker-copy").textContent = notesData[current].note;
+  document.querySelector("#speaker-copy").textContent =
+    notesData[current].note +
+    (notesData[current].detail
+      ? "\n\nIF ASKED\n" + notesData[current].detail
+      : "");
   document.querySelector("#speaker-time").textContent =
     `${notesData[current].time} · ${notesData[current].tag}`;
   prev.disabled = current === 0;

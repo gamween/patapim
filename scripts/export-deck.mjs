@@ -32,10 +32,11 @@ try {
       throw new Error("Deck font did not load");
   });
   const slides = page.locator(".slide");
-  if ((await slides.count()) !== 9) throw new Error("Expected nine slides");
+  const count = await slides.count();
+  if (count !== 10) throw new Error("Expected ten slides");
   const screenshots = path.join(root, "docs/design");
   await mkdir(screenshots, { recursive: true });
-  for (let i = 0; i < 9; i++) {
+  for (let i = 0; i < count; i++) {
     await page.evaluate((index) => {
       location.hash = `#${index + 1}`;
     }, i);
@@ -46,7 +47,7 @@ try {
   }
   await page.keyboard.press("Home");
   await page.keyboard.press("ArrowRight");
-  if ((await page.locator("#count").innerText()) !== "02 / 09")
+  if ((await page.locator("#count").innerText()) !== `02 / ${count}`)
     throw new Error("Keyboard navigation failed");
   await page.keyboard.press("n");
   if (!(await page.locator("#notes-panel").isVisible()))
@@ -55,10 +56,10 @@ try {
     throw new Error("Speaker notes missing");
   await page.keyboard.press("Escape");
   await page.keyboard.press("o");
-  if ((await page.locator(".slide:visible").count()) !== 9)
+  if ((await page.locator(".slide:visible").count()) !== count)
     throw new Error("Overview missing slides");
   await slides.nth(4).locator("h1").click();
-  if ((await page.locator("#count").innerText()) !== "05 / 09")
+  if ((await page.locator("#count").innerText()) !== `05 / ${count}`)
     throw new Error("Overview selection failed");
   await page.keyboard.press("End");
   if (!(await page.locator("#next").isDisabled()))
@@ -84,7 +85,7 @@ try {
     throw new Error("Mobile slide is clipped");
   if (errors.length) throw new Error(errors.join("\n"));
   console.log(
-    "Exported nine 16:9 slides, public PDF and screenshots. Assets, notes, keyboard, overview and mobile framing passed.",
+    "Exported ten 16:9 slides, public PDF and screenshots. Assets, notes, keyboard, overview and mobile framing passed.",
   );
 } finally {
   await browser.close();
