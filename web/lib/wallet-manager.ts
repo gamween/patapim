@@ -1,4 +1,4 @@
-import type { WalletAdapter, WalletManager } from 'xrpl-connect'
+import type { WalletAdapter, WalletManager, XamanAdapter } from 'xrpl-connect'
 
 /**
  * Which wallets can sign these funds' transactions, a VaultDeposit or VaultWithdraw carrying an MPT
@@ -29,6 +29,35 @@ export const VAULT_SIGNING: Record<string, { signs: boolean | null; note: string
   },
 }
 
+type SignedPayloadCheck = (
+  this: unknown,
+  tx: object,
+  blob: string,
+  account: string,
+  multisign: boolean,
+  signer: unknown,
+  multisignAccount: unknown,
+  network: object,
+) => void
+
+/**
+ * xrpl-connect 1.0.0-rc.2 refuses every transaction a holder signs alone in Xaman. Its last check on the
+ * signed payload wants `response.multisign_account` to be null, and live Xaman payloads do not carry null
+ * there: "Xaman returned unexpected multi-signing account data", nothing reaches the ledger. For a single
+ * signature this adapter passes null in its place, since the blob itself shows who signed and every other
+ * check still runs on it: no Signers, the connected account, the network, a valid signature, the requested
+ * fields. A multi-signed payload keeps the original check. tests/xaman-single-sign.spec.ts
+ */
+export function fixXamanSingleSign(Xaman: typeof XamanAdapter): typeof XamanAdapter {
+  const Adapter = class extends Xaman {}
+  const proto = Adapter.prototype as unknown as { validateSignedTransaction: SignedPayloadCheck }
+  const check = proto.validateSignedTransaction
+  proto.validateSignedTransaction = function (tx, blob, account, multisign, signer, multisignAccount, network) {
+    check.call(this, tx, blob, account, multisign, signer, multisign ? multisignAccount : null, network)
+  }
+  return Adapter
+}
+
 let managerPromise: Promise<WalletManager> | null = null
 
 /**
@@ -45,7 +74,10 @@ export function getWalletManager(): Promise<WalletManager> {
     ({ WalletManager, XamanAdapter, WalletConnectAdapter, OtsuAdapter, CrossmarkAdapter, GemWalletAdapter }) => {
       const adapters: WalletAdapter[] = []
       const xaman = process.env.NEXT_PUBLIC_XAMAN_API_KEY
-      if (xaman) adapters.push(new XamanAdapter({ apiKey: xaman }))
+      if (xaman) {
+        const Xaman = fixXamanSingleSign(XamanAdapter)
+        adapters.push(new Xaman({ apiKey: xaman }))
+      }
       adapters.push(new OtsuAdapter())
       const walletConnect = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID
       if (walletConnect)
