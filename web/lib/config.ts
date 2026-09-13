@@ -1,6 +1,6 @@
 // Track 2 of the XRPL Lending Protocol hackathon: closed-ended vaults, Lending Protocol V1.1,
 // public XRPL Devnet. Never point this file at the custom hackathon devnet: the two networks
-// enforce different lending rules behind an identical amendment list.
+// enforce different lending rules behind the same lending amendments.
 export const NETWORK = {
   name: 'XRPL Devnet',
   rpc: 'https://s.devnet.rippletest.net:51234/',
@@ -10,11 +10,25 @@ export const NETWORK = {
 
 export const LIBRARY = 'xrpl.js@5.2.0-beta.0'
 export const REPO = 'https://github.com/gamween/patapim'
+export const DEMO_ACCOUNTS_URL = `${REPO}/blob/main/docs/DEMO-ACCOUNTS.md`
 
 /**
- * The vault the landing page advertises. `scripts/recall-spine.mjs` ends by redeeming the lender,
- * so the vault it leaves behind reads zero on every figure: never point this at a spine run.
- * Repoint it at whatever `node scripts/demo.mjs provision` creates, and check the page before the
- * pitch — a judge arriving from the hero button must land on a vault that holds something.
+ * The two funds `node scripts/standing.mjs` provisioned, both run by the same lending agent. A
+ * directory for the vault picker, nothing more: every figure the app shows is read from the ledger,
+ * and any other vault id can be typed in.
  */
-export const DEMO_VAULT = 'FAB518C7FC616F2BEAE22537F94B53C33AF9138FC472FAF0043057B6C3020132'
+export const FUNDS = [
+  {
+    id: 'B5EC8B2CFF11828C7A3B2552FD14F370659D1CB6857547A3A720E568E1F14730',
+    label: 'Fund I',
+    detail: 'In term, one loan out',
+  },
+  {
+    id: 'B8286CD54ED120116C66C4B3F8663E6E06E7A593A9395B84497894A586A74530',
+    label: 'Fund II',
+    detail: 'Open for subscription',
+  },
+] as const
+
+/** The vault the landing page opens: Fund I, whose loan stays current until 15 September. */
+export const DEMO_VAULT = FUNDS[0].id

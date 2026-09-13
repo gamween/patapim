@@ -4,10 +4,11 @@ import './ghost.css'
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
-import { DEMO_VAULT } from '@/lib/config'
+import { DEMO_VAULT, FUNDS } from '@/lib/config'
 import type { LedgerCard, VaultSnapshot } from '@/lib/vault-ui'
 import type { Experience, Phase } from './animation/Experience'
 import { useVault } from './use-vault'
+import SignPanel from './sign-panel'
 
 function Icon({ name }: { name: 'arrow' | 'close' }) {
   const paths = {
@@ -55,7 +56,7 @@ function Rules({ snapshot }: { snapshot: VaultSnapshot }) {
         {snapshot.rules.blocked.map(([tx, code]) => (
           <div className="rule-line" key={tx}>
             <span>{tx}</span>
-            <span className="live-status red">{code}</span>
+            <span className="live-status red code">{code}</span>
           </div>
         ))}
         {!snapshot.rules.blocked.length && (
@@ -105,16 +106,32 @@ function Loans({
                 <dd>{loan.principal}</dd>
               </div>
               <div>
-                <dt>Total owed</dt>
+                <dt>Lending fee</dt>
+                <dd>{loan.feeBps}</dd>
+              </div>
+              <div>
+                <dt>Total owed at return</dt>
                 <dd>{loan.owed}</dd>
               </div>
               <div>
-                <dt>Payments left</dt>
-                <dd>{loan.payments}</dd>
+                <dt>Interest to lenders</dt>
+                <dd>{loan.interestToLenders}</dd>
               </div>
               <div>
-                <dt>Next payment (UTC)</dt>
+                <dt>Returns (UTC)</dt>
                 <dd>{timestamp(loan.due === '—' ? null : loan.due)}</dd>
+              </div>
+              <div>
+                <dt>Grace period</dt>
+                <dd>{loan.grace}</dd>
+              </div>
+              <div>
+                <dt>Collateral</dt>
+                <dd>{loan.collateral}</dd>
+              </div>
+              <div>
+                <dt>Collateral margin</dt>
+                <dd>{loan.margin}</dd>
               </div>
             </dl>
           </article>
@@ -159,46 +176,19 @@ function Details({
         </dl>
       )}
       {card.id === 'phase' && (
-        <>
-          <div className="phase-track">
-            {['subscription', 'investment', 'redemption'].map((phase, i) => (
-              <div
-                key={phase}
-                aria-current={snapshot.phase === phase ? 'step' : undefined}
-              >
-                <span className="mono">0{i + 1}</span>
-                {phase}
-              </div>
-            ))}
-          </div>
-          <dl className="detail-values">
-            <div>
-              <dt>Subscription closes</dt>
-              <dd>{timestamp(snapshot.subscription)}</dd>
+        <div className="phase-track">
+          {['subscription', 'investment', 'redemption'].map((phase, i) => (
+            <div
+              key={phase}
+              aria-current={snapshot.phase === phase ? 'step' : undefined}
+            >
+              <span className="mono">0{i + 1}</span>
+              {phase}
             </div>
-            <div>
-              <dt>Redemption opens</dt>
-              <dd>{timestamp(snapshot.redemption)}</dd>
-            </div>
-            <div>
-              <dt>Ledger close time</dt>
-              <dd>{timestamp(snapshot.ledgerTime)}</dd>
-            </div>
-          </dl>
-        </>
+          ))}
+        </div>
       )}
-      {card.id === 'price' && (
-        <p className="live-footnote">
-          Net share price = (AssetsTotal − LossUnrealized) / OutstandingAmount.
-          Missing share data is shown as unavailable.
-        </p>
-      )}
-      {card.id === 'cover' && (
-        <p className="live-footnote">
-          The configured cover rate determines default absorption. The cover
-          balance alone does not imply full indemnity.
-        </p>
-      )}
+      {card.note && <p className="live-footnote">{card.note}</p>}
       {card.id === 'provenance' && (
         <div className="rpc-details">
           {snapshot.calls.map((call, i) => (
@@ -242,14 +232,16 @@ export default function GhostApp({
   const scene = useRef<Experience | null>(null)
   const [phase, setPhase] = useState<Phase>('loading')
   const [progress, setProgress] = useState(0)
-  const [section, setSection] = useState<'vault' | 'loans' | 'rules'>('vault')
+  const [section, setSection] = useState<'vault' | 'loans' | 'rules' | 'sign'>('vault')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [fallback, setFallback] = useState(false)
   const [query, setQuery] = useState('')
   const [switching, setSwitching] = useState(false)
+  // An account whose key was loaded in the Sign tab: its position is read without leaving the page.
+  const [signer, setSigner] = useState<string | undefined>(undefined)
   const dialog = useRef<HTMLDialogElement>(null)
   const switchDialog = useRef<HTMLDialogElement>(null)
-  const { snapshot, pending, error, refresh } = useVault(vaultId, holder)
+  const { snapshot, pending, error, refresh } = useVault(vaultId, holder ?? signer)
   const snapshotRef = useRef(snapshot)
   const revealed = phase === 'revealed' || phase === 'ready'
   const selected = snapshot?.cards.find((card) => card.id === selectedId)
@@ -483,7 +475,7 @@ export default function GhostApp({
           aria-label="Live vault data"
         >
           <nav className="app-navigation" aria-label="Vault navigation">
-            {(['vault', 'loans', 'rules'] as const).map((next) => (
+            {(['vault', 'loans', 'rules', 'sign'] as const).map((next) => (
               <button
                 key={next}
                 aria-current={section === next ? 'page' : undefined}
@@ -503,7 +495,9 @@ export default function GhostApp({
                   ? 'Loan book'
                   : section === 'rules'
                     ? 'Ledger rules'
-                    : 'Your vault'}
+                    : section === 'sign'
+                      ? 'Sign'
+                      : (snapshot?.name ?? 'Fund')}
                 <span>
                   {section === 'loans'
                     ? (snapshot?.loans.length ?? '—')
@@ -511,7 +505,7 @@ export default function GhostApp({
                 </span>
               </h1>
             </div>
-            {section !== 'rules' && (
+            {(section === 'vault' || section === 'loans') && (
               <label className="search mono">
                 <span>
                   SEARCH{' '}
@@ -535,6 +529,14 @@ export default function GhostApp({
           {snapshot &&
             (section === 'loans' ? (
               <Loans snapshot={snapshot} query={query} />
+            ) : section === 'sign' ? (
+              <SignPanel
+                snapshot={snapshot}
+                onSettled={(address) => {
+                  setSigner(address)
+                  refresh()
+                }}
+              />
             ) : section === 'rules' ? (
               <Rules snapshot={snapshot} />
             ) : (
@@ -619,6 +621,22 @@ export default function GhostApp({
             <br />
             Your ledger data.
           </h2>
+          <div className="fund-shortcuts" role="group" aria-label="Funds run by the demo lending agent">
+            {FUNDS.map((fund) => (
+              <button
+                key={fund.id}
+                type="button"
+                className="pill"
+                aria-current={fund.id === vaultId.toUpperCase() ? 'true' : undefined}
+                onClick={() => {
+                  setSwitching(false)
+                  router.push(`/vault/${fund.id}`)
+                }}
+              >
+                {fund.label} · {fund.detail} <Icon name="arrow" />
+              </button>
+            ))}
+          </div>
           <label>
             Vault ID
             <input

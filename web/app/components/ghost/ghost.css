@@ -1658,3 +1658,120 @@
     margin-bottom: 26px;
   }
 }
+
+/* Result codes are identifiers: tecNO_AUTH is not TECNO_AUTH. */
+.ghost-root .live-status.code {
+  text-transform: none;
+}
+.ghost-root .fund-shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: -10px 0 10px;
+}
+.ghost-root .fund-shortcuts .pill[aria-current='true'] {
+  background: var(--green);
+  color: #000;
+}
+.ghost-root .sign-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 40px;
+  padding: 10px 0 60px;
+}
+.ghost-root .sign-intro p:first-child {
+  font-size: 22px;
+  line-height: 1.35;
+  letter-spacing: -0.5px;
+  margin: 0;
+  max-width: 34ch;
+}
+.ghost-root .sign-intro a,
+.ghost-root .sign-result a {
+  display: inline-block;
+  margin-top: 18px;
+  font:
+    12px 'DM Mono',
+    monospace;
+  color: var(--live-green);
+}
+.ghost-root .sign-form label {
+  display: block;
+  font:
+    12px 'DM Mono',
+    monospace;
+  margin: 0 0 22px;
+}
+.ghost-root .sign-form input[name='seed'],
+.ghost-root .sign-form input[name='amount'] {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--live-line);
+  background: #151c17;
+  color: #f5f5f2;
+  padding: 16px 12px;
+  margin-top: 12px;
+  font:
+    14px 'DM Mono',
+    monospace;
+  border-radius: 6px;
+}
+.ghost-root .sign-actions {
+  border: 1px solid var(--live-line);
+  border-radius: 6px;
+  padding: 14px 16px 4px;
+  margin: 22px 0;
+}
+.ghost-root .sign-actions legend {
+  font:
+    11px 'DM Mono',
+    monospace;
+  color: var(--live-muted);
+  padding: 0 6px;
+}
+.ghost-root .sign-actions label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px;
+}
+.ghost-root .sign-actions code,
+.ghost-root .sign-intro code {
+  color: var(--live-muted);
+}
+.ghost-root .sign-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+}
+.ghost-root .sign-forget {
+  background: none;
+  border: 0;
+  color: var(--live-muted);
+  font:
+    12px 'DM Mono',
+    monospace;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.ghost-root .sign-result {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--live-line);
+  padding-top: 24px;
+  margin: 0;
+}
+.ghost-root .sign-result p {
+  font-size: 20px;
+  margin: 16px 0 0;
+  max-width: 60ch;
+}
+@media (max-width: 650px) {
+  .ghost-root .sign-panel {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+  .ghost-root .sign-intro p:first-child {
+    font-size: 18px;
+  }
+}

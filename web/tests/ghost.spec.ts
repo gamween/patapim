@@ -64,7 +64,7 @@ test('real ghost intro reveals live ledger tiles instead of project imagery', as
   await expect(page.locator('canvas.experience')).toHaveCount(0)
   await expect(page.locator('.ledger-row')).toHaveCount(live.cards.length)
   await expect(
-    page.locator('.ledger-row').filter({ hasText: 'Price per share' }),
+    page.locator('.ledger-row').filter({ hasText: 'NAV per share' }),
   ).toContainText(live.cards.find((c) => c.id === 'price')!.value)
   expect(requested.some((url) => url.includes('/atlases/'))).toBe(false)
   expect(requested.some((url) => url.includes('rippletest.net'))).toBe(false)
@@ -132,7 +132,7 @@ test('API refresh updates open details and phase rules without replay; failure r
       : route.fulfill({ json: reads === 1 ? live : updated })
   })
   await ready(page)
-  await page.locator('.ledger-row').filter({ hasText: 'Vault assets' }).click()
+  await page.locator('.ledger-row').filter({ hasText: 'Fund assets' }).first().click()
   await expect(page.locator('.detail-hero strong')).toHaveText('123,456', {
     timeout: 17000,
   })
@@ -216,7 +216,7 @@ test('400px viewport supports ledger list, rules, dialogs and holder selection',
     path: '../docs/design/live/mobile-list.png',
     fullPage: true,
   })
-  await page.locator('.ledger-row').filter({ hasText: 'Vault phase' }).click()
+  await page.locator('.ledger-row').filter({ hasText: 'Fund phase' }).click()
   await expect(page.locator('.phase-track')).toBeVisible()
   expect(
     await page.evaluate(
@@ -254,4 +254,44 @@ test('vault URLs and holder lookup open the app; malformed IDs are rejected', as
     page.locator('.ledger-row').filter({ hasText: 'Your position' }),
   ).toBeVisible()
   await expect(page.locator('.page > .nav')).toHaveCount(0)
+})
+
+test('result codes keep their case, and every figure on a card comes from the snapshot', async ({
+  page,
+}) => {
+  await ready(page)
+  await page.getByRole('button', { name: 'Rules', exact: true }).click()
+  for (const [, code] of live.rules.blocked)
+    await expect(page.locator('.live-rules .code').filter({ hasText: code })).toHaveText(code)
+  await page.getByRole('button', { name: 'Vault', exact: true }).click()
+  for (const card of live.cards.filter((c) => c.id !== 'provenance' && c.id !== 'phase'))
+    await expect(
+      page.locator('.ledger-row').filter({ hasText: card.title }).first(),
+    ).toContainText(card.value)
+})
+
+// Signs a real VaultDeposit from the browser with a published demo key. The keys are read from the
+// environment, never from the repository: DEMO_INELIGIBLE_SEED is the account without a credential.
+test('the sign tab relays a browser-signed deposit and shows the ledger refusal', async ({
+  page,
+}) => {
+  const seed = process.env.DEMO_INELIGIBLE_SEED
+  const fund = process.env.DEMO_OFFERING_VAULT
+  test.skip(!seed || !fund, 'set DEMO_INELIGIBLE_SEED and DEMO_OFFERING_VAULT to run')
+  const requests: string[] = []
+  page.on('request', (r) => requests.push(`${r.method()} ${r.url()} ${r.postData() ?? ''}`))
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto(`/vault/${fund}`)
+  await expect(app(page)).toHaveAttribute('data-ledger-state', 'ready', { timeout: 30000 })
+  await page.getByRole('button', { name: 'Sign', exact: true }).click()
+  await page.locator('input[name="seed"]').fill(seed!)
+  await page.getByRole('button', { name: 'Load key', exact: true }).click()
+  await expect(page.getByText('Signing account')).toBeVisible({ timeout: 30000 })
+  await page.locator('input[name="amount"]').fill('100')
+  await page.getByRole('button', { name: 'Sign VaultDeposit', exact: true }).click()
+  await expect(page.locator('.sign-result .code')).toHaveText('tecNO_AUTH', { timeout: 60000 })
+  await expect(page.locator('.sign-result')).toContainText('no credential')
+  // The seed never leaves the browser: no request carries it.
+  expect(requests.some((r) => r.includes(seed!))).toBe(false)
+  expect(requests.some((r) => r.includes('/api/submit'))).toBe(true)
 })

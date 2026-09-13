@@ -8,12 +8,18 @@ export function useVault(id: string, holder?: string) {
   const [pending, setPending] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const refreshRef = useRef<() => void>(() => {})
+  const lastId = useRef(id)
   useEffect(() => {
     let disposed = false,
       inFlight = false
     let timer: ReturnType<typeof setTimeout>
     let controller: AbortController | null = null
-    setSnapshot(null)
+    // A new vault clears the page. A new holder on the same vault keeps the figures on screen while
+    // the position is read, so a key loaded in the Sign tab is not unmounted with them.
+    if (lastId.current !== id) {
+      lastId.current = id
+      setSnapshot(null)
+    }
     setError(null)
     const read = async () => {
       if (disposed || inFlight) return
