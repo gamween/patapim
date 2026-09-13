@@ -47,16 +47,26 @@ The app is deployed at **https://patapim-gamma.vercel.app**. It opens **Fund I**
 with one loan of securities out. The vault picker also lists **Fund II**, open for subscription until
 Wednesday 16 September 18:00 CEST.
 
-1. Open Fund II and go to the **Sign** tab.
-2. Load one of the two demo keys published on purpose in [`docs/DEMO-ACCOUNTS.md`](./docs/DEMO-ACCOUNTS.md).
+1. Open Fund II and choose **Connect Wallet** in the header, or go to the **Sign** tab.
+2. Connect a wallet holding one of the two demo accounts in [`docs/DEMO-ACCOUNTS.md`](./docs/DEMO-ACCOUNTS.md).
 3. Sign a `VaultDeposit`. The investor with a credential gets `tesSUCCESS` and a position; the one
    without gets `tecNO_AUTH`, refused by the permissioned domain. The same deposit into Fund I gets
    `tecEXPIRED`: its subscription period is over.
 
-The page signs in your browser with `xrpl.js@5.2.0-beta.0`. The key stays in the tab: the server only
-relays the signed transaction to XRPL Devnet and reads the result from a validated ledger. Browser
-wallets are not offered, because the published Crossmark and GemWallet extensions cannot encode a
-vault transaction or a multi-purpose token amount (finding F-019).
+The wallet connection is XRPL Commons' [xrpl-connect](https://github.com/XRPL-Commons/xrpl-connect),
+themed to the app. The wallet signs; the server only relays the signed transaction to XRPL Devnet and
+reads the result from a validated ledger. Wallets differ in what they can sign (finding F-019):
+
+| Wallet | Offered | Can sign a vault transaction with an MPT amount |
+|---|---|---|
+| Xaman | when `NEXT_PUBLIC_XAMAN_API_KEY` is set and the site origin is registered with Xaman | yes in its code: Single Asset Vault support since Xaman 5.1, Devnet network; not yet tested live |
+| Otsu | always, if installed | yes, in its code (ripple-binary-codec 2.7.0); a developer build |
+| WalletConnect | when `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` is set | depends on the wallet; none we checked documents XRPL Devnet. The app re-encodes the signed `tx_json` the adapter returns |
+| Crossmark, GemWallet | always, if installed | no: their signing libraries predate vault transactions |
+
+No wallet at hand: the Sign tab also accepts a Devnet demo key, which signs in the browser with
+`xrpl.js@5.2.0-beta.0` and never leaves the tab. That path is proven end to end, including from the
+deployed app.
 
 ## The trade
 
@@ -218,6 +228,7 @@ scripts/              the ledger work
   read-vault.mjs      the read path, and the calls it takes
   experiments/        what we fired at the ledger to establish the findings
 web/                  the app: Next.js; server routes read the ledger and relay signed transactions
+  lib/wallet-manager.ts  xrpl-connect on Devnet, and what each wallet can sign
   lib/finance.ts      every lending metric the dashboard shows, with its definition
 docs/
   ON-CHAIN.md         every account and object we created, with explorer links

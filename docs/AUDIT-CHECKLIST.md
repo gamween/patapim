@@ -106,11 +106,14 @@ Armand's art direction is merged. The landing page and the dashboard are one cli
       `devnet.xrpl.org` beside our dashboard. Any figure that differs is either their bug, ours, or
       a deliberate divergence: `loanStatus()` in `web/lib/ledger.ts` treats default as terminal over
       a zero balance, and says so in a comment. Confirm that is the only one.
-- [ ] **The Sign tab signs in the browser, never on the server.** Load a key from
+- [ ] **The wallet connect is xrpl-connect and signs on the visitor's side.** On a vault page the header
+      shows Connect Wallet in the app's palette at 1440 and 400 px; the modal lists the wallets
+      `web/lib/wallet-manager.ts` registers. A connected wallet's position appears, and the Sign tab says
+      what that wallet can sign (F-019). Xaman appears only with `NEXT_PUBLIC_XAMAN_API_KEY` set.
+- [ ] **The demo-key fallback signs in the browser, never on the server.** Load a key from
       `docs/DEMO-ACCOUNTS.md` on Fund II and sign a `VaultDeposit`: the eligible key gets `tesSUCCESS`,
       the other `tecNO_AUTH`, each with an explorer link. In the network panel, no request carries the
-      seed; `/api/submit` receives a signed blob only. No browser wallet is offered, and the page says
-      why (F-019).
+      seed; `/api/submit` receives a signed blob only.
 - [ ] **The server holds no key and relays only a lender's own transactions.** `Wallet.fromSeed`
       appears only in `web/app/components/ghost/sign-panel.tsx`, a client component.
       `web/app/api/submit/route.ts` decodes the blob, refuses anything but a signed `VaultDeposit` or

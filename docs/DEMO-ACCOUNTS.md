@@ -21,7 +21,11 @@ difference between them is the credential, so a refusal can only come from the p
 
 ## What to try
 
-Open the app, choose **Fund II** in the vault picker, go to the **Sign** tab and load one key.
+Open the app, choose **Fund II** in the vault picker, go to the **Sign** tab. Either connect a wallet
+into which you imported one of these accounts, with **Connect Wallet**, or load the key directly with
+**No wallet? Use a Devnet demo key**. A wallet must be on XRPL Devnet and able to sign a vault
+transaction with an MPT amount: Xaman and Otsu can in their code, Crossmark and GemWallet cannot
+(`docs/feedback/FRICTION-LOG.md`, F-019).
 
 | Fund | Phase | Account | Transaction | The ledger answers |
 |---|---|---|---|---|
@@ -30,8 +34,9 @@ Open the app, choose **Fund II** in the vault picker, go to the **Sign** tab and
 | Fund II | Subscription | eligible | `VaultWithdraw` its shares | `tesSUCCESS`, redemptions are open while subscribing |
 | [Fund I](https://patapim-gamma.vercel.app/vault/B5EC8B2CFF11828C7A3B2552FD14F370659D1CB6857547A3A720E568E1F14730) | Investment, until 16 September 18:00 CEST | either | `VaultDeposit` | `tecEXPIRED`, the subscription period is over |
 
-The page signs in the browser with `xrpl.js@5.2.0-beta.0`. The key never leaves the tab: only the
-signed transaction goes to the server, which relays it to XRPL Devnet and reads the validated result.
+Either way the transaction is signed on your side: by the wallet, or in the browser with
+`xrpl.js@5.2.0-beta.0`. Only the signed transaction goes to the server, which relays it to XRPL Devnet
+and reads the validated result.
 
 Every row above was signed through the app's own relay before publication; the hashes are in
 [`docs/evidence/fund-offering.json`](./evidence/fund-offering.json) and

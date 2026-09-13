@@ -19,14 +19,14 @@ d'origine est conservé tel quel en dessous.
 | §3 | NAV net partout, labels d'impairment, casse des codes, sorties en anglais, `pay` dans `demo.mjs`, `xrpl` épinglé côté app | scripts, `web/` |
 | Bug trouvé en cours | Le dashboard prenait le premier `LoanBroker` du propriétaire : filtré sur `VaultID` | `web/lib/ledger.ts` |
 
-**Le wallet connect, décision révisée sur preuve.** `xrpl-connect` n'est pas livré. Les extensions
-Crossmark 0.2.19 et GemWallet 3.8.2 ne savent encoder ni `VaultDeposit` ni un montant MPT : GemWallet
-verrouille `xrpl` 3.1.0 et `ripple-binary-codec` 2.1.0, qui lèvent sur les deux, et aucun des deux bundles
-ne contient `VaultDeposit` ni `mpt_issuance_id`. `xrpl-connect@1.0.0-rc.2` casse en plus le build Turbopack
-et exclut `xrpl` 5 de ses peers. À la place : l'onglet Sign signe dans le navigateur avec
-`xrpl.js@5.2.0-beta.0` et une des deux clés publiées dans `docs/DEMO-ACCOUNTS.md` ; le serveur ne relaie
-qu'un blob signé `VaultDeposit` ou `VaultWithdraw`. Prouvé sur la production : `tesSUCCESS` pour
-l'investisseur éligible, `tecNO_AUTH` pour l'autre. Constats F-019 et F-020.
+**Le wallet connect, en deux temps.** La nuit du 12 au 13, `xrpl-connect` n'avait pas été livré : Crossmark
+0.2.19 et GemWallet 3.8.2 ne savent encoder ni `VaultDeposit` ni un montant MPT, et `1.0.0-rc.2` cassait le
+build Turbopack. Le 13 au matin, sur décision de l'équipe, il est intégré proprement : `xrpl-connect@1.0.0-rc.2`
+épinglé, override `xrpl` vers la 5.2.0-beta.0, `turbopack.ignoreIssue` limité au fichier et à l'erreur morte
+de crypto-js, bouton et modal dans la palette de l'app. Xaman (clé API requise) et Otsu savent signer une
+transaction de vault d'après leur code ; Crossmark et GemWallet se connectent mais ne savent pas signer, et
+l'onglet Sign le dit au visiteur connecté. Le signataire par clé de démo reste en repli : c'est le seul chemin
+prouvé de bout en bout, `tesSUCCESS` et `tecNO_AUTH` signés depuis la production. Constats F-019 et F-020.
 
 ---
 

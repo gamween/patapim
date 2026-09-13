@@ -12,7 +12,7 @@ XRPL Lending Protocol Hackathon, Paris, 13 September 2026, 13:00 CEST.
 | ☑ | DevEx hook installed and reporting, on every developer machine | pseudonym `witty-iguana-68` on this machine; confirm the second machine before 12:30 |
 | ☑ | Contribution back | [ripple/explorer#1342](https://github.com/ripple/explorer/pull/1342), open, tests and lint passing |
 | ☑ | Slide deck, ten slides maximum | nine slides, [live](https://patapim-gamma.vercel.app/deck/index.html) and [`docs/PATAPIM-DECK.pdf`](./docs/PATAPIM-DECK.pdf) |
-| ☑ | Deployed app a judge can use | [patapim-gamma.vercel.app](https://patapim-gamma.vercel.app): Fund I in term, Fund II open for subscription, Sign tab with the keys in [`docs/DEMO-ACCOUNTS.md`](./docs/DEMO-ACCOUNTS.md) |
+| ☑ | Deployed app a judge can use | [patapim-gamma.vercel.app](https://patapim-gamma.vercel.app): Fund I in term, Fund II open for subscription, wallet connect by xrpl-connect, Sign tab with a demo-key fallback, accounts in [`docs/DEMO-ACCOUNTS.md`](./docs/DEMO-ACCOUNTS.md) |
 | ☑ | Borrower eligibility gap | nothing to disclose privately: publicly tracked as XRPL-Standards #484 and rippled #6517, both open. Mention it to a mentor as courtesy. Finding F-018 |
 | ☐ | Live demo rehearsed | Fund I and Fund II stand until 16 September; for a live phase flip, `node scripts/demo.mjs provision 4 10` about ten minutes before the slot |
 | ☑ | One-pagers | [English](./docs/ONE-PAGER.en.md), [français](./docs/ONE-PAGER.fr.md) |

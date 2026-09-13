@@ -284,9 +284,10 @@ test('the sign tab relays a browser-signed deposit and shows the ledger refusal'
   await page.goto(`/vault/${fund}`)
   await expect(app(page)).toHaveAttribute('data-ledger-state', 'ready', { timeout: 30000 })
   await page.getByRole('button', { name: 'Sign', exact: true }).click()
+  await page.getByRole('button', { name: 'No wallet? Use a Devnet demo key', exact: true }).click()
   await page.locator('input[name="seed"]').fill(seed!)
   await page.getByRole('button', { name: 'Load key', exact: true }).click()
-  await expect(page.getByText('Signing account')).toBeVisible({ timeout: 30000 })
+  await expect(page.getByText('Signing account, demo key')).toBeVisible({ timeout: 30000 })
   await page.locator('input[name="amount"]').fill('100')
   await page.getByRole('button', { name: 'Sign VaultDeposit', exact: true }).click()
   await expect(page.locator('.sign-result .code')).toHaveText('tecNO_AUTH', { timeout: 60000 })
@@ -294,4 +295,44 @@ test('the sign tab relays a browser-signed deposit and shows the ledger refusal'
   // The seed never leaves the browser: no request carries it.
   expect(requests.some((r) => r.includes(seed!))).toBe(false)
   expect(requests.some((r) => r.includes('/api/submit'))).toBe(true)
+})
+
+test('the header opens the xrpl-connect wallet modal in the app palette at every width', async ({
+  page,
+}) => {
+  const errors: string[] = []
+  page.on('pageerror', (e) => errors.push(e.message))
+  for (const width of [1440, 400]) {
+    await page.setViewportSize({ width, height: 900 })
+    await ready(page)
+    await page.waitForFunction(() => !!customElements.get('xrpl-wallet-connector'))
+    const connector = page.locator('.header xrpl-wallet-connector')
+    await expect(connector).toHaveCount(1)
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true)
+    await page.getByRole('button', { name: 'Sign', exact: true }).click()
+    await page.getByRole('button', { name: 'Connect wallet', exact: true }).click()
+    const modal = await page.waitForFunction(() => {
+      const m = document
+        .querySelector('[data-xrpl-overlay-portal]')
+        ?.shadowRoot?.querySelector('[part~="modal"]')
+      if (!m) return null
+      const cs = getComputedStyle(m)
+      return { bg: cs.backgroundColor, font: cs.fontFamily }
+    })
+    expect(await modal.jsonValue()).toEqual({
+      bg: 'rgb(11, 16, 12)',
+      font: '"DM Mono", "Courier New", monospace',
+    })
+    await page.keyboard.press('Escape')
+  }
+  // The landing page never loads the wallet bundle: evaluating it defines the custom element.
+  const landing = await page.context().newPage()
+  await landing.emulateMedia({ reducedMotion: 'reduce' })
+  await landing.goto('/')
+  await expect(landing.locator('.live-app')).toHaveAttribute('data-ledger-state', 'ready', { timeout: 30000 })
+  expect(await landing.evaluate(() => !!customElements.get('xrpl-wallet-connector'))).toBe(false)
+  await landing.close()
+  expect(errors).toEqual([])
 })

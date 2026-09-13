@@ -15,7 +15,8 @@
     "react-dom": "19.2.8",
     "ripple-binary-codec": "2.11.0",
     "three": "^0.186.0",
-    "xrpl": "5.2.0-beta.0"
+    "xrpl": "5.2.0-beta.0",
+    "xrpl-connect": "1.0.0-rc.2"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
@@ -24,5 +25,10 @@
     "@types/react-dom": "^19",
     "@types/three": "^0.186.0",
     "typescript": "^5"
+  },
+  "overrides": {
+    "xrpl-connect": {
+      "xrpl": "$xrpl"
+    }
   }
 }

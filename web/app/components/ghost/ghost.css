@@ -1771,3 +1771,104 @@
     font-size: 18px;
   }
 }
+
+/* Wallet connection, xrpl-connect's <xrpl-wallet-connector> in the app's palette.
+   The modals render in portals on <body> and copy the element's --xc-* values. */
+xrpl-wallet-connector {
+  --xc-font-family: 'DM Mono', 'Courier New', monospace;
+  --xc-border-radius: 20px;
+  --xc-overlay-background: #000b;
+  --xc-overlay-backdrop-filter: blur(15px);
+  --xc-primary-color: #1eff66;
+  --xc-background-color: #0b100c;
+  --xc-text-color: #f5f5f2;
+  --xc-text-muted-color: #a0aaa3;
+  --xc-background-secondary: #151c17;
+  --xc-background-tertiary: #29332c;
+  --xc-loading-border-color: #1eff66;
+  --xc-connect-button-font-size: 16px;
+  --xc-connect-button-border-radius: 0;
+  --xc-connect-button-color: #f5f5f2;
+  --xc-connect-button-background: transparent;
+  --xc-connect-button-border: 0;
+  --xc-connect-button-hover-background: transparent;
+  --xc-connect-button-font-weight: 400;
+  --xc-primary-button-color: #080808;
+  --xc-primary-button-background: #f5f5f2;
+  --xc-primary-button-border-radius: 40px;
+  --xc-primary-button-font-weight: 400;
+  --xc-primary-button-hover-background: #1eff66;
+  --xc-secondary-button-color: #f5f5f2;
+  --xc-secondary-button-background: #151c17;
+  --xc-secondary-button-border-radius: 6px;
+  --xc-secondary-button-font-weight: 400;
+  --xc-secondary-button-hover-background: #29332c;
+  --xc-account-address-button-hover-color: #1eff66;
+  --xc-modal-background: #0b100c;
+  --xc-modal-border-radius: 20px;
+  --xc-modal-box-shadow: none;
+  --xc-focus-color: #1eff66;
+  --xc-danger-color: #ff9c91;
+}
+xrpl-wallet-connector::part(connect-button) {
+  font-family: Arial, Helvetica, sans-serif;
+  letter-spacing: -0.6px;
+  padding: 13px 0;
+  border-bottom: 1px solid #59645b;
+  white-space: nowrap;
+  transition: transform 0.2s ease;
+}
+xrpl-wallet-connector::part(connect-button):hover {
+  transform: translateY(-2px);
+}
+xrpl-wallet-connector::part(connect-button):focus-visible {
+  outline-offset: 5px;
+}
+[data-xrpl-overlay-portal],
+[data-xrpl-account-modal-portal] {
+  font-synthesis: none;
+}
+[data-xrpl-overlay-portal]::part(modal),
+[data-xrpl-account-modal-portal]::part(modal) {
+  border-color: #29332c;
+}
+[data-xrpl-overlay-portal]::part(close-button),
+[data-xrpl-account-modal-portal]::part(close-button) {
+  background: #ffffff15;
+  opacity: 1;
+}
+.ghost-root.vault-page .header {
+  grid-template-columns: 1.4fr 1fr 1fr auto auto;
+}
+.ghost-root .live-footnote.amber {
+  color: #efcd88;
+}
+.ghost-root .live-footnote.red {
+  color: #ff9c91;
+}
+.ghost-root .sign-form > .detail-values {
+  margin-top: 0;
+}
+.ghost-root .sign-form form {
+  margin-top: 28px;
+}
+@media (max-width: 800px) {
+  .ghost-root.vault-page .clock {
+    display: none;
+  }
+  .ghost-root.vault-page .header {
+    grid-template-columns: 1.4fr 1fr auto auto;
+  }
+}
+@media (max-width: 650px) {
+  xrpl-wallet-connector {
+    --xc-connect-button-font-size: 12px;
+  }
+  .ghost-root.vault-page .header {
+    grid-template-columns: 1fr auto auto;
+  }
+  [data-xrpl-overlay-portal]::part(modal),
+  [data-xrpl-account-modal-portal]::part(modal) {
+    border-radius: 14px;
+  }
+}

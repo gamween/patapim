@@ -518,8 +518,21 @@ need no application credentials. Before writing it we checked what each extensio
   `mpt_issuance_id` or `CredentialAccept`.
 
 So no Single Asset Vault transaction, and no transaction carrying an MPT amount, can be signed from
-either extension today, whatever the connection library. patapim signs in the browser with the mandated
-`xrpl.js@5.2.0-beta.0` instead, using two demo keys published in `docs/DEMO-ACCOUNTS.md`.
+either extension today, whatever the connection library.
+
+The other wallets xrpl-connect 1.0.0-rc.2 can drive, checked the same way on 13 September:
+
+| Wallet | Signing library | Knows `VaultDeposit` and MPT amounts | Devnet |
+|---|---|---|---|
+| Xaman | xrpl-accountlib (app `package.json`), codec loads `server_definitions` | yes in code (`VaultDeposit.class.ts`, release notes for 5.1.0); needs an API key; not tested live | yes, `force_network: DEVNET` |
+| Otsu | @xrpl-commons/xrpl 4.6.0, ripple-binary-codec 2.7.0 | yes in code; no store release, install from source | yes |
+| MetaMask XRPL Snap | xrpl-snap 1.0.3, xrpl 4.0.0, ripple-binary-codec 2.1.0 | no: `TRANSACTION_TYPES` stops at `OracleDelete` | yes |
+| Ledger XRP app | app-xrp 2.7.1 | no: the parser whitelist stops at `AMMDelete`, no MPT amount layout | via the page |
+| Xyra | not found | not found | no, mainnet and testnet only |
+
+patapim ships the xrpl-connect wallet connection with Xaman (when configured), Otsu, Crossmark and
+GemWallet, tells a connected visitor what their wallet can sign, and keeps an in-browser demo-key signer
+with `xrpl.js@5.2.0-beta.0` as the path proven end to end.
 
 **Proposed fix** A support matrix of transaction types per wallet on the XRPL wallets page, and wallet
 releases on a codec that knows XLS-33 amounts and XLS-65/66 transactions.
@@ -530,7 +543,9 @@ releases on a codec that knows XLS-33 amounts and XLS-65/66 transactions.
 - `peerDependencies.xrpl` is `^3.0.0 || ^4.0.0`; the range on `develop`, after pull request #195, adds
   `^5.0.0`, which still excludes the pre-release the brief mandates.
 - `next build` with Turbopack fails: `Module not found: Can't resolve './core'`, from a bundled crypto-js
-  AMD `define(["./core"])` inside `xrpl-connect.mjs`. It builds only with a `resolveAlias` to an empty shim.
+  AMD `define(["./core"])` inside `xrpl-connect.mjs`, a branch that never runs because the CommonJS branch
+  is always taken. The narrowest fix we found is `turbopack.ignoreIssue` scoped to that file and that
+  error title; a `resolveAlias` of `./core` to the real `crypto-js/core` hangs the build.
 - In 0.8.2, the latest tag on npm, the Crossmark and GemWallet adapters record the requested network
   without asking the wallet (issue #179, fixed in #186 for the 1.0 line).
 - `signAndSubmit` returns a hash only, never `meta.TransactionResult`.

@@ -9,6 +9,7 @@ import type { LedgerCard, VaultSnapshot } from '@/lib/vault-ui'
 import type { Experience, Phase } from './animation/Experience'
 import { useVault } from './use-vault'
 import SignPanel from './sign-panel'
+import { WalletButton, WalletHolder, WalletProvider } from './wallet'
 
 function Icon({ name }: { name: 'arrow' | 'close' }) {
   const paths = {
@@ -326,6 +327,8 @@ export default function GhostApp({
   }
 
   return (
+    <WalletProvider enabled={!landing}>
+    <WalletHolder onAccount={setSigner} />
     <main
       className={`ghost-root app live-app ${revealed ? 'is-revealed' : ''} ${landing ? 'landing-page' : 'vault-page'}`}
       data-phase={phase}
@@ -428,6 +431,7 @@ export default function GhostApp({
               {pending ? 'Refreshing…' : 'Refresh ledger'}
               <Icon name="arrow" />
             </button>
+            <WalletButton />
           </>
         )}
       </header>
@@ -663,5 +667,6 @@ export default function GhostApp({
         </form>
       </dialog>
     </main>
+    </WalletProvider>
   )
 }

@@ -52,10 +52,10 @@ Chaque source est citée dans `docs/research/lending-conventions.md`.
 | Collatéral | 2 014 500,00 USDX, 102,0 % de la valeur de marché | aucun |
 | Clôture / échéance | clos / 16 septembre 2026 | 16 septembre / 16 décembre 2026 |
 
-**Signez vous-même.** Ouvrez Fund II, allez dans l'onglet Sign et chargez l'une des deux clés de démo de
-`docs/DEMO-ACCOUNTS.md`. L'investisseur qui détient un credential est accepté, `tesSUCCESS` ; celui qui
-n'en a pas est refusé par le ledger, `tecNO_AUTH`. La clé reste dans votre navigateur : la page signe
-localement avec `xrpl.js@5.2.0-beta.0`, la bibliothèque imposée, et le serveur ne fait que relayer la
+**Signez vous-même.** Ouvrez Fund II, connectez un wallet avec xrpl-connect de XRPL Commons, ou chargez
+l'une des deux clés de démo de `docs/DEMO-ACCOUNTS.md` dans l'onglet Sign. L'investisseur qui détient un credential est accepté, `tesSUCCESS` ; celui qui
+n'en a pas est refusé par le ledger, `tecNO_AUTH`. C'est le wallet, ou la page avec
+`xrpl.js@5.2.0-beta.0`, la bibliothèque imposée, qui signe ; le serveur ne fait que relayer la
 transaction signée.
 
 Chaque compte et chaque objet, avec un lien explorer et chacune des 76 transactions revérifiée sur le

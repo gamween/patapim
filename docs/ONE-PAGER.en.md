@@ -50,10 +50,10 @@ Every source is quoted in `docs/research/lending-conventions.md`.
 | Collateral | 2,014,500.00 USDX, 102.0% of market value | none |
 | Closes / matures | closed / 16 September 2026 | 16 September / 16 December 2026 |
 
-**Sign it yourself.** Open Fund II, go to the Sign tab and load one of the two demo keys in
-`docs/DEMO-ACCOUNTS.md`. The investor with a credential is accepted, `tesSUCCESS`; the one without is
-refused by the ledger, `tecNO_AUTH`. The key stays in your browser: the page signs locally with the
-mandated `xrpl.js@5.2.0-beta.0` and the server only relays the signed transaction.
+**Sign it yourself.** Open Fund II, connect a wallet with XRPL Commons' xrpl-connect, or load one of
+the two demo keys in `docs/DEMO-ACCOUNTS.md` in the Sign tab. The investor with a credential is accepted, `tesSUCCESS`; the one without is
+refused by the ledger, `tecNO_AUTH`. The wallet, or the page with the mandated
+`xrpl.js@5.2.0-beta.0`, signs; the server only relays the signed transaction.
 
 Every account and object, with an explorer link and each of the 76 transactions re-verified against the
 ledger: `docs/ON-CHAIN.md`.
