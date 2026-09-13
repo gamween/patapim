@@ -22,7 +22,6 @@ For production: `npm run build && npm run start`. The app listens on port 3000 b
 | `?holder=<address>` | Include that holder's vault shares and position value |
 | `/product` | Compatibility redirect to `/` |
 | `/api/vault/<VaultID>` | Uncached server-side presentation of the existing ledger reader |
-| `/deck/index.html` | Nine-slide jury deck, speaker notes and PDF print layout |
 
 The vault/holder selector is available in the app header, including on mobile. The app is read-only:
 it does not connect a wallet or submit transactions. The configured network remains the public
@@ -81,8 +80,4 @@ production has no mock data. Captures are in `docs/design/live/`.
 
 ## Deck
 
-`docs/PATAPIM-DECK.pdf` is the nine-slide 16:9 PDF. `docs/PITCH-DECK.md` provides the timed speaker
-runbook. `python3 scripts/build-deck.py` regenerates the HTML and runbook; export a new PDF after
-changing the slide source. The net share-price sequence is 1.00 → 0.60 during impairment → 1.00
-after the fully covered default, calculated from the historical raw ledger fields. The evidence
-files and the protocol developer's calculations are preserved.
+The jury deck is `docs/PATAPIM-DECK.pdf`, ten 16:9 slides.

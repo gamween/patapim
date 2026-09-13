@@ -12,7 +12,7 @@
 
 **XRPL Lending Protocol Hackathon · Paris · 12-13 September 2026**
 
-**[Open the app](https://patapim-gamma.vercel.app)** · **[Video demo](https://youtu.be/rl5IiE9Bn8A)** · **[Jury deck](https://patapim-gamma.vercel.app/deck/index.html)** · **[Developer report](./DEVELOPER-REPORT.md)** · **[One-pager](./docs/ONE-PAGER.en.md)** · **[En français](./docs/ONE-PAGER.fr.md)**
+**[Open the app](https://patapim-gamma.vercel.app)** · **[Video demo](https://youtu.be/rl5IiE9Bn8A)** · **[Jury deck](./docs/PATAPIM-DECK.pdf)** · **[Developer report](./DEVELOPER-REPORT.md)** · **[One-pager](./docs/ONE-PAGER.en.md)** · **[En français](./docs/ONE-PAGER.fr.md)**
 
 </div>
 

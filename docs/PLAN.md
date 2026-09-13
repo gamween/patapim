@@ -12,7 +12,7 @@ Submission Sunday 13 September, 13:00 CEST. Code freeze 12:30.
 | Standing book | Fund I in term with a collateralised loan, Fund II open for subscription, `scripts/standing.mjs`, until 16 September |
 | App | https://patapim-gamma.vercel.app, reads the ledger, Sign tab relays a browser-signed transaction |
 | Developer report | `DEVELOPER-REPORT.md`, three pages in three renderings |
-| Deck | nine slides, `docs/PATAPIM-DECK.pdf`, live at `/deck/index.html` |
+| Deck | ten slides, `docs/PATAPIM-DECK.pdf` |
 | Video demo | https://youtu.be/rl5IiE9Bn8A, app only, script in `docs/deck/VIDEO-SCRIPT.md` |
 | One-pagers | `docs/ONE-PAGER.en.md`, `docs/ONE-PAGER.fr.md` |
 | Contribution back | [ripple/explorer#1342](https://github.com/ripple/explorer/pull/1342), open |
