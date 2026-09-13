@@ -17,6 +17,7 @@
 //                        and default are reachable inside a pitch. The whole schedule must fit
 //                        inside the vault term: on a standing vault use one payment falling due
 //                        after the demo, so the loan reads as current the whole time.
+//       pay              the borrower returns the securities and the fee, in full
 //       impair           the agent impairs the unpaid loan
 //       default          the agent declares default, the cover repays the vault
 //       state            print the vault, the broker and the loan as the dashboard sees them
@@ -59,7 +60,7 @@ async function provision(minutes, investmentMinutes) {
     Flags: MPT.CanTransfer | MPT.CanTrade | MPT.CanEscrow | MPT.CanClawback | MPT.CanLock | MPT.RequireAuth,
     MPTokenMetadata: hex(JSON.stringify({
       ticker: 'TBL', name: 'patapim demo T-Bill', desc: 'Demo tokenised treasury bill',
-      icon: 'https://patapim.example/tbl.png', asset_class: 'rwa', asset_subclass: 'treasury',
+      icon: 'https://raw.githubusercontent.com/gamween/patapim/main/web/app/icon.svg', asset_class: 'rwa', asset_subclass: 'treasury',
       issuer_name: 'patapim demo transfer agent',
     })),
   }, 'MPTokenIssuanceCreate')
@@ -116,6 +117,7 @@ async function provision(minutes, investmentMinutes) {
   console.log(`    node scripts/demo.mjs deposit-late      tecEXPIRED`)
   console.log(`    node scripts/demo.mjs withdraw-early    capital locked for the term, tecTOO_SOON`)
   console.log(`    node scripts/demo.mjs loan              the loan of securities`)
+  console.log(`    node scripts/demo.mjs pay               the borrower returns the securities in full`)
   console.log(`    node scripts/demo.mjs impair            once the payment falls due, grace not required`)
   console.log(`    node scripts/demo.mjs default           the cover repays the vault`)
   console.log(`\n  in the redemption phase`)
@@ -144,6 +146,15 @@ async function act(step, arg, arg2) {
     }, 'loan of securities, two signatures')
     const loanID = r.meta && createdId(r.meta, 'Loan')
     if (loanID) { s.loanID = loanID; save(s); republish(s); console.log(`       LoanID ${loanID}`) }
+  } else if (step === 'pay') {
+    // The borrower returns the securities with the accrued fee, in full: the loan reads paid off.
+    const l = await client.request({ command: 'ledger_entry', index: s.loanID, ledger_index: 'validated' }).catch(() => null)
+    const owed = l?.result?.node?.TotalValueOutstanding
+    if (!owed) { console.log('  no loan outstanding'); await client.disconnect(); return }
+    await submit(client, w.mm, {
+      TransactionType: 'LoanPay', Account: w.mm.classicAddress, LoanID: s.loanID,
+      Amount: amt(Math.ceil(Number(owed))), Flags: 0x00020000, // tfLoanFullPayment
+    }, 'borrower returns the securities, in full')
   } else if (step === 'impair') await submit(client, w.agent, { TransactionType: 'LoanManage', Account: w.agent.classicAddress, LoanID: s.loanID, Flags: LoanManageFlags.tfLoanImpair }, 'agent impairs')
   else if (step === 'default') await submit(client, w.agent, { TransactionType: 'LoanManage', Account: w.agent.classicAddress, LoanID: s.loanID, Flags: LoanManageFlags.tfLoanDefault }, 'agent declares default')
   else if (step === 'withdraw') {
@@ -153,10 +164,10 @@ async function act(step, arg, arg2) {
       mptoken: { mpt_issuance_id: v.ShareMPTID, account: w.lender.classicAddress },
     }).catch(() => null)
     const shares = mine?.result?.node?.MPTAmount
-    if (!shares) { console.log('  le prêteur ne détient aucune part'); await client.disconnect(); return }
-    console.log(`  le prêteur détient ${shares} parts`)
-    // Denominated in shares. An asset-denominated withdrawal under-delivers one unit on an
-    // integral asset, which is finding F-009 in the report.
+    if (!shares) { console.log('  the lender holds no shares'); await client.disconnect(); return }
+    console.log(`  the lender holds ${shares} shares`)
+    // Denominated in shares. An asset-denominated withdrawal can under-deliver one unit on an
+    // integral asset: withdraw by shares.
     await submit(client, w.lender, {
       TransactionType: 'VaultWithdraw', Account: w.lender.classicAddress, VaultID: s.vaultID,
       Amount: { mpt_issuance_id: v.ShareMPTID, value: shares },
@@ -177,9 +188,10 @@ async function act(step, arg, arg2) {
     const v = (await client.request({ command: 'ledger_entry', index: s.vaultID, ledger_index: 'validated' })).result.node
     const b = (await client.request({ command: 'ledger_entry', index: s.brokerID, ledger_index: 'validated' })).result.node
     const sh = (await client.request({ command: 'ledger_entry', mpt_issuance: v.ShareMPTID, ledger_index: 'validated' })).result.node
-    const assets = Number(v.AssetsTotal ?? 0), shares = Number(sh.OutstandingAmount ?? 0)
-    console.log(`  assets ${assets}  available ${v.AssetsAvailable ?? 0}  loss ${v.LossUnrealized ?? 0}`)
-    console.log(`  shares ${shares}  price per share ${shares ? (assets / shares).toFixed(8) : 'n/a'}`)
+    const assets = Number(v.AssetsTotal ?? 0), loss = Number(v.LossUnrealized ?? 0), shares = Number(sh.OutstandingAmount ?? 0)
+    console.log(`  assets ${assets}  available ${v.AssetsAvailable ?? 0}  loss ${loss}`)
+    // Net of the unrealised loss: the ledger redeems shares against AssetsTotal - LossUnrealized.
+    console.log(`  shares ${shares}  NAV per share ${shares ? ((assets - loss) / shares).toFixed(8) : 'n/a'}  [(AssetsTotal - LossUnrealized) / OutstandingAmount]`)
     console.log(`  cover ${b.CoverAvailable ?? 0}  debt ${b.DebtTotal ?? 0}`)
     if (s.loanID) {
       const l = await client.request({ command: 'ledger_entry', index: s.loanID, ledger_index: 'validated' }).catch(() => null)

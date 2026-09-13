@@ -1,0 +1,116 @@
+{
+  "network": "XRPL Devnet",
+  "SEC": "00504E4C3295762322513439250B2F050A1B016CE5563126",
+  "CASH": "00504E4C2BD6C9B523B46C3A87963369E2205F00DD1C8CE7",
+  "domainID": "E6B24E9C6C23DBE2098364844AEEFD418E15CCC4039FB1B87773CA79A9F1625F",
+  "oracle": {
+    "account": "rJhyrQk6XxJcdFeyTWVcn2aSxRS8LZjFrw",
+    "documentID": 1
+  },
+  "accounts": {
+    "issuer": "rncTqM69x4otgZ5ZAc7MykPn8yeQmzpUSu",
+    "cashIssuer": "rhzoMyZpa5eZuzybzZZZjsy8pGtANVL1i5",
+    "pricing": "rJhyrQk6XxJcdFeyTWVcn2aSxRS8LZjFrw",
+    "agent": "rU57MqUwaPcKF4rTYx4cN8osyT8SkDV6ks",
+    "lender": "rpHuHbBytD3CG6DXvNpm3odFHLkvmSyUrK",
+    "borrower": "rnLnMVxhicYy3Jg4LGFoCvXwbnejyx43cE",
+    "investorEligible": "rM7nDFZZPqHnS1UqRBgdsrVSxNWqpMVnNC",
+    "investorIneligible": "rKsP5GqUeHHnJsgRnXmK8Q4QryxfRR22EN"
+  },
+  "vaultID": "B5EC8B2CFF11828C7A3B2552FD14F370659D1CB6857547A3A720E568E1F14730",
+  "brokerID": "22731477DB5E866A4FEB929A99091B09C686BE098A63F40F88D2D98C737A6AD5",
+  "loanID": "F9B11DDA5EFA85457CB17F89EFC99C813B155B41A19A6E2A67242EDB2A596D1F",
+  "subscriptionDate": 842565880,
+  "redemptionDate": 842889600,
+  "escrow": {
+    "owner": "rnLnMVxhicYy3Jg4LGFoCvXwbnejyx43cE",
+    "sequence": 5262926
+  },
+  "events": [
+    {
+      "step": "MPTokenIssuanceCreate security",
+      "code": "tesSUCCESS",
+      "hash": "E0DB910ED8A998BB676EBA722F81AA407F478CE537A8D639727C092A1E7D11CC"
+    },
+    {
+      "step": "MPTokenIssuanceCreate cash",
+      "code": "tesSUCCESS",
+      "hash": "87968F088EBA0FD547761D7C965736522285B651B64351FD1B8C0DF1CD8FF39B"
+    },
+    {
+      "step": "CredentialCreate lender",
+      "code": "tesSUCCESS",
+      "hash": "7B51B7FAD6C42705E0CE85DC377384F187E7E0AA0145B9F830CFF1F5AE597333"
+    },
+    {
+      "step": "CredentialAccept lender",
+      "code": "tesSUCCESS",
+      "hash": "6984F81C7D9069F5A34F6FD26C34FA5DDE9761958671A67CE7AFC0F5FC4DAE14"
+    },
+    {
+      "step": "PermissionedDomainSet",
+      "code": "tesSUCCESS",
+      "hash": "78B5D46C8F4AB2FA204979DD334F26E36DFF99D82D8642A5A0CFCF03A5D5BC25"
+    },
+    {
+      "step": "OracleSet",
+      "code": "tesSUCCESS",
+      "hash": "B512F0BECC2C1BF95456556DB88E359A47B654B7CBB271CBB1BCFF42BCED1E73"
+    },
+    {
+      "step": "Payment USDX to borrower",
+      "code": "tesSUCCESS",
+      "hash": "BA2E91A3013CF433A10340FEEB2FA3208D506E79B711AFFC4F011E15ED771422"
+    },
+    {
+      "step": "VaultCreate",
+      "code": "tesSUCCESS",
+      "hash": "55E22E8B490ADBC1936C999178203FA7E583710B79122D92A83E977D16FC6F25"
+    },
+    {
+      "step": "VaultDeposit lender",
+      "code": "tesSUCCESS",
+      "hash": "AD55ABF0DD04E3AEE44946222284778CC2A6471E28A84BEE3CCA294C0B704081"
+    },
+    {
+      "step": "LoanBrokerSet",
+      "code": "tesSUCCESS",
+      "hash": "991A8FCF8B4DEB3FA0B46638D65C2FC1D69D4C491E0476E86C5FEC71FEA6FB86"
+    },
+    {
+      "step": "LoanBrokerCoverDeposit",
+      "code": "tesSUCCESS",
+      "hash": "3E832B6B4E9E3CADC4D8B2A507F54C23C383581604A75D80EF6DBEF92B2AB63D"
+    },
+    {
+      "step": "VaultDeposit after close",
+      "code": "tecEXPIRED",
+      "hash": "39103704E67B1DD68D78E22DF0B6AA96C30109F1E75FCFA6E36BE70AB4DC7ADA"
+    },
+    {
+      "step": "VaultWithdraw during term",
+      "code": "tecTOO_SOON",
+      "hash": "0E5C4E9290834E9561D047EF93F56D9A667C6636A606BE1348299BD2AC0FFD57"
+    },
+    {
+      "step": "LoanSet",
+      "code": "tesSUCCESS",
+      "hash": "1A37017921F7AEFC76A76933CF937716EBF090EF8078860B3192C08B726E5646"
+    },
+    {
+      "step": "EscrowCreate collateral",
+      "code": "tesSUCCESS",
+      "hash": "DDF576E8ADF005B4D3EDE412ED9AF289DD47C9FF064A37C093A345F3E5258B51"
+    },
+    {
+      "step": "VaultSet reference price pointer",
+      "code": "tesSUCCESS",
+      "hash": "A77D656A8B6D6A265C4F9756224D42F99B016A9522361E2DBE2E2A442607F62F"
+    },
+    {
+      "step": "app relay: deposit into Fund I in its term",
+      "code": "tecEXPIRED",
+      "hash": "CFA26C7C94884B24451FBD385D83F5C9054C5E773CCD91B611A1B83816F1CFE4"
+    }
+  ]
+}

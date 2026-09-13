@@ -16,12 +16,12 @@ for (const key of ['t1', 't2']) {
   if (vaultId) {
     // what did VaultCreate actually cost?
     const tx = await client.request({ command: 'tx', transaction: v.hash })
-    console.log(`       fee payé: ${tx.result.tx_json?.Fee ?? tx.result.Fee} drops`)
+    console.log(`       fee paid: ${tx.result.tx_json?.Fee ?? tx.result.Fee} drops`)
     await submit(client, lender, { TransactionType: 'VaultDeposit', Account: lender.classicAddress, VaultID: vaultId, Amount: '20000000' }, 'VaultDeposit')
     await submit(client, broker, {
       TransactionType: 'LoanBrokerSet', Account: broker.classicAddress, VaultID: vaultId,
       ManagementFeeRate: 100, DebtMaximum: '10000000', CoverRateMinimum: 1000, CoverRateLiquidation: 1000,
-    }, 'LoanBrokerSet sur vault OUVERT')
+    }, 'LoanBrokerSet on an open-ended vault')
   }
   await client.disconnect()
 }

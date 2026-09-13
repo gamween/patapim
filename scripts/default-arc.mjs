@@ -6,7 +6,7 @@ import fs from 'node:fs'
 import { connect, fund, hex, sleep, createdId, submit, submitLoanSet } from './lib/lending.mjs'
 
 const MPT = { CanLock: 0x2, RequireAuth: 0x4, CanEscrow: 0x8, CanTrade: 0x10, CanTransfer: 0x20, CanClawback: 0x40 }
-const LoanManageFlags = { tfLoanDefault: 65536, tfLoanImpair: 131072, tfLoanUnimpair: 262144 }
+const LoanManageFlags = { tfLoanDefault: 65536, tfLoanImpair: 131072 }
 const SUB_IN = 45, INVEST_LEN = 600
 // Agency securities lending is indemnified: the agent covers the whole loan, not a slice of it.
 // CoverRateMinimum is in parts per 100000, so 100000 is 100%.
@@ -37,7 +37,7 @@ const main = async () => {
     Flags: MPT.CanTransfer | MPT.CanTrade | MPT.CanEscrow | MPT.CanClawback | MPT.CanLock | MPT.RequireAuth,
     MPTokenMetadata: hex(JSON.stringify({
       ticker: 'TBL', name: 'patapim demo T-Bill', desc: 'Demo tokenised treasury bill',
-      icon: 'https://patapim.example/tbl.png', asset_class: 'rwa', asset_subclass: 'treasury',
+      icon: 'https://raw.githubusercontent.com/gamween/patapim/main/web/app/icon.svg', asset_class: 'rwa', asset_subclass: 'treasury',
       issuer_name: 'patapim demo transfer agent',
     })),
   }, 'MPTokenIssuanceCreate')
@@ -78,12 +78,13 @@ const main = async () => {
     const v = (await client.request({ command: 'ledger_entry', index: vaultID, ledger_index: 'validated' })).result.node
     const b = (await client.request({ command: 'ledger_entry', index: brokerID, ledger_index: 'validated' })).result.node
     const s = (await client.request({ command: 'ledger_entry', mpt_issuance: v.ShareMPTID, ledger_index: 'validated' })).result.node
-    const assets = Number(v.AssetsTotal ?? 0), shares = Number(s.OutstandingAmount ?? 0)
+    const assets = Number(v.AssetsTotal ?? 0), loss = Number(v.LossUnrealized ?? 0), shares = Number(s.OutstandingAmount ?? 0)
     const row = {
       label,
       AssetsTotal: v.AssetsTotal ?? '0', AssetsAvailable: v.AssetsAvailable ?? '0',
       LossUnrealized: v.LossUnrealized ?? '0', shares: String(shares),
-      pricePerShare: shares ? (assets / shares).toFixed(8) : 'n/a',
+      // NAV per share, net of the unrealised loss: what the ledger redeems a share against.
+      pricePerShare: shares ? ((assets - loss) / shares).toFixed(8) : 'n/a',
       CoverAvailable: b.CoverAvailable ?? '0', DebtTotal: b.DebtTotal ?? '0',
     }
     console.log(`   [${label}] assets=${row.AssetsTotal} available=${row.AssetsAvailable} loss=${row.LossUnrealized} pps=${row.pricePerShare} cover=${row.CoverAvailable} debt=${row.DebtTotal}`)
@@ -108,10 +109,12 @@ const main = async () => {
 
   console.log('\n--- the borrower does not pay ---')
   await waitLedger(client, Number(l0.NextPaymentDueDate) + 5, 'payment due, nothing arrives')
-  rec('LoanManage impair (too early)', await submit(client, agent, { TransactionType: 'LoanManage', Account: agent.classicAddress, LoanID: loanID, Flags: LoanManageFlags.tfLoanImpair }, 'impair before the grace period ends', 'REJECT_OR_OK'))
+  // Impairment unlocks at the due date and ignores GracePeriod (LoanManage.cpp, isPaymentLate): this succeeds.
+  rec('LoanManage impair (due, grace still running)', await submit(client, agent, { TransactionType: 'LoanManage', Account: agent.classicAddress, LoanID: loanID, Flags: LoanManageFlags.tfLoanImpair }, 'impair once the payment is due', 'tesSUCCESS'))
 
   await waitLedger(client, Number(l0.NextPaymentDueDate) + Number(l0.GracePeriod) + 8, 'grace period over')
-  rec('LoanManage impair', await submit(client, agent, { TransactionType: 'LoanManage', Account: agent.classicAddress, LoanID: loanID, Flags: LoanManageFlags.tfLoanImpair }, 'agent impairs the loan'))
+  // Already impaired: the ledger refuses a second impairment.
+  rec('LoanManage impair (already impaired)', await submit(client, agent, { TransactionType: 'LoanManage', Account: agent.classicAddress, LoanID: loanID, Flags: LoanManageFlags.tfLoanImpair }, 'impair an impaired loan', 'tecNO_PERMISSION'))
   states.push(await snapshot('impaired'))
 
   rec('LoanManage default', await submit(client, agent, { TransactionType: 'LoanManage', Account: agent.classicAddress, LoanID: loanID, Flags: LoanManageFlags.tfLoanDefault }, 'agent declares default'))
@@ -127,7 +130,7 @@ const main = async () => {
   for (const e of ev) console.log(`  ${String(e.code).padEnd(22)} ${e.step.padEnd(30)} ${e.hash ?? ''}`)
   fs.mkdirSync('docs/evidence', { recursive: true })
   fs.writeFileSync(`docs/evidence/default-arc-cover${COVER_RATE}.json`, JSON.stringify({ network: 't2-public-devnet', SEC, domainID, vaultID, brokerID, loanID, subscriptionDate, redemptionDate, states, events: ev }, null, 2))
-  console.log('\nécrit: docs/evidence/default-arc.json')
+  console.log(`\nwritten: docs/evidence/default-arc-cover${COVER_RATE}.json`)
   await client.disconnect()
 }
 main().catch((e) => { console.error('FATAL', e); process.exit(1) })

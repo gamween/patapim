@@ -34,7 +34,7 @@
       "AssetsAvailable": "3000000",
       "LossUnrealized": "2000000",
       "shares": "5000000",
-      "pricePerShare": "1.00000000",
+      "pricePerShare": "0.60000000",
       "CoverAvailable": "1000000",
       "DebtTotal": "2000000"
     },
@@ -76,12 +76,12 @@
       "hash": "5C65F0A51F7EE7A992DA1B296D77C5E2893B8FDEC86A5E75E4895FE45D86CD05"
     },
     {
-      "step": "LoanManage impair (too early)",
+      "step": "LoanManage impair (due, grace still running)",
       "code": "tesSUCCESS",
       "hash": "A3734858DD8D5DF2E19384B882682083BA338FC1EECED00E3E7A3357DD62F55D"
     },
     {
-      "step": "LoanManage impair",
+      "step": "LoanManage impair (already impaired)",
       "code": "tecNO_PERMISSION",
       "hash": "C9F009890DB54D8D0DC464403A6893FF95CE461FD71CC04C1E068044638BA649"
     },

@@ -7,5 +7,51 @@
   "subscriptionDate": 842559790,
   "redemptionDate": 842624590,
   "loanID": "1D4630153B6EA3E59E1ACF621171C4B288DFB66BE30BD338E47DD73791B95BB8",
-  "events": []
+  "events": [
+    {
+      "step": "CredentialCreate lender",
+      "code": "tesSUCCESS",
+      "hash": "637B18C454203E3F132838C6DCF45E97B13836FF9C1289ABA3592FFC61A5FC28"
+    },
+    {
+      "step": "CredentialAccept lender",
+      "code": "tesSUCCESS",
+      "hash": "BCC0A216D663B3C74C80CE3A601B3CEBC1B4F087577B03E9F20ABEF2AFE7B9A9"
+    },
+    {
+      "step": "PermissionedDomainSet",
+      "code": "tesSUCCESS",
+      "hash": "783802C249DDBE1DCEF43511CDD77B693C79F5A3B08F580BEC1D9A7A3A978EC3"
+    },
+    {
+      "step": "VaultCreate",
+      "code": "tesSUCCESS",
+      "hash": "8293E8774426C7232E6C3E06752CA4867E982EA1F65CF701FA18E11B333E0B4D"
+    },
+    {
+      "step": "LoanBrokerSet",
+      "code": "tesSUCCESS",
+      "hash": "17BB44256D4855B6E46BB8FC76B93FB6C5B99856C7EB21CD9B1B186282102E81"
+    },
+    {
+      "step": "CoverDeposit",
+      "code": "tesSUCCESS",
+      "hash": "F69254683E44AECEEB17B49B8380E8949EDDFAC3864DED05DC919FD5AACED6C8"
+    },
+    {
+      "step": "VaultDeposit lender",
+      "code": "tesSUCCESS",
+      "hash": "43EEA67B0F9B842F4C81971A4EFBC2925CAD7E91C45E65618F6CC7AFA841191C"
+    },
+    {
+      "step": "LoanSet",
+      "code": "tesSUCCESS",
+      "hash": "FAE60FDE85E0F7205DD8F5F400A9C9132426237CC7828A4B7E1C2F19984C0AFC"
+    },
+    {
+      "step": "VaultSet term metadata",
+      "code": "tesSUCCESS",
+      "hash": "1E034E77B69539566985ABD88716CBB11DDC83F314761B84CD95F7BFDF808FBA"
+    }
+  ]
 }

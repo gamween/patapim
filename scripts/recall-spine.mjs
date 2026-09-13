@@ -44,7 +44,7 @@ const main = async () => {
     Flags: MPT.CanTransfer | MPT.CanTrade | MPT.CanEscrow | MPT.CanClawback | MPT.CanLock | MPT.RequireAuth,
     MPTokenMetadata: hex(JSON.stringify({
       ticker: 'TBL', name: 'patapim demo T-Bill', desc: 'Demo tokenised treasury bill for the XRPL lending hackathon',
-      icon: 'https://patapim.example/tbl.png', asset_class: 'rwa', asset_subclass: 'treasury',
+      icon: 'https://raw.githubusercontent.com/gamween/patapim/main/web/app/icon.svg', asset_class: 'rwa', asset_subclass: 'treasury',
       issuer_name: 'patapim demo transfer agent',
     })),
   }, 'MPTokenIssuanceCreate TBL'))
@@ -159,7 +159,7 @@ const main = async () => {
   console.log('\n--- EVIDENCE ---'); for (const e of ev) console.log(`  ${String(e.code).padEnd(22)} ${e.step.padEnd(28)} ${e.hash ?? ''}`)
   fs.mkdirSync('docs/evidence', { recursive: true })
   fs.writeFileSync('docs/evidence/recall-t2.json', JSON.stringify({ network: 't2-public-devnet', SEC, domainID, vaultID, brokerID, loanID, subscriptionDate, redemptionDate, events: ev }, null, 2))
-  console.log('\nécrit: docs/evidence/recall-t2.json')
+  console.log('\nwritten: docs/evidence/recall-t2.json')
   await client.disconnect()
 }
 main().catch((e) => { console.error('FATAL', e); process.exit(1) })
