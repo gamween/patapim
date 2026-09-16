@@ -2,7 +2,7 @@
 // using only public rippled RPC. Written to answer the organizers' own feedback question:
 // "Could you read position value, utilisation, available liquidity and accrued yield
 //  without guessing from ledger objects?"
-// Usage: node scripts/read-vault.mjs t1|t2 <VaultID> [holderAddress]
+// Usage: node scripts/read-vault.mjs t2|t1 <VaultID> [holderAddress]
 import { Client } from 'xrpl'
 import { NETS } from './lib/lending.mjs'
 
@@ -13,8 +13,8 @@ async function rpc(client, req, why) {
 }
 
 const main = async () => {
-  const [key = 't1', vaultId, holder] = process.argv.slice(2)
-  if (!vaultId) { console.error('usage: node scripts/read-vault.mjs t1|t2 <VaultID> [holder]'); process.exit(1) }
+  const [key = 't2', vaultId, holder] = process.argv.slice(2)
+  if (!vaultId) { console.error('usage: node scripts/read-vault.mjs t2|t1 <VaultID> [holder]'); process.exit(1) }
   const client = new Client(NETS[key].wss)
   await client.connect()
 

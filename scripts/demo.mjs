@@ -4,13 +4,16 @@
 //       Builds the whole world on the public devnet and leaves the vault in Subscription with the
 //       Subscription to Investment boundary set to fall N minutes from now, so a phase gate fires
 //       live on screen during the pitch. Prints a runbook. Defaults: 4 minutes, then a 10 minute
-//       investment window. Pass a long second argument to leave a populated vault standing (the
-//       one web/lib/config.ts advertises) rather than one that drains inside the pitch.
+//       investment window. Pass a long second argument to leave a populated vault standing rather
+//       than one that drains inside the pitch: that is how the 12 September standing vault was
+//       made, before scripts/standing.mjs replaced it with Fund I and Fund II.
 //
 //   node scripts/demo.mjs <step>
 //       deposit-ok       an eligible lender subscribes
 //       deposit-blocked  an account with no credential is refused, tecNO_AUTH
+//       loan-early       a loan before the term opens, tecTOO_SOON
 //       deposit-late     a deposit after the boundary, tecEXPIRED
+//       withdraw-early   a withdrawal during the term, capital is locked, tecTOO_SOON
 //       loan [seconds] [payments]
 //                        the loan of securities, two signatures. The optional arguments are the
 //                        payment interval and the number of payments, default 60 and 2, so impair
@@ -20,30 +23,28 @@
 //       pay              the borrower returns the securities and the fee, in full
 //       impair           the agent impairs the unpaid loan
 //       default          the agent declares default, the cover repays the vault
+//       withdraw         in the redemption phase, the lender redeems, by shares
 //       state            print the vault, the broker and the loan as the dashboard sees them
 //
 // State lives in .demo/state.json, which is gitignored: it holds devnet seeds.
 import fs from 'node:fs'
 import { Wallet } from 'xrpl'
-import { connect, fund, hex, sleep, createdId, submit, submitLoanSet } from './lib/lending.mjs'
+import { connect, fund, hex, sleep, createdId, submit, submitLoanSet, ledgerNow, MPT, LoanManageFlags, tfLoanFullPayment, RIPPLE_EPOCH } from './lib/lending.mjs'
 
 const STATE = '.demo/state.json'
-const MPT = { CanLock: 0x2, RequireAuth: 0x4, CanEscrow: 0x8, CanTrade: 0x10, CanTransfer: 0x20, CanClawback: 0x40 }
-const LoanManageFlags = { tfLoanDefault: 65536, tfLoanImpair: 131072 }
 const KYC = hex('patapim.eligible.v1')
 
-const ledgerNow = async (c) => (await c.request({ command: 'ledger', ledger_index: 'validated' })).result.ledger.close_time
 const EVIDENCE = 'docs/evidence/standing-demo.json'
 const load = () => JSON.parse(fs.readFileSync(STATE, 'utf8'))
 const publish = (s) => fs.writeFileSync(EVIDENCE, JSON.stringify({ network: 'XRPL Devnet', ...s, events: [] }, null, 2) + '\n')
 const republish = (s) => {
   const prev = fs.existsSync(EVIDENCE) ? JSON.parse(fs.readFileSync(EVIDENCE, 'utf8')) : { events: [] }
-  const { seeds, ...rest } = s
-  fs.writeFileSync(EVIDENCE, JSON.stringify({ ...prev, ...rest, events: prev.events ?? [] }, null, 2) + '\n')
+  const { seeds: _omit, ...pub } = s
+  fs.writeFileSync(EVIDENCE, JSON.stringify({ ...prev, ...pub, events: prev.events ?? [] }, null, 2) + '\n')
 }
 const save = (s) => { fs.mkdirSync('.demo', { recursive: true }); fs.writeFileSync(STATE, JSON.stringify(s, null, 2)) }
 const wallets = (s) => Object.fromEntries(Object.entries(s.seeds).map(([k, v]) => [k, Wallet.fromSeed(v)]))
-const clock = (t) => new Date((t + 946684800) * 1000).toLocaleTimeString('en-GB')
+const clock = (t) => new Date((t + RIPPLE_EPOCH) * 1000).toLocaleTimeString('en-GB')
 
 async function provision(minutes, investmentMinutes) {
   const { client, net } = await connect('t2')
@@ -153,7 +154,7 @@ async function act(step, arg, arg2) {
     if (!owed) { console.log('  no loan outstanding'); await client.disconnect(); return }
     await submit(client, w.mm, {
       TransactionType: 'LoanPay', Account: w.mm.classicAddress, LoanID: s.loanID,
-      Amount: amt(Math.ceil(Number(owed))), Flags: 0x00020000, // tfLoanFullPayment
+      Amount: amt(Math.ceil(Number(owed))), Flags: tfLoanFullPayment,
     }, 'borrower returns the securities, in full')
   } else if (step === 'impair') await submit(client, w.agent, { TransactionType: 'LoanManage', Account: w.agent.classicAddress, LoanID: s.loanID, Flags: LoanManageFlags.tfLoanImpair }, 'agent impairs')
   else if (step === 'default') await submit(client, w.agent, { TransactionType: 'LoanManage', Account: w.agent.classicAddress, LoanID: s.loanID, Flags: LoanManageFlags.tfLoanDefault }, 'agent declares default')

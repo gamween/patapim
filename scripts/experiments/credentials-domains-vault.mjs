@@ -27,7 +27,7 @@
 //   CredentialHelpers.cpp:130-205   checkFields / valid
 //   View.cpp:464-508                canWithdraw -> CredentialIDs -> authorizedDepositPreauth
 import { Client } from 'xrpl'
-import { NETS, fund, createdId, sleep, hex, nowRipple } from '../lib/lending.mjs'
+import { NETS, fund, createdId, sleep, hex, submitLoanSet } from '../lib/lending.mjs'
 
 const NET = NETS.t1
 const log = []
@@ -276,7 +276,6 @@ const main = async () => {
 
   // ============================================================= F. the borrower is NOT gated
   console.log('\n-- F. does the domain gate the BORROWER? (LoanBroker on a private vault)')
-  const { submitLoanSet } = await import('../lib/lending.mjs')
   const lb = await go(client, issuer, {
     TransactionType: 'LoanBrokerSet', Account: issuer.classicAddress, VaultID: vaultID,
     ManagementFeeRate: 1000, DebtMaximum: '100000000', CoverRateMinimum: 100000, CoverRateLiquidation: 1000000,

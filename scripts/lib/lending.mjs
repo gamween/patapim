@@ -1,4 +1,4 @@
-// Shared helpers for the XLS-65/66 probes and the app.
+// Shared helpers for the XLS-65/66 scripts.
 // NOTE: signCounterparty() deliberately does NOT use xrpl.js signLoanSetByCounterparty().
 // In xrpl.js@5.2.0-beta.0 that helper signs the counterparty signature with the ordinary
 // transaction encoder, which rippled rejects ("Counterparty: Invalid signature").
@@ -9,7 +9,7 @@ import { sign } from 'ripple-keypairs'
 
 export const NETS = {
   t1: {
-    name: 'TRACK 1 - custom hackathon devnet (Lending Protocol V1, open-ended)',
+    name: 'TRACK 1 - custom hackathon devnet (Lending Protocol V1, open-ended); event-scoped, decommissioned after 13 September 2026',
     wss: 'wss://lending-hackathon.dev.ripplex.io:51233',
     faucet: 'https://lending-hackathon-faucet.dev.ripplex.io/accounts',
     tx: 'https://custom.xrpl.org/lending-hackathon.dev.ripplex.io:51233/transactions/',
@@ -26,6 +26,16 @@ export const RIPPLE_EPOCH = 946684800
 export const nowRipple = () => Math.floor(Date.now() / 1000) - RIPPLE_EPOCH
 export const hex = (s) => Buffer.from(s, 'utf8').toString('hex').toUpperCase()
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+
+// Vault phases are judged against the parent ledger close time, never the clock of the machine
+// submitting. Deriving the dates from one clock and waiting on another is how you end up
+// submitting into the phase you thought you had left, which cost us a full run.
+export const ledgerNow = async (client) => (await client.request({ command: 'ledger', ledger_index: 'validated' })).result.ledger.close_time
+
+// MPTokenIssuanceCreate flags, LoanManage flags, LoanPay full-payment flag.
+export const MPT = { CanLock: 0x2, RequireAuth: 0x4, CanEscrow: 0x8, CanTrade: 0x10, CanTransfer: 0x20, CanClawback: 0x40 }
+export const LoanManageFlags = { tfLoanDefault: 0x00010000, tfLoanImpair: 0x00020000 }
+export const tfLoanFullPayment = 0x00020000
 
 export async function fund(net, label) {
   const res = await fetch(net.faucet, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })

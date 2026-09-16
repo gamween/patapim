@@ -4,7 +4,6 @@
 //   (2) XLS-75 PermissionDelegation x Vault/Loan permissions
 //   (3) XLS-85 TokenEscrow    x vault shares / pseudo-accounts
 // Every assertion has a control case so we can tell "our malformed tx" from "real gap".
-import { Client } from 'xrpl'
 import { connect, fund, submit, createdId, hex, sleep, nowRipple } from '../lib/lending.mjs'
 
 const TF_INNER_BATCH = 0x40000000
@@ -201,7 +200,7 @@ const main = async () => {
   console.log(`       A holds ${shareBal} shares; escrowing ${escrowAmt}`)
 
   // 3.1 escrow vault SHARES to an ordinary account
-  const e31 = rec('3.1 EscrowCreate vault shares -> B', await submit(client, A, {
+  rec('3.1 EscrowCreate vault shares -> B', await submit(client, A, {
     TransactionType: 'EscrowCreate', Account: A.classicAddress, Destination: B.classicAddress,
     Amount: { mpt_issuance_id: SHARE, value: escrowAmt }, FinishAfter: finishAfter,
   }, 'EscrowCreate(vault shares) -> ordinary acct'))

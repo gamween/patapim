@@ -7,12 +7,12 @@ import { Client } from 'xrpl'
 const WSS = 'wss://s.devnet.rippletest.net:51233/'
 const EX = 'https://devnet.xrpl.org'
 const RUNS = [
-  ['fund-term.json', 'Fund I, in term: the live loan book', 'the vault the landing page opens: subscribed, closed, 2,000,000 TBL on loan to a market maker against 102% cash collateral, until Tuesday 15 September 12:00 CEST'],
-  ['fund-offering.json', 'Fund II, open for subscription: where a judge signs', 'subscription open until Wednesday 16 September 18:00 CEST, then a 91 day term. The two demo investor accounts in `docs/DEMO-ACCOUNTS.md` deposit here'],
+  ['fund-term.json', 'Fund I: the loan book', 'the vault the landing page opens, provisioned on 12 and 13 September 2026 in its investment period: subscribed, closed, one loan of 2,000,000 TBL to a market maker against 102% cash collateral, due 15 September; the fund matured on 16 September 2026 at 16:00 UTC'],
+  ['fund-offering.json', 'Fund II: the subscription book, where a judge signed', 'open for subscription until 16 September 2026 at 16:00 UTC, then a 91 day term to 16 December 2026. The two demo investor accounts in `docs/DEMO-ACCOUNTS.md` deposited here'],
   ['recall-t2.json', 'Flagship lifecycle, 12 September', 'subscription, gated deposit, loan of securities, the three phase rejections, repayment, redemption'],
   ['default-arc-cover100000.json', 'Default arc, full indemnity', 'impairment then default; the cover absorbs the whole loan and the lenders are untouched'],
   ['default-arc-cover10000.json', 'Default arc, ten percent cover', 'the same default at a ten percent cover rate, where the lenders take the loss'],
-  ['standing-demo.json', 'Standing vault of 12 September, superseded by Fund I', 'the vault the landing page advertised on Saturday; its loan falls due on Sunday afternoon, so the app now opens Fund I'],
+  ['standing-demo.json', 'Standing vault of 12 September, superseded by Fund I', 'the vault the landing page advertised on 12 September 2026, replaced by Fund I the next day'],
 ]
 const ROLE = {
   issuer: 'Transfer agent, issues the security TBL',
@@ -32,6 +32,7 @@ const txl = (h) => `[\`${h.slice(0, 8)}\`](${EX}/transactions/${h})`
 const main = async () => {
   const client = new Client(WSS)
   await client.connect()
+  const { build_version, network_id } = (await client.request({ command: 'server_info' })).result.info
   const entry = async (req) => (await client.request({ command: 'ledger_entry', ledger_index: 'validated', ...req }).catch(() => null))?.result?.node ?? null
 
   let md = `# On chain
@@ -40,7 +41,7 @@ Everything patapim created on the public XRPL Devnet, with a link for each. Rege
 \`node scripts/gen-onchain-inventory.mjs\`, which also re-verifies every transaction against the
 ledger rather than against this file.
 
-Network: **XRPL Devnet**, \`wss://s.devnet.rippletest.net:51233\`, network_id 2, rippled 3.4.0-rc5.
+Network: **XRPL Devnet**, \`wss://s.devnet.rippletest.net:51233\`, network_id ${network_id}, rippled ${build_version} at the time of writing.
 Explorer: ${EX}
 
 The XRP Ledger has no contract addresses. What a contract address would name elsewhere is a ledger

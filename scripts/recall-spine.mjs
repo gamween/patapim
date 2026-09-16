@@ -7,15 +7,11 @@
 //    -> first-loss cover in securities -> loan of securities to a market maker, two signatures
 //    -> XRP collateral escrowed to the agent -> repayment -> redemption.
 import fs from 'node:fs'
-import { connect, fund, hex, sleep, nowRipple, createdId, submit, submitLoanSet } from './lib/lending.mjs'
-
-const MPT = { CanLock: 0x2, RequireAuth: 0x4, CanEscrow: 0x8, CanTrade: 0x10, CanTransfer: 0x20, CanClawback: 0x40 }
+import { connect, fund, hex, sleep, createdId, submit, submitLoanSet, ledgerNow, MPT, tfLoanFullPayment } from './lib/lending.mjs'
 
 // Vault phases are compared against the PARENT LEDGER CLOSE TIME, not the wall clock of the
 // machine submitting. Deriving the dates from Date.now() and then waiting on Date.now() is how
 // you end up submitting into the phase you thought you had left. Read the ledger, always.
-const ledgerNow = async (client) =>
-  (await client.request({ command: 'ledger', ledger_index: 'validated' })).result.ledger.close_time
 const waitLedger = async (client, target, label) => {
   let t = await ledgerNow(client)
   while (t < target) { await sleep(4000); t = await ledgerNow(client) }
@@ -27,8 +23,6 @@ const ev = []
 const rec = (step, r, note) => { ev.push({ step, code: r?.code, hash: r?.hash, note }); return r }
 
 const main = async () => {
-  const t0 = Date.now()
-  const el = () => Math.round((Date.now() - t0) / 1000)
   const { client, net } = await connect('t2')
 
   const issuer = await fund(net, 'issuer')    // transfer agent, issues the tokenised security
@@ -132,7 +126,7 @@ const main = async () => {
     const due = l?.result?.node
     console.log(`       PeriodicPayment=${due?.PeriodicPayment} TotalValueOutstanding=${due?.TotalValueOutstanding}`)
     const pay = String(Math.ceil(Number(due?.TotalValueOutstanding ?? 2100000)))
-    rec('LoanPay full', await submit(client, mm, { TransactionType: 'LoanPay', Account: mm.classicAddress, LoanID: loanID, Amount: { mpt_issuance_id: SEC, value: pay }, Flags: 131072 }, 'LoanPay full (tfLoanFullPayment)'))
+    rec('LoanPay full', await submit(client, mm, { TransactionType: 'LoanPay', Account: mm.classicAddress, LoanID: loanID, Amount: { mpt_issuance_id: SEC, value: pay }, Flags: tfLoanFullPayment }, 'LoanPay full (tfLoanFullPayment)'))
   }
 
   await waitLedger(client, redemptionDate + 8, '7. REDEMPTION: the lender exits')

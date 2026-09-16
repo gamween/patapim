@@ -13,7 +13,7 @@
 //   G. VaultSet DomainID = 0 locks every non-owner out of a private vault.
 //
 // Run: node scripts/experiments/credentials-domain.mjs
-import { Client, Wallet } from 'xrpl'
+import { Client } from 'xrpl'
 import { NETS, fund, createdId, sleep, hex } from '../lib/lending.mjs'
 
 const NET = NETS.t2

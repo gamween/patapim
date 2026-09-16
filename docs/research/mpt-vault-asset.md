@@ -6,7 +6,7 @@ Every claim below carries a transaction hash on the **Track 1 hackathon devnet**
 client `xrpl.js@5.2.0-beta.0`), a rippled source line on branch `ripple/lending-hackathon` @ `440018c0f`,
 or a spec line. Nothing here is inferred.
 
-Scripts: `scripts/experiments/mpt-vault-asset.mjs` … `-5.mjs`.
+Scripts: `scripts/experiments/mpt-vault-asset.mjs` … `-5.mjs`; only the run-1 script `scripts/experiments/mpt-vault-asset.mjs` was kept in the repository, the other runs' scripts were not.
 Raw logs: scratchpad `mpt-run1.txt` … `mpt-run5.txt`.
 
 ---

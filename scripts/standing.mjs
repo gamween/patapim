@@ -1,14 +1,18 @@
 // The standing book: what a judge opens after the pitch.
 //
-//   node scripts/standing.mjs
+//   node scripts/standing.mjs [loanDueDays=2] [termDays=3] [offeringTermDays=91]
 //
 // One lending agent runs two closed-ended funds over the same tokenised T-bill, on the public
-// XRPL Devnet, dated against the ledger clock so that neither changes phase while the jury looks:
+// XRPL Devnet, one fund in each phase so that both states are visible at once:
 //
-//   Fund I, in term.   Subscribed, closed, one loan of securities out to a market maker, the loan
-//                      returns Tuesday 15 September 12:00 CEST, the fund matures Wednesday 18:00.
-//   Fund II, offering. Open for subscription until Wednesday 16 September 18:00 CEST, then a real
-//                      91 day term. This is where a judge signs a VaultDeposit themselves.
+//   Fund I, in term.   Subscribed, closed, one loan of securities out to a market maker. The loan
+//                      returns loanDueDays after provisioning, the fund matures at termDays.
+//   Fund II, offering. Open for subscription until Fund I matures, then a real term of
+//                      offeringTermDays. This is where a judge signs a VaultDeposit themselves.
+//
+// The dates are fixed once from the validated ledger's close time when the script starts, printed
+// and written down. When they pass, each fund simply moves to its next phase: the app reads the
+// phase from the ledger, never from a calendar.
 //
 // The parameters follow agency securities lending conventions, each documented in
 // docs/research/lending-conventions.md:
@@ -23,16 +27,16 @@
 // docs/DEMO-ACCOUNTS.md, without their keys, which the team shares with judges on request.
 import fs from 'node:fs'
 import { Wallet } from 'xrpl'
-import { connect, hex, sleep, createdId, submit, submitLoanSet, RIPPLE_EPOCH } from './lib/lending.mjs'
+import { connect, hex, sleep, createdId, submit, submitLoanSet, ledgerNow, MPT, RIPPLE_EPOCH } from './lib/lending.mjs'
 
 // ---------------------------------------------------------------------------------------------
-// Terms, in Ripple epoch seconds (unix - 946684800). Computed once, written down, never derived
-// from the wall clock: every phase decision below reads the validated ledger's close_time.
-const TERM_REDEMPTION = 842889600 // 2026-09-16T18:00:00+02:00, Fund I matures
-const TERM_LOAN_DUE = 842781600 //   2026-09-15T12:00:00+02:00, the loan of securities returns
-const OFFERING_CLOSE = 842889600 //  2026-09-16T18:00:00+02:00, Fund II subscription closes
-const OFFERING_REDEMPTION = 850755600 // 2026-12-16T18:00:00+01:00, Fund II matures, 91 days later
+// Terms, in days from the validated ledger close at start, then fixed in Ripple epoch seconds
+// (unix - 946684800). Computed once, written down, never derived from the wall clock: every phase
+// decision below reads the validated ledger's close_time.
+const [LOAN_DUE_DAYS = 2, TERM_DAYS = 3, OFFERING_TERM_DAYS = 91] = process.argv.slice(2).map(Number)
+const DAY = 86400
 const TERM_SUBSCRIPTION_SECONDS = 240 // Fund I's own offering, compressed: it opens and closes now
+const iso = (t) => new Date((t + RIPPLE_EPOCH) * 1000).toISOString()
 
 const LENDING_FEE = 250 // InterestRate, tenth of a basis point, annualised: 25 bps
 const FEE_SPLIT = 10000 // ManagementFeeRate, tenth of a basis point of interest: 10% to the agent
@@ -43,7 +47,6 @@ const MARGIN_PCT = 102 // collateral margin on a same-currency loan
 
 const PRINCIPAL = 2000000
 const KYC = hex('patapim.eligible.v1')
-const MPT = { CanLock: 0x2, RequireAuth: 0x4, CanEscrow: 0x8, CanTrade: 0x10, CanTransfer: 0x20, CanClawback: 0x40 }
 const tfVaultPrivate = 0x00010000
 const STATE = '.demo/standing.json'
 const FAUCET = 'https://faucet.devnet.rippletest.net/accounts'
@@ -52,7 +55,6 @@ const ev = { term: [], offering: [], shared: [] }
 const rec = (book, step, r, note) => { ev[book].push({ step, code: r?.code, hash: r?.hash, note }); return r }
 const must = (r, label) => { if (!r?.ok) throw new Error(`${label} failed: ${r?.code} ${r?.error ?? ''}`); return r }
 
-const ledgerNow = async (c) => (await c.request({ command: 'ledger', ledger_index: 'validated' })).result.ledger.close_time
 const waitLedger = async (c, target, label) => {
   let t = await ledgerNow(c)
   while (t <= target) { await sleep(4000); t = await ledgerNow(c) }
@@ -76,9 +78,19 @@ async function fundAccount(label, attempt = 1) {
 }
 
 const main = async () => {
+  if (!(LOAN_DUE_DAYS > 0 && TERM_DAYS > LOAN_DUE_DAYS && OFFERING_TERM_DAYS > 0)) {
+    throw new Error('usage: node scripts/standing.mjs [loanDueDays=2] [termDays=3] [offeringTermDays=91], the loan falls due before Fund I matures')
+  }
   const { client } = await connect('t2')
   const close = await ledgerNow(client)
-  if (close >= TERM_LOAN_DUE - 3600) throw new Error('the dated terms are in the past, edit the constants')
+  const TERM_LOAN_DUE = close + LOAN_DUE_DAYS * DAY // the loan of securities returns
+  const TERM_REDEMPTION = close + TERM_DAYS * DAY // Fund I matures
+  const OFFERING_CLOSE = TERM_REDEMPTION // Fund II subscription closes as Fund I matures
+  const OFFERING_REDEMPTION = OFFERING_CLOSE + OFFERING_TERM_DAYS * DAY // Fund II matures
+  console.log(`\n--- terms, from validated ledger close ${close} ${iso(close)} ---`)
+  for (const [what, t] of [['Fund I loan due', TERM_LOAN_DUE], ['Fund I matures', TERM_REDEMPTION], ['Fund II closes', OFFERING_CLOSE], ['Fund II matures', OFFERING_REDEMPTION]]) {
+    console.log(`  ${what.padEnd(16)} ${t}  ${iso(t)}`)
+  }
 
   console.log('\n--- accounts ---')
   const w = {}
@@ -243,7 +255,7 @@ const main = async () => {
     network: 'XRPL Devnet', seeds,
     accounts: Object.fromEntries(Object.entries(w).map(([k, v]) => [k, v.classicAddress])),
     SEC, CASH, domainID, oracle: { account: w.pricing.classicAddress, documentID: 1 },
-    term: { vaultID: vaultTerm, brokerID: brokers.term, loanID, subscriptionDate: termSubscription, redemptionDate: TERM_REDEMPTION, escrow: { owner: w.borrower.classicAddress, sequence: escrowSeq } },
+    term: { vaultID: vaultTerm, brokerID: brokers.term, loanID, subscriptionDate: termSubscription, loanDueDate: TERM_LOAN_DUE, redemptionDate: TERM_REDEMPTION, escrow: { owner: w.borrower.classicAddress, sequence: escrowSeq } },
     offering: { vaultID: vaultOffering, brokerID: brokers.offering, subscriptionDate: OFFERING_CLOSE, redemptionDate: OFFERING_REDEMPTION },
   }
   fs.writeFileSync(STATE, JSON.stringify(state, null, 2))

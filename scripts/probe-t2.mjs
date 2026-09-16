@@ -1,14 +1,10 @@
 // Full closed-ended (Lending Protocol V1.1) lifecycle probe on the public XRPL Devnet.
 // Walks Subscription -> Investment -> Redemption in real wall-clock time and records
 // exactly which transactions the ledger accepts or rejects in each phase.
-import { connect, fund, hex, sleep, createdId, submit, submitLoanSet } from './lib/lending.mjs'
+import { connect, fund, hex, sleep, createdId, submit, submitLoanSet, ledgerNow, tfLoanFullPayment } from './lib/lending.mjs'
 
 // Phases are judged against the parent ledger close time, never the clock of the machine
-// submitting. Deriving the dates from one clock and waiting on another is how you end up
-// submitting into the phase you thought you had left, which cost us a full run.
-const ledgerNow = async (client) =>
-  (await client.request({ command: 'ledger', ledger_index: 'validated' })).result.ledger.close_time
-
+// submitting: ledgerNow, in lib/lending.mjs, is the only clock this file reads.
 const SUB_SECONDS = 150   // subscription window length
 const RED_SECONDS = 540   // redemption starts here
 const log = []
@@ -57,7 +53,7 @@ const main = async () => {
     LoanBrokerID: brokerId, PrincipalRequested: '10000000', InterestRate: 5000,
     PaymentInterval: interval, PaymentTotal: total, GracePeriod: 60, Data: hex('patapim loan'),
   })
-  rec('subscription', 'LoanSet', await submitLoanSet(client, broker, borrower, loanTx(2, 60), 'LoanSet during Subscription', 'REJECT'), 'rejected: lending blocked')
+  rec('subscription', 'LoanSet', await submitLoanSet(client, broker, borrower, loanTx(2, 60), 'LoanSet during Subscription', 'tecTOO_SOON'), 'rejected: lending blocked')
 
   const waitUntil = async (target, label) => {
     let t = await ledgerNow(client)
@@ -65,17 +61,17 @@ const main = async () => {
     console.log(`\n--- ${label} (ledger ${t}) ---`)
   }
 
-
   await waitUntil(subscriptionDate + 8, 'PHASE 2 INVESTMENT')
   rec('investment', 'VaultDeposit', await submit(client, lender, {
     TransactionType: 'VaultDeposit', Account: lender.classicAddress, VaultID: vaultId, Amount: '5000000',
-  }, 'VaultDeposit during Investment', 'REJECT'), 'rejected: deposits blocked')
+  }, 'VaultDeposit during Investment', 'tecEXPIRED'), 'rejected: deposits blocked')
   rec('investment', 'VaultWithdraw', await submit(client, lender, {
     TransactionType: 'VaultWithdraw', Account: lender.classicAddress, VaultID: vaultId, Amount: '1000000',
-  }, 'VaultWithdraw during Investment', 'REJECT'), 'rejected: withdrawals blocked')
+  }, 'VaultWithdraw during Investment', 'tecTOO_SOON'), 'rejected: withdrawals blocked')
 
-  // Deliberately overlong loan: final payment would land after RedemptionDate.
-  rec('investment', 'LoanSet too long', await submitLoanSet(client, broker, borrower, loanTx(20, 3600), 'LoanSet past RedemptionDate', 'REJECT'), 'rejected: final payment after redemption')
+  // Deliberately overlong loan: final payment would land after RedemptionDate. Not a phase code,
+  // tecNO_PERMISSION: the schedule would outlive the vault (FRICTION-LOG, phase gates table).
+  rec('investment', 'LoanSet too long', await submitLoanSet(client, broker, borrower, loanTx(20, 3600), 'LoanSet past RedemptionDate', 'tecNO_PERMISSION'), 'rejected: final payment after redemption')
 
   const loan = await submitLoanSet(client, broker, borrower, loanTx(2, 60), 'LoanSet within window', 'tesSUCCESS')
   rec('investment', 'LoanSet ok', loan, 'accepted')
@@ -89,12 +85,12 @@ const main = async () => {
     }, 'LoanPay partial'), 'accepted')
     await sleep(10000)
     rec('investment', 'LoanPay full', await submit(client, borrower, {
-      TransactionType: 'LoanPay', Account: borrower.classicAddress, LoanID: loanId, Amount: '9000000', Flags: 131072,
+      TransactionType: 'LoanPay', Account: borrower.classicAddress, LoanID: loanId, Amount: '9000000', Flags: tfLoanFullPayment,
     }, 'LoanPay full (tfLoanFullPayment)'), 'accepted')
   }
 
   await waitUntil(redemptionDate + 8, 'PHASE 3 REDEMPTION')
-  rec('redemption', 'LoanSet', await submitLoanSet(client, broker, borrower, loanTx(2, 60), 'LoanSet during Redemption', 'REJECT'), 'rejected: new loans blocked')
+  rec('redemption', 'LoanSet', await submitLoanSet(client, broker, borrower, loanTx(2, 60), 'LoanSet during Redemption', 'tecEXPIRED'), 'rejected: new loans blocked')
   rec('redemption', 'VaultWithdraw', await submit(client, lender, {
     TransactionType: 'VaultWithdraw', Account: lender.classicAddress, VaultID: vaultId, Amount: '40000000',
   }, 'VaultWithdraw during Redemption'), 'accepted')

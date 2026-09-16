@@ -4,16 +4,16 @@ Everything patapim created on the public XRPL Devnet, with a link for each. Rege
 `node scripts/gen-onchain-inventory.mjs`, which also re-verifies every transaction against the
 ledger rather than against this file.
 
-Network: **XRPL Devnet**, `wss://s.devnet.rippletest.net:51233`, network_id 2, rippled 3.4.0-rc5.
+Network: **XRPL Devnet**, `wss://s.devnet.rippletest.net:51233`, network_id 2, rippled 3.4.0-rc6 at the time of writing.
 Explorer: https://devnet.xrpl.org
 
 The XRP Ledger has no contract addresses. What a contract address would name elsewhere is a ledger
 object id here: the vault, the loan broker, the loan, the token issuances, the permissioned domain.
 The vault page on the explorer shows the vault, its broker and its loans together.
 
-## Fund I, in term: the live loan book
+## Fund I: the loan book
 
-the vault the landing page opens: subscribed, closed, 2,000,000 TBL on loan to a market maker against 102% cash collateral, until Tuesday 15 September 12:00 CEST. Evidence: [`docs/evidence/fund-term.json`](./evidence/fund-term.json).
+the vault the landing page opens, provisioned on 12 and 13 September 2026 in its investment period: subscribed, closed, one loan of 2,000,000 TBL to a market maker against 102% cash collateral, due 15 September; the fund matured on 16 September 2026 at 16:00 UTC. Evidence: [`docs/evidence/fund-term.json`](./evidence/fund-term.json).
 
 ### Accounts
 
@@ -72,9 +72,9 @@ Loan: flags `0`, principal `2000000`, outstanding `2000035`, interest rate `250`
 | VaultSet reference price pointer | `tesSUCCESS` | yes, `VaultSet` | [`A77D656A`](https://devnet.xrpl.org/transactions/A77D656A8B6D6A265C4F9756224D42F99B016A9522361E2DBE2E2A442607F62F) |
 | app relay: deposit into Fund I in its term | `tecEXPIRED` | yes, `VaultDeposit` | [`CFA26C7C`](https://devnet.xrpl.org/transactions/CFA26C7C94884B24451FBD385D83F5C9054C5E773CCD91B611A1B83816F1CFE4) |
 
-## Fund II, open for subscription: where a judge signs
+## Fund II: the subscription book, where a judge signed
 
-subscription open until Wednesday 16 September 18:00 CEST, then a 91 day term. The two demo investor accounts in `docs/DEMO-ACCOUNTS.md` deposit here. Evidence: [`docs/evidence/fund-offering.json`](./evidence/fund-offering.json).
+open for subscription until 16 September 2026 at 16:00 UTC, then a 91 day term to 16 December 2026. The two demo investor accounts in `docs/DEMO-ACCOUNTS.md` deposited here. Evidence: [`docs/evidence/fund-offering.json`](./evidence/fund-offering.json).
 
 ### Accounts
 
@@ -98,12 +98,12 @@ subscription open until Wednesday 16 September 18:00 CEST, then a 91 day term. T
 | Vault | [`B8286CD54ED120116C66C4B3F8663E6E06E7A593A9395B84497894A586A74530`](https://devnet.xrpl.org/vault/B8286CD54ED120116C66C4B3F8663E6E06E7A593A9395B84497894A586A74530) | closed-ended, `VaultKind 1` |
 | Loan broker | `3D4E887081C40BC126D26C6E2FD2883476CBBC023C194A0AF941A6770FFFBEBA` | the lending agent, on the vault page under Loans |
 | Security, MPT issuance | `00504E4C3295762322513439250B2F050A1B016CE5563126` | TBL, the vault asset, require-auth |
-| Vault shares, MPT issuance | `000000019E4ED3A9645729D633558E005BBF860311912687` | the lender position, 3001000 outstanding |
+| Vault shares, MPT issuance | `000000019E4ED3A9645729D633558E005BBF860311912687` | the lender position, 3001020 outstanding |
 | Cash, MPT issuance | `00504E4C2BD6C9B523B46C3A87963369E2205F00DD1C8CE7` | USDX, the collateral token, `AssetScale 2` |
 | Permissioned domain | `E6B24E9C6C23DBE2098364844AEEFD418E15CCC4039FB1B87773CA79A9F1625F` | the eligibility gate |
 | Price Oracle | owner [`rJhyrQk6…jFrw`](https://devnet.xrpl.org/accounts/rJhyrQk6XxJcdFeyTWVcn2aSxRS8LZjFrw), `OracleDocumentID 1` | TBL/USD reference price |
 
-Vault state now: assets `3001000`, available `3001000`, unrealised loss `0`. Maximum `20000000`. Subscription closes `842889600`, redemption opens `850755600`, Ripple epoch.
+Vault state now: assets `3001020`, available `3001020`, unrealised loss `0`. Maximum `20000000`. Subscription closes `842889600`, redemption opens `850755600`, Ripple epoch.
 
 Broker: cover `2500000`, debt `0`, ceiling `16000000`, cover rate `100000` and liquidation rate `100000` in tenths of a basis point, management fee `10000`.
 
@@ -272,7 +272,7 @@ Loan: flags `196608`, principal `0`, outstanding `0`, interest rate `5000`, next
 
 ## Standing vault of 12 September, superseded by Fund I
 
-the vault the landing page advertised on Saturday; its loan falls due on Sunday afternoon, so the app now opens Fund I. Evidence: [`docs/evidence/standing-demo.json`](./evidence/standing-demo.json).
+the vault the landing page advertised on 12 September 2026, replaced by Fund I the next day. Evidence: [`docs/evidence/standing-demo.json`](./evidence/standing-demo.json).
 
 ### Accounts
 

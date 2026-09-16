@@ -3,10 +3,8 @@
 // declares default, and the first-loss cover repays the vault so the lenders' position holds.
 // Closed-ended vault, MPT asset, public XRPL Devnet.
 import fs from 'node:fs'
-import { connect, fund, hex, sleep, createdId, submit, submitLoanSet } from './lib/lending.mjs'
+import { connect, fund, hex, sleep, createdId, submit, submitLoanSet, ledgerNow, MPT, LoanManageFlags } from './lib/lending.mjs'
 
-const MPT = { CanLock: 0x2, RequireAuth: 0x4, CanEscrow: 0x8, CanTrade: 0x10, CanTransfer: 0x20, CanClawback: 0x40 }
-const LoanManageFlags = { tfLoanDefault: 65536, tfLoanImpair: 131072 }
 const SUB_IN = 45, INVEST_LEN = 600
 // Agency securities lending is indemnified: the agent covers the whole loan, not a slice of it.
 // CoverRateMinimum is in parts per 100000, so 100000 is 100%.
@@ -15,7 +13,6 @@ const COVER_AMOUNT = process.argv[3] ?? '2500000'
 const ev = []
 const rec = (step, r, note) => { ev.push({ step, code: r?.code, hash: r?.hash, note }); return r }
 
-const ledgerNow = async (c) => (await c.request({ command: 'ledger', ledger_index: 'validated' })).result.ledger.close_time
 const waitLedger = async (c, target, label) => {
   let t = await ledgerNow(c)
   while (t < target) { await sleep(4000); t = await ledgerNow(c) }

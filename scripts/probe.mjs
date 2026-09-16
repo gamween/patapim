@@ -1,8 +1,8 @@
-// Open-ended (Lending Protocol V1) end-to-end probe. Usage: node scripts/probe.mjs t1|t2
+// Open-ended (Lending Protocol V1) end-to-end probe. Usage: node scripts/probe.mjs [t2|t1]
 import { connect, fund, hex, sleep, createdId, submit, submitLoanSet } from './lib/lending.mjs'
 
 const main = async () => {
-  const key = process.argv[2] ?? 't1'
+  const key = process.argv[2] ?? 't2'
   const { client, net } = await connect(key)
   const broker = await fund(net, 'broker')
   const lender = await fund(net, 'lender')
