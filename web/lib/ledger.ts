@@ -1,6 +1,5 @@
 import { NETWORK } from './config'
-
-type Json = Record<string, any>
+import { exitNavPerShare, oraclePrice, type Json } from './finance'
 
 /** One JSON-RPC call, server side only. Returns the `result` object or throws. */
 export async function rpc(method: string, params: Json = {}): Promise<Json> {
@@ -162,8 +161,8 @@ export async function readVault(id: string): Promise<VaultView> {
     })
     const series = (o?.PriceDataSeries ?? []) as Json[]
     const pd = series.map((s) => s.PriceData).find((p) => p?.BaseAsset === asset.ticker)
-    const value = pd ? parseInt(String(pd.AssetPrice), 16) / 10 ** Number(pd.Scale ?? 0) : NaN
-    if (pd && Number.isFinite(value)) {
+    const value = oraclePrice(pd)
+    if (pd && value !== null) {
       price = { base: pd.BaseAsset, quote: pd.QuoteAsset, price: value, updated: Number(o?.LastUpdateTime ?? 0), ...meta.oracle }
     }
   }
@@ -208,7 +207,9 @@ export async function readVault(id: string): Promise<VaultView> {
     vault: v, shares, broker, loans, clock, asset, meta, price, collateral,
     phase: phaseOf(v, clock),
     assetsTotal, assetsAvailable, lossUnrealized, nav, sharesOutstanding,
-    pricePerShare: sharesOutstanding > 0 ? nav / sharesOutstanding : null,
+    pricePerShare: exitNavPerShare(assetsTotal, lossUnrealized, sharesOutstanding),
+    // Utilisation, Aave's definition: borrowed over total. Under cash-basis accounting, which every
+    // vault created under LendingProtocolV1_1 uses, AssetsTotal - AssetsAvailable is principal lent out.
     utilisation: assetsTotal > 0 ? (assetsTotal - assetsAvailable) / assetsTotal : null,
     calls,
   }
@@ -259,10 +260,8 @@ export function loanStatus(loan: Json, clock: number): LoanStatus {
   // first-loss cover did, and a loan book that reads "paid off" hides the counterparty that failed.
   // Default is terminal, so it wins. Impairment is reversible with tfLoanUnimpair, so a zero
   // balance after an impairment really is a repayment and keeps its "paid off".
-  // eslint-disable-next-line no-bitwise
   if (loan.Flags & LSF_LOAN_DEFAULT) return 'defaulted'
   if (Number(loan.TotalValueOutstanding ?? 0) === 0) return 'paid off'
-  // eslint-disable-next-line no-bitwise
   if (loan.Flags & LSF_LOAN_IMPAIRED) return 'impaired'
   const due = Number(loan.NextPaymentDueDate ?? 0)
   const grace = Number(loan.GracePeriod ?? 0)

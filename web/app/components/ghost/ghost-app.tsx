@@ -34,7 +34,7 @@ const short = (id: string) => `${id.slice(0, 8)}…${id.slice(-4)}`
 const tone = (status: string) =>
   status === 'defaulted'
     ? 'red'
-    : ['overdue', 'impaired'].includes(status)
+    : ['past due', 'past grace', 'impaired'].includes(status)
       ? 'amber'
       : 'green'
 const timestamp = (date: string | null) =>

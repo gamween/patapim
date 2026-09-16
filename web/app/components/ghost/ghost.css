@@ -216,47 +216,6 @@
   font-weight: 700;
   letter-spacing: -2px;
 }
-.ghost-root .brand .registered {
-  font-size: 13px;
-  position: relative;
-  top: -16px;
-  margin-left: 3px;
-  font-weight: 400;
-  letter-spacing: 0;
-}
-.ghost-root .sound {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  padding: 4px 0;
-}
-.ghost-root .sound-bars {
-  display: flex;
-  gap: 2px;
-  height: 11px;
-  align-items: center;
-}
-.ghost-root .sound-bars i {
-  width: 1px;
-  height: calc(3px + mod(var(--i), 4) * 2px);
-  min-height: 3px;
-  background: #777;
-}
-.ghost-root .sound-bars i:nth-child(3n) {
-  height: 9px;
-}
-.ghost-root .sound-bars i:nth-child(2n) {
-  height: 6px;
-}
-.ghost-root .is-on .sound-bars i {
-  background: var(--green);
-  animation: equalize 0.8s ease-in-out infinite alternate;
-  animation-delay: calc(var(--i) * -0.12s);
-}
-.ghost-root .statement {
-  margin: 0;
-  max-width: 190px;
-}
 .ghost-root .clock {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -296,101 +255,6 @@
 .ghost-root .pill svg {
   width: 18px;
   height: 18px;
-}
-.ghost-root .glass {
-  background: #d1d1cf99;
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
-  color: #000;
-  border-radius: 50px;
-}
-.ghost-root .footer {
-  inset: auto 0 0;
-  display: flex;
-  align-items: center;
-  gap: 25px;
-  padding: 25px 24px;
-  background: linear-gradient(transparent, #0007);
-  transform: translateY(10px);
-}
-.ghost-root.is-revealed .footer {
-  transform: none;
-}
-.ghost-root .view-switch {
-  display: flex;
-  padding: 5px;
-  gap: 2px;
-}
-.ghost-root .view-switch button {
-  width: 40px;
-  height: 40px;
-  padding: 12px;
-  border-radius: 50%;
-}
-.ghost-root .active {
-  background: #fff !important;
-  color: #080808 !important;
-}
-.ghost-root .view-switch svg {
-  width: 16px;
-  height: 16px;
-}
-.ghost-root .explore-hint {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  color: #ddd;
-}
-.ghost-root .explore-hint > span {
-  font-size: 20px;
-}
-.ghost-root .dock {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 3px;
-  padding: 5px;
-}
-.ghost-root .dock button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  min-width: 105px;
-  padding: 16px 24px;
-  border-radius: 40px;
-  font-size: 16px;
-  letter-spacing: -0.6px;
-  transition: background 0.2s;
-}
-.ghost-root .dock button:not(.active):hover,
-.ghost-root .view-switch button:not(.active):hover {
-  background: #ffffff55;
-}
-.ghost-root .dock button svg {
-  width: 15px;
-  height: 15px;
-}
-.ghost-root .footer-right {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-.ghost-root .footer-right > .mono {
-  text-align: right;
-  line-height: 1.6;
-}
-.ghost-root .motion-toggle {
-  width: 44px;
-  height: 44px;
-  display: grid;
-  place-items: center;
-}
-.ghost-root .motion-toggle svg {
-  width: 16px;
-  height: 16px;
 }
 .ghost-root .archive {
   position: relative;
@@ -444,163 +308,12 @@
   font-family: Arial, sans-serif;
   outline-offset: 4px;
 }
-.ghost-root .project-row {
-  width: 100%;
-  border-top: 1px solid #323232;
-  display: grid;
-  grid-template-columns: 40px 90px 1fr 150px 70px 24px;
-  align-items: center;
-  gap: 24px;
-  padding: 18px 0;
-  text-align: left;
-  transition: color 0.25s;
-}
-.ghost-root .project-row:last-child {
-  border-bottom: 1px solid #323232;
-}
-.ghost-root .project-row:hover {
-  color: var(--green);
-}
 .ghost-root .row-number {
   color: #777;
 }
 .ghost-root .row-title {
   font-size: clamp(18px, 2vw, 32px);
   letter-spacing: -0.8px;
-}
-.ghost-root .row-client {
-  text-transform: uppercase;
-}
-.ghost-root .row-year {
-  color: var(--muted);
-}
-.ghost-root .atlas-preview {
-  width: 100%;
-  aspect-ratio: 1;
-  background-image: var(--atlas);
-  background-size: 600% 600%;
-  background-position: var(--position);
-  mask-image: var(--alpha);
-  mask-mode: luminance;
-  mask-size: 600% 600%;
-  mask-position: var(--position);
-  mask-repeat: no-repeat;
-}
-.ghost-root .project-row .atlas-preview {
-  width: 90px;
-  transition: transform 0.3s;
-}
-.ghost-root .project-row:hover .atlas-preview {
-  transform: scale(1.08);
-}
-.ghost-root .reference-credit {
-  margin-top: 30px;
-  color: #777;
-}
-.ghost-root .reference-credit a {
-  text-decoration: none;
-  color: #ddd;
-}
-.ghost-root .fallback-note {
-  color: #aaa;
-  font-size: 14px;
-}
-.ghost-root .no-results {
-  padding: 60px 0;
-  font-size: 24px;
-}
-.ghost-root .about {
-  position: relative;
-  z-index: 6;
-  padding: 155px 48px 140px;
-  min-height: 100svh;
-  background: var(--green);
-  color: #000;
-}
-.ghost-root.about-open .header {
-  background: none;
-  color: #000;
-}
-.ghost-root.about-open .header .muted {
-  color: #28603a;
-}
-.ghost-root.about-open .clock i {
-  background: #000;
-}
-.ghost-root.about-open .footer {
-  color: #000;
-  background: none;
-}
-.ghost-root.about-open .footer .muted,
-.ghost-root.about-open .explore-hint {
-  color: #21402a;
-}
-.ghost-root .about-top {
-  display: flex;
-  justify-content: space-between;
-}
-.ghost-root .about h1 {
-  position: relative;
-  font-size: clamp(95px, 13.5vw, 210px);
-  line-height: 0.86;
-  font-weight: 400;
-  letter-spacing: -0.08em;
-  margin: 70px 0;
-}
-.ghost-root .about h1 > span {
-  font-style: italic;
-}
-.ghost-root .about h1 sup {
-  font-size: 28px;
-  vertical-align: top;
-  position: relative;
-  top: 20px;
-  margin-left: 12px;
-}
-.ghost-root .about-bottom {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 40px;
-  align-items: end;
-}
-.ghost-root .about-bottom p {
-  font-size: 28px;
-  line-height: 1.2;
-  letter-spacing: -1px;
-  margin: 0;
-}
-.ghost-root .about-bottom .about-detail {
-  font-size: 14px;
-  line-height: 1.5;
-  letter-spacing: 0;
-  max-width: 400px;
-  margin: 25px 0;
-}
-.ghost-root .about-bottom .pill {
-  background: #000;
-  color: var(--green);
-}
-.ghost-root .about-index {
-  justify-self: end;
-  line-height: 1.5;
-}
-.ghost-root .orbit {
-  position: relative;
-  width: 230px;
-  height: 180px;
-  transform: rotate(-35deg);
-}
-.ghost-root .orbit i {
-  position: absolute;
-  border: 1px solid #000;
-  border-radius: 50%;
-  inset: 0;
-}
-.ghost-root .orbit i:nth-child(2) {
-  inset: 25px;
-}
-.ghost-root .orbit i:nth-child(3) {
-  inset: 50px;
 }
 .ghost-root .project-dialog {
   position: fixed;
@@ -639,50 +352,6 @@
   border-radius: 50%;
   background: #ffffff15;
 }
-.ghost-root .dialog-image {
-  align-self: center;
-  background: #080808;
-  border-radius: 8px;
-}
-.ghost-root .dialog-copy {
-  padding: 30px 0 30px;
-}
-.ghost-root .dialog-copy > .mono {
-  color: var(--muted);
-  text-transform: uppercase;
-}
-.ghost-root .dialog-copy h2 {
-  font-size: clamp(30px, 4vw, 60px);
-  font-weight: 400;
-  letter-spacing: -2px;
-  line-height: 1;
-  margin: 25px 0;
-}
-.ghost-root .dialog-copy p {
-  font-size: 14px;
-  color: #aaa;
-  line-height: 1.5;
-  max-width: 300px;
-  margin: 30px 0;
-}
-.ghost-root .tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-}
-.ghost-root .tags span {
-  padding: 6px 12px;
-  border-radius: 20px;
-  background: #333;
-  font:
-    10px 'DM Mono',
-    monospace;
-  text-transform: uppercase;
-}
-.ghost-root .dialog-copy .pill {
-  font-size: 14px;
-  padding: 15px 20px;
-}
 @keyframes move-left {
   to {
     transform: translateX(-10vw);
@@ -718,11 +387,6 @@
     transform: scaleY(1.3);
   }
 }
-@keyframes equalize {
-  to {
-    transform: scaleY(0.3);
-  }
-}
 @media (min-width: 1700px) {
   .ghost-root .header {
     padding: 32px 40px;
@@ -730,18 +394,8 @@
   .ghost-root .mono {
     font-size: 12px;
   }
-  .ghost-root .statement {
-    max-width: 220px;
-  }
   .ghost-root .clock {
     max-width: 240px;
-  }
-  .ghost-root .footer {
-    padding: 32px;
-  }
-  .ghost-root .view-switch button {
-    width: 45px;
-    height: 45px;
   }
 }
 @media (max-width: 1100px) {
@@ -750,27 +404,8 @@
     gap: 20px;
     padding: 24px;
   }
-  .ghost-root .statement {
-    display: none;
-  }
-  .ghost-root .explore-hint {
-    display: none;
-  }
-  .ghost-root .footer-right > .mono {
-    font-size: 9px;
-  }
-  .ghost-root .dock button {
-    min-width: 95px;
-  }
   .ghost-root .brand > span {
     font-size: 28px;
-  }
-  .ghost-root .project-row {
-    grid-template-columns: 30px 70px 1fr 110px 50px 20px;
-    gap: 15px;
-  }
-  .ghost-root .project-row .atlas-preview {
-    width: 70px;
   }
 }
 @media (max-width: 1023px) {
@@ -805,20 +440,6 @@
   .ghost-root .brand > span {
     font-size: 27px;
   }
-  .ghost-root .brand .registered {
-    font-size: 10px;
-    top: -13px;
-  }
-  .ghost-root .sound {
-    position: absolute;
-    top: 83px;
-    left: 20px;
-    font-size: 9px;
-    gap: 8px;
-  }
-  .ghost-root .sound-bars {
-    gap: 1px;
-  }
   .ghost-root .clock {
     display: none;
   }
@@ -830,47 +451,6 @@
   .ghost-root .explore svg {
     width: 15px;
     height: 15px;
-  }
-  .ghost-root .footer {
-    padding: 16px 12px max(16px, env(safe-area-inset-bottom));
-    gap: 0;
-  }
-  .ghost-root .view-switch {
-    padding: 4px;
-    gap: 0;
-  }
-  .ghost-root .view-switch button {
-    width: 30px;
-    height: 36px;
-    padding: 9px;
-  }
-  .ghost-root .view-switch svg {
-    width: 13px;
-    height: 13px;
-  }
-  .ghost-root .dock {
-    gap: 0;
-    padding: 4px;
-  }
-  .ghost-root .dock button {
-    font-size: 13px;
-    min-width: 62px;
-    padding: 14px 12px;
-    gap: 7px;
-  }
-  .ghost-root .dock button svg {
-    width: 12px;
-    height: 12px;
-  }
-  .ghost-root .footer-right > .mono {
-    display: none;
-  }
-  .ghost-root .footer-right {
-    gap: 0;
-  }
-  .ghost-root .motion-toggle {
-    width: 36px;
-    height: 44px;
   }
   .ghost-root .skip-intro {
     bottom: 18px;
@@ -895,58 +475,11 @@
     margin-top: 30px;
     min-width: 0;
   }
-  .ghost-root .project-row {
-    grid-template-columns: 50px 1fr 20px;
-    gap: 14px;
-    padding: 18px 0;
-  }
-  .ghost-root .project-row .atlas-preview {
-    width: 50px;
-  }
-  .ghost-root .row-number,
-  .ghost-root .row-client,
-  .ghost-root .row-year {
+  .ghost-root .row-number {
     display: none;
   }
   .ghost-root .row-title {
     font-size: 20px;
-  }
-  .ghost-root .reference-credit {
-    font-size: 8px;
-    line-height: 1.7;
-  }
-  .ghost-root .about {
-    padding: 145px 22px 110px;
-  }
-  .ghost-root .about-top {
-    font-size: 8px;
-  }
-  .ghost-root .about h1 {
-    font-size: 24vw;
-    margin: 65px 0;
-    letter-spacing: -0.08em;
-  }
-  .ghost-root .about h1 sup {
-    font-size: 16px;
-    top: 5px;
-    margin-left: 6px;
-  }
-  .ghost-root .about-bottom {
-    grid-template-columns: 1fr;
-    gap: 35px;
-  }
-  .ghost-root .orbit {
-    display: none;
-  }
-  .ghost-root .about-bottom p {
-    font-size: 26px;
-  }
-  .ghost-root .about-index {
-    justify-self: start;
-    margin-top: 8px;
-  }
-  .ghost-root .about-detail {
-    max-width: 320px !important;
   }
   .ghost-root .project-dialog {
     max-width: calc(100vw - 24px);
@@ -957,24 +490,6 @@
     grid-template-columns: 1fr;
     gap: 12px;
     padding: 18px;
-  }
-  .ghost-root .dialog-image {
-    max-width: 230px;
-    width: 100%;
-    margin: auto;
-  }
-  .ghost-root .dialog-copy {
-    padding: 10px 0;
-  }
-  .ghost-root .dialog-copy h2 {
-    font-size: 38px;
-    margin: 18px 0;
-  }
-  .ghost-root .dialog-copy p {
-    margin: 20px 0;
-  }
-  .ghost-root .dialog-copy .pill {
-    width: 100%;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -1002,81 +517,18 @@
 .ghost-root .header .brand {
   min-height: 74px;
 }
-.ghost-root .header .brand small {
-  font:
-    10px 'DM Mono',
-    monospace;
-  letter-spacing: 0;
-}
-.ghost-root .dock a {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 85px;
-  padding: 16px 20px;
-  border-radius: 40px;
-  text-decoration: none;
-  font-size: 16px;
-  letter-spacing: -0.6px;
-}
-.ghost-root .dock a:hover {
-  background: #ffffff55;
-}
-.ghost-root .reference-credit {
-  line-height: 1.7;
-}
-.ghost-root .footer-right .mono a {
-  text-decoration: none;
-}
-.ghost-root .intro-links {
-  position: fixed;
-  z-index: 40;
-  bottom: 28px;
-  left: 32px;
-  display: flex;
-  gap: 20px;
-  font:
-    10px 'DM Mono',
-    monospace;
-}
-.ghost-root .intro-links a {
-  text-decoration: none;
-  padding: 12px 0;
-}
-.ghost-root .about a.pill {
-  margin-top: 12px;
-}
 @media (max-width: 650px) {
   .ghost-root .header .brand {
     min-height: 50px;
   }
-  .ghost-root .dock {
-    left: 50%;
-    bottom: 70px;
-  }
-  .ghost-root .dock button,
-  .ghost-root .dock a {
-    font-size: 13px;
-    min-width: 62px;
-    padding: 14px 12px;
-  }
-  .ghost-root .intro-links {
-    left: 20px;
-    bottom: 75px;
-    gap: 14px;
-  }
   .ghost-root .archive {
     padding-bottom: 165px;
-  }
-  .ghost-root .about {
-    padding-bottom: 175px;
   }
   .ghost-root .brand > span {
     font-size: 25px;
   }
 }
 
-/* Live ledger content occupies the original gallery, list and dialog surfaces. */
 .ghost-root.live-app {
   --live-green: #1eff66;
   --live-muted: #a0aaa3;
@@ -1091,27 +543,6 @@
 }
 .ghost-root .vault-selector .muted {
   font-size: 9px;
-}
-.ghost-root .grid-caption {
-  position: fixed;
-  top: 115px;
-  left: 32px;
-  z-index: 14;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  pointer-events: none;
-  color: var(--live-muted);
-  padding: 12px 16px;
-  background: #000c;
-  border: 1px solid var(--live-line);
-  border-radius: 8px;
-}
-.ghost-root .grid-caption span:first-child {
-  font-family: Arial, sans-serif;
-  font-size: 15px;
-  color: #f5f5f2;
-  letter-spacing: -0.4px;
 }
 .ghost-root .ledger-alert {
   position: relative;
@@ -1437,16 +868,6 @@
     padding: 14px 15px;
     font-size: 12px;
   }
-  .ghost-root .grid-caption {
-    top: 114px;
-    left: 18px;
-    right: 18px;
-    font-size: 8px;
-    padding: 10px 12px;
-  }
-  .ghost-root .grid-caption span:first-child {
-    font-size: 13px;
-  }
   .ghost-root .ledger-alert {
     margin: 118px 16px 0;
     padding: 15px;
@@ -1511,11 +932,6 @@
   .ghost-root .vault-dialog h2 {
     font-size: 36px;
   }
-  .ghost-root .dock button {
-    min-width: 58px;
-    padding: 14px 11px;
-    font-size: 12px;
-  }
 }
 @media (max-width: 650px) {
   .ghost-root .vault-selector {
@@ -1530,12 +946,8 @@
   .ghost-root .vault-selector .muted {
     font-size: 7px;
   }
-  .ghost-root .grid-caption {
-    top: 136px;
-  }
 }
 
-/* Landing and application have distinct entry points, without floating controls. */
 .ghost-root .brand {
   text-decoration: none;
 }

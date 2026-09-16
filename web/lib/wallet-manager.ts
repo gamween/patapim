@@ -4,12 +4,12 @@ import type { WalletAdapter, WalletManager, XamanAdapter } from 'xrpl-connect'
  * Which wallets can sign these funds' transactions, a VaultDeposit or VaultWithdraw carrying an MPT
  * amount, from what their shipped signing libraries can encode. Evidence: docs/feedback/FRICTION-LOG.md
  * F-019. `signs` is true where the wallet's code knows both, false where it cannot, null where the
- * wallet behind the connection is unknown. Nothing here is a live test of the wallet.
+ * wallet behind the connection is unknown. Only Xaman was tested live with this app.
  */
 export const VAULT_SIGNING: Record<string, { signs: boolean | null; note: string }> = {
   xaman: {
     signs: true,
-    note: 'Xaman supports vault transactions, MPT amounts and XRPL Devnet in its code; not yet tested live with this app. Switch Xaman to Devnet first.',
+    note: 'Xaman signs vault transactions with MPT amounts, tested live with this app on XRPL Devnet. Switch Xaman to Devnet first.',
   },
   otsu: {
     signs: true,

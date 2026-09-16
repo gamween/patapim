@@ -21,7 +21,6 @@ type Callbacks = {
   select: (p: LedgerCard) => void
   error: (e: unknown) => void
 }
-const clamp = THREE.MathUtils.clamp
 const asset = (path: string) => `/reference/${path}`
 
 const galleryVertex = `varying vec2 vUv; void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`
@@ -419,9 +418,6 @@ export class Experience {
   }
   setActive(active: boolean) {
     this.active = active
-  }
-  setMotion(enabled: boolean) {
-    this.reduceMotion = !enabled
   }
 
   private resize = () => {

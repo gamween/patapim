@@ -4,14 +4,12 @@
  * Sources and quotes: docs/research/lending-conventions.md.
  */
 
-type Json = Record<string, any>
+/** A ledger object as JSON-RPC returns it. */
+export type Json = Record<string, any>
 
 /** XRPL rates are in tenths of a basis point: 10 = 1 bp, 1000 = 1%, 100000 = 100%. */
 export const tenthBpsToBps = (v: number) => v / 10
 export const tenthBpsToFraction = (v: number) => v / 100000
-
-/** rippled LendingHelpers.h kSecondsInYear: interest is an annual rate prorated over 365 days. */
-export const SECONDS_IN_YEAR = 365 * 24 * 60 * 60
 
 /**
  * Exit NAV per share: what the ledger redeems a share against. XLS-65 exchange algorithm and
@@ -24,13 +22,6 @@ export const exitNavPerShare = (assetsTotal: number, lossUnrealized: number, sha
 /** Entry price per share: the deposit exchange rate, AssetsTotal / SharesTotal (XLS-65). */
 export const entryPricePerShare = (assetsTotal: number, shares: number) =>
   shares > 0 ? assetsTotal / shares : null
-
-/**
- * Utilisation, Aave's definition: borrowed over total. Under cash-basis accounting, which every
- * vault created under LendingProtocolV1_1 uses, AssetsTotal - AssetsAvailable is principal lent out.
- */
-export const utilisation = (assetsTotal: number, assetsAvailable: number) =>
-  assetsTotal > 0 ? Math.min(1, Math.max(0, (assetsTotal - assetsAvailable) / assetsTotal)) : null
 
 /** Principal-weighted lending fee across the loan book, annualised, in basis points. */
 export function weightedLendingFeeBps(loans: Json[]): number | null {

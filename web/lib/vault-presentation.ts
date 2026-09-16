@@ -17,6 +17,7 @@ import {
   firstLossCoverage,
   interestToLenders,
   netLendingReturnBps,
+  tenthBpsToBps,
   tenthBpsToFraction,
   weightedLendingFeeBps,
 } from './finance'
@@ -78,7 +79,7 @@ export async function presentVault(
       principal: number(principal),
       owed: number(Number(l.TotalValueOutstanding ?? 0)),
       interestToLenders: number(interestToLenders(l)),
-      feeBps: `${number(Number(l.InterestRate ?? 0) / 10, 1)} bps p.a.`,
+      feeBps: `${number(tenthBpsToBps(Number(l.InterestRate ?? 0)), 1)} bps p.a.`,
       payments: String(l.PaymentRemaining ?? '—'),
       due: date(l.NextPaymentDueDate) ?? '—',
       grace: duration(Number(l.GracePeriod ?? 0)),
@@ -335,7 +336,6 @@ export async function presentVault(
     subscription: date(vault.SubscriptionDate),
     redemption: date(vault.RedemptionDate),
     termDays,
-    // eslint-disable-next-line no-bitwise
     permissioned: Boolean(Number(vault.Flags ?? 0) & 0x00010000),
     cards,
     loans,

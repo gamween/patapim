@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import type { Wallet } from 'xrpl'
-import { DEMO_ACCOUNTS_URL } from '@/lib/config'
+import { DEMO_ACCOUNTS_URL, LIBRARY } from '@/lib/config'
 import { VAULT_SIGNING } from '@/lib/wallet-manager'
 import type { VaultSnapshot } from '@/lib/vault-ui'
 import { useWallet } from './wallet'
@@ -251,14 +251,14 @@ export default function SignPanel({
       <div className="sign-intro">
         <p>
           Sign a real transaction against this fund, on XRPL Devnet, from an
-          account holding TBL. The ledger decides:
+          account holding {s.assetTicker}. The ledger decides:
           {snapshot.permissioned
             ? ' only an account with a credential the fund’s domain accepts may subscribe.'
             : ' this fund has no eligibility gate.'}
         </p>
         <p className="live-footnote">
           {mode === 'key'
-            ? 'This page signs with xrpl.js@5.2.0-beta.0 and the key never leaves the tab.'
+            ? `This page signs with ${LIBRARY} and the key never leaves the tab.`
             : 'Your wallet signs.'}{' '}
           Only the signed transaction reaches the server, which relays it to
           XRPL Devnet and reads the result from a validated ledger. Wallet
@@ -358,9 +358,9 @@ export default function SignPanel({
               />
             </label>
             <p id="sign-key-note" className="live-footnote">
-              The key stays in this tab and signs locally with
-              xrpl.js@5.2.0-beta.0. Devnet demo keys only: never paste a key
-              that controls real funds.
+              The key stays in this tab and signs locally with {LIBRARY}.
+              Devnet demo keys only: never paste a key that controls real
+              funds.
             </p>
             <div className="sign-buttons">
               <button className="pill" type="submit" disabled={!!busy}>

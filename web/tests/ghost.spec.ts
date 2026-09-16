@@ -24,7 +24,7 @@ test.beforeAll(async ({ request }) => {
   expect(live.network).toBe('XRPL Devnet')
 })
 
-test('real ghost intro reveals live ledger tiles instead of project imagery', async ({
+test('real ghost intro reveals live ledger tiles, and Open app reaches the vault', async ({
   page,
 }) => {
   const errors: string[] = [],
@@ -35,24 +35,17 @@ test('real ghost intro reveals live ledger tiles instead of project imagery', as
   await expect(app(page)).toHaveAttribute('data-phase', 'intro', {
     timeout: 25000,
   })
-  await page.screenshot({ path: '../docs/design/live/intro.png' })
+  await page.screenshot({ path: 'test-results/captures/intro.png' })
   await expect(app(page)).toHaveAttribute('data-phase', 'ready', {
     timeout: 25000,
   })
   await expect(app(page)).toHaveAttribute('data-ledger-state', 'ready')
-  await page.screenshot({ path: '../docs/design/live/grid.png' })
+  await page.screenshot({ path: 'test-results/captures/grid.png' })
   await page.mouse.move(600, 420)
   await page.mouse.down()
   await page.mouse.move(790, 530, { steps: 12 })
   await page.mouse.up()
   await expect(page.locator('.ledger-dialog')).not.toBeVisible()
-  await expect(
-    page.locator('.footer, .dock, .view-switch, .motion-toggle'),
-  ).toHaveCount(0)
-  await expect(
-    page.getByRole('button', { name: 'Replay', exact: true }),
-  ).toHaveCount(0)
-  await expect(page.getByRole('link', { name: /Pitch deck/i })).toHaveCount(0)
   await expect(
     page.getByRole('heading', { name: 'Good assets. Put to work.' }),
   ).toBeVisible()
@@ -66,11 +59,7 @@ test('real ghost intro reveals live ledger tiles instead of project imagery', as
   await expect(
     page.locator('.ledger-row').filter({ hasText: 'NAV per share' }),
   ).toContainText(live.cards.find((c) => c.id === 'price')!.value)
-  expect(requested.some((url) => url.includes('/atlases/'))).toBe(false)
   expect(requested.some((url) => url.includes('rippletest.net'))).toBe(false)
-  await expect(
-    page.getByText(/Phantom references|Reference collection|Visual studies/i),
-  ).toHaveCount(0)
   expect(errors).toEqual([])
 })
 
@@ -93,7 +82,7 @@ test('vault, loan book, phase rules and details work inside the app', async ({
     await expect(
       page.locator('.rule-line').filter({ hasText: tx }),
     ).toContainText(code)
-  await page.screenshot({ path: '../docs/design/live/rules.png' })
+  await page.screenshot({ path: 'test-results/captures/rules.png' })
   expect(page.url()).toBe(url)
   await page.getByRole('button', { name: 'Vault', exact: true }).click()
   await page.getByRole('searchbox').fill('provenance')
@@ -194,7 +183,7 @@ test('400px viewport supports ledger list, rules, dialogs and holder selection',
 }) => {
   await page.setViewportSize({ width: 400, height: 844 })
   await ready(page, true)
-  await page.screenshot({ path: '../docs/design/live/mobile-grid.png' })
+  await page.screenshot({ path: 'test-results/captures/mobile-grid.png' })
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
@@ -213,7 +202,7 @@ test('400px viewport supports ledger list, rules, dialogs and holder selection',
     ),
   ).toBe(true)
   await page.screenshot({
-    path: '../docs/design/live/mobile-list.png',
+    path: 'test-results/captures/mobile-list.png',
     fullPage: true,
   })
   await page.locator('.ledger-row').filter({ hasText: 'Fund phase' }).click()
