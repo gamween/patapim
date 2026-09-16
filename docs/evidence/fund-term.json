@@ -111,6 +111,66 @@
       "step": "app relay: deposit into Fund I in its term",
       "code": "tecEXPIRED",
       "hash": "CFA26C7C94884B24451FBD385D83F5C9054C5E773CCD91B611A1B83816F1CFE4"
+    },
+    {
+      "step": "LoanManage impair",
+      "code": "tesSUCCESS",
+      "hash": "8EDA949A96C65A820D4386A69CB9263426B20F504C4A20FE37C229CD2C644F66"
+    },
+    {
+      "step": "LoanManage default",
+      "code": "tesSUCCESS",
+      "hash": "7582153DF0E41B8C7E1F210EDEA61125400C5250D9A8ECBEE97FEC096BFE09A4"
+    },
+    {
+      "step": "EscrowFinish collateral",
+      "code": "tesSUCCESS",
+      "hash": "74CB24833616D69BFA3FF827D52748FCC78C974555FB70476A02D3BCAF78FC98"
     }
-  ]
+  ],
+  "settlement": {
+    "at": 842871801,
+    "states": [
+      {
+        "label": "past grace, unpaid",
+        "AssetsTotal": "5000000",
+        "AssetsAvailable": "3000000",
+        "LossUnrealized": "0",
+        "shares": "5000000",
+        "navPerShare": "1.000000",
+        "DebtTotal": "2000000",
+        "CoverAvailable": "2500000"
+      },
+      {
+        "label": "impaired",
+        "AssetsTotal": "5000000",
+        "AssetsAvailable": "3000000",
+        "LossUnrealized": "2000000",
+        "shares": "5000000",
+        "navPerShare": "0.600000",
+        "DebtTotal": "2000000",
+        "CoverAvailable": "2500000"
+      },
+      {
+        "label": "defaulted, cover absorbs",
+        "AssetsTotal": "5000000",
+        "AssetsAvailable": "5000000",
+        "LossUnrealized": "0",
+        "shares": "5000000",
+        "navPerShare": "1.000000",
+        "DebtTotal": "0",
+        "CoverAvailable": "500000"
+      },
+      {
+        "label": "collateral claimed",
+        "AssetsTotal": "5000000",
+        "AssetsAvailable": "5000000",
+        "LossUnrealized": "0",
+        "shares": "5000000",
+        "navPerShare": "1.000000",
+        "DebtTotal": "0",
+        "CoverAvailable": "500000"
+      }
+    ]
+  }
 }

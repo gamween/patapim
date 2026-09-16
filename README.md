@@ -55,7 +55,7 @@ A closed-ended vault's dates are immutable, so both have moved on since:
 | | Fund I | Fund II |
 |---|---|---|
 | During the event | in term: one loan of 2,000,000 TBL out, deposits refused `tecEXPIRED` | open for subscription: the demo investor with a credential deposited, `tesSUCCESS`; the one without was refused, `tecNO_AUTH` |
-| Since 16 September 2026, 16:00 UTC | in redemption. The borrower never returned the securities: the loan is past its grace period, and the fund matured with 2,000,000 TBL still out, the illiquidity at maturity that the third finding below describes | in term until 16 December 2026: deposits and withdrawals refused, lending open |
+| Since 16 September 2026 | the borrower never returned the securities. Once the grace period ran out the agent settled the fund the way the default arc below describes, live: `LoanManage` impair took NAV per share to 0.60, `LoanManage` default made the first-loss cover repay the 2,000,000 TBL and NAV back to 1.00, and `EscrowFinish` claimed the borrower's 2,014,500 USDX collateral. The fund is in redemption with its capital whole; hashes in [`docs/ON-CHAIN.md`](./docs/ON-CHAIN.md) | in term until 16 December 2026: deposits and withdrawals refused, lending open |
 
 The signatures made during the event, through the app's own relay, are in
 [`docs/evidence/fund-offering.json`](./docs/evidence/fund-offering.json) and
@@ -163,7 +163,7 @@ decides what the cover pays. That contrast is finding F-014.
 
 The flagship lifecycle on XRPL Devnet, regenerated from the chain by
 `node scripts/gen-evidence-table.mjs`. The standing funds, the default arcs and the demo account
-transactions are in [`docs/ON-CHAIN.md`](./docs/ON-CHAIN.md): 76 transactions, each re-verified
+transactions are in [`docs/ON-CHAIN.md`](./docs/ON-CHAIN.md): 79 transactions, each re-verified
 against the ledger by `node scripts/gen-onchain-inventory.mjs`.
 
 <!-- evidence:start -->
@@ -211,7 +211,7 @@ id here. The explorer's vault page shows the vault, its loan broker and its loan
 |---|---|---|
 | Vault | [`B5EC8B2C…4730`](https://devnet.xrpl.org/vault/B5EC8B2CFF11828C7A3B2552FD14F370659D1CB6857547A3A720E568E1F14730) | [`B8286CD5…4530`](https://devnet.xrpl.org/vault/B8286CD54ED120116C66C4B3F8663E6E06E7A593A9395B84497894A586A74530) |
 | Loan broker | `22731477DB5E866A4FEB929A99091B09C686BE098A63F40F88D2D98C737A6AD5` | `3D4E887081C40BC126D26C6E2FD2883476CBBC023C194A0AF941A6770FFFBEBA` |
-| Loan | `F9B11DDA5EFA85457CB17F89EFC99C813B155B41A19A6E2A67242EDB2A596D1F`, unpaid | none during the event |
+| Loan | `F9B11DDA5EFA85457CB17F89EFC99C813B155B41A19A6E2A67242EDB2A596D1F`, defaulted on 16 September, repaid by the cover | none during the event |
 | Vault shares, MPT | `00000001FB4ECA99A091C2574B7A586C58ECDB41E83357FD` | `000000019E4ED3A9645729D633558E005BBF860311912687` |
 | Subscription closes | 12 September 2026, 22:04 UTC | 16 September 2026, 16:00 UTC |
 | Redemption opens | 16 September 2026, 16:00 UTC | 16 December 2026, 17:00 UTC |

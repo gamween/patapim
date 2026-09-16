@@ -42,13 +42,12 @@ the vault the landing page opens, provisioned on 12 and 13 September 2026 in its
 | Cash, MPT issuance | `00504E4C2BD6C9B523B46C3A87963369E2205F00DD1C8CE7` | USDX, the collateral token, `AssetScale 2` |
 | Permissioned domain | `E6B24E9C6C23DBE2098364844AEEFD418E15CCC4039FB1B87773CA79A9F1625F` | the eligibility gate |
 | Price Oracle | owner [`rJhyrQk6…jFrw`](https://devnet.xrpl.org/accounts/rJhyrQk6XxJcdFeyTWVcn2aSxRS8LZjFrw), `OracleDocumentID 1` | TBL/USD reference price |
-| Collateral escrow | `0DD22E34B3BF99787A14CB94EEC5ECFA4D327B5E63CB26FC06E40D186E5F8A31` | owner [`rnLnMVxh…43cE`](https://devnet.xrpl.org/accounts/rnLnMVxhicYy3Jg4LGFoCvXwbnejyx43cE), sequence 5262926, `FinishAfter 842868000`, `CancelAfter 842889600` |
 
-Vault state now: assets `5000000`, available `3000000`, unrealised loss `0`. Subscription closes `842565880`, redemption opens `842889600`, Ripple epoch.
+Vault state now: assets `5000000`, available `5000000`, unrealised loss `0`. Subscription closes `842565880`, redemption opens `842889600`, Ripple epoch.
 
-Broker: cover `2500000`, debt `2000000`, ceiling `4000000`, cover rate `100000` and liquidation rate `100000` in tenths of a basis point, management fee `10000`.
+Broker: cover `500000`, debt `0`, ceiling `4000000`, cover rate `100000` and liquidation rate `100000` in tenths of a basis point, management fee `10000`.
 
-Loan: flags `0`, principal `2000000`, outstanding `2000035`, interest rate `250`, next payment due `842781611`, grace `86400` seconds.
+Loan: flags `196608`, principal `0`, outstanding `0`, interest rate `250`, next payment due `—`, grace `86400` seconds.
 
 ### Transactions
 
@@ -71,6 +70,9 @@ Loan: flags `0`, principal `2000000`, outstanding `2000035`, interest rate `250`
 | EscrowCreate collateral | `tesSUCCESS` | yes, `EscrowCreate` | [`DDF576E8`](https://devnet.xrpl.org/transactions/DDF576E8ADF005B4D3EDE412ED9AF289DD47C9FF064A37C093A345F3E5258B51) |
 | VaultSet reference price pointer | `tesSUCCESS` | yes, `VaultSet` | [`A77D656A`](https://devnet.xrpl.org/transactions/A77D656A8B6D6A265C4F9756224D42F99B016A9522361E2DBE2E2A442607F62F) |
 | app relay: deposit into Fund I in its term | `tecEXPIRED` | yes, `VaultDeposit` | [`CFA26C7C`](https://devnet.xrpl.org/transactions/CFA26C7C94884B24451FBD385D83F5C9054C5E773CCD91B611A1B83816F1CFE4) |
+| LoanManage impair | `tesSUCCESS` | yes, `LoanManage` | [`8EDA949A`](https://devnet.xrpl.org/transactions/8EDA949A96C65A820D4386A69CB9263426B20F504C4A20FE37C229CD2C644F66) |
+| LoanManage default | `tesSUCCESS` | yes, `LoanManage` | [`7582153D`](https://devnet.xrpl.org/transactions/7582153DF0E41B8C7E1F210EDEA61125400C5250D9A8ECBEE97FEC096BFE09A4) |
+| EscrowFinish collateral | `tesSUCCESS` | yes, `EscrowFinish` | [`74CB2483`](https://devnet.xrpl.org/transactions/74CB24833616D69BFA3FF827D52748FCC78C974555FB70476A02D3BCAF78FC98) |
 
 ## Fund II: the subscription book, where a judge signed
 
@@ -317,4 +319,4 @@ Loan: flags `0`, principal `2000000`, outstanding `2000183`, interest rate `5000
 
 ---
 
-76 transactions re-verified against the ledger, 0 mismatches.
+79 transactions re-verified against the ledger, 0 mismatches.

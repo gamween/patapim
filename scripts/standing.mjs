@@ -27,7 +27,7 @@
 // docs/DEMO-ACCOUNTS.md, without their keys, which the team shares with judges on request.
 import fs from 'node:fs'
 import { Wallet } from 'xrpl'
-import { connect, hex, sleep, createdId, submit, submitLoanSet, ledgerNow, MPT, RIPPLE_EPOCH } from './lib/lending.mjs'
+import { connect, hex, sleep, createdId, submit, submitLoanSet, ledgerNow, MPT, LoanManageFlags, RIPPLE_EPOCH } from './lib/lending.mjs'
 
 // ---------------------------------------------------------------------------------------------
 // Terms, in days from the validated ledger close at start, then fixed in Ripple epoch seconds
@@ -290,5 +290,54 @@ async function annotate() {
   await client.disconnect()
 }
 
-if (process.argv[2] === 'annotate') annotate().catch((e) => { console.error('FATAL', e); process.exit(1) })
-else main().catch((e) => { console.error('FATAL', e); process.exit(1) })
+// node scripts/standing.mjs settle
+// The borrower never returned the securities. Once the grace period has run out, the agent settles
+// Fund I the way the default arc does: impair the loan, declare default so the first-loss cover
+// repays the vault, then claim the borrower's cash collateral from the escrow, which is only open to
+// the agent between FinishAfter (due date plus grace) and CancelAfter (the fund's maturity).
+async function settle() {
+  const s = JSON.parse(fs.readFileSync(STATE, 'utf8'))
+  const { client } = await connect('t2')
+  const agent = Wallet.fromSeed(s.seeds.agent)
+  const { vaultID, brokerID, loanID, escrow } = s.term
+  const file = 'docs/evidence/fund-term.json'
+  const doc = JSON.parse(fs.readFileSync(file, 'utf8'))
+  const states = []
+  const snapshot = async (label) => {
+    const v = await entry(client, { index: vaultID })
+    const b = await entry(client, { index: brokerID })
+    const sh = await entry(client, { mpt_issuance: v.ShareMPTID })
+    const assets = Number(v.AssetsTotal ?? 0), loss = Number(v.LossUnrealized ?? 0), shares = Number(sh.OutstandingAmount ?? 0)
+    const row = {
+      label, AssetsTotal: v.AssetsTotal ?? '0', AssetsAvailable: v.AssetsAvailable ?? '0', LossUnrealized: v.LossUnrealized ?? '0',
+      shares: String(shares), navPerShare: shares > 0 ? ((assets - loss) / shares).toFixed(6) : null,
+      DebtTotal: b.DebtTotal ?? '0', CoverAvailable: b.CoverAvailable ?? '0',
+    }
+    console.log(`   [${label}] assets=${row.AssetsTotal} loss=${row.LossUnrealized} nav=${row.navPerShare} debt=${row.DebtTotal} cover=${row.CoverAvailable}`)
+    states.push(row)
+  }
+  const loan = await entry(client, { index: loanID })
+  const close = await ledgerNow(client)
+  const graceOver = Number(loan.NextPaymentDueDate) + Number(loan.GracePeriod)
+  if (close <= graceOver) throw new Error(`grace period still running until ${iso(graceOver)}`)
+  console.log(`\n--- settlement of Fund I (ledger ${iso(close)}, payment was due ${iso(Number(loan.NextPaymentDueDate))}) ---`)
+  await snapshot('past grace, unpaid')
+  const steps = [
+    ['LoanManage impair', { TransactionType: 'LoanManage', Account: agent.classicAddress, LoanID: loanID, Flags: LoanManageFlags.tfLoanImpair }, 'impaired'],
+    ['LoanManage default', { TransactionType: 'LoanManage', Account: agent.classicAddress, LoanID: loanID, Flags: LoanManageFlags.tfLoanDefault }, 'defaulted, cover absorbs'],
+    ['EscrowFinish collateral', { TransactionType: 'EscrowFinish', Account: agent.classicAddress, Owner: escrow.owner, OfferSequence: escrow.sequence }, 'collateral claimed'],
+  ]
+  for (const [step, tx, after] of steps) {
+    const r = must(await submit(client, agent, tx, step), step)
+    doc.events.push({ step, code: r.code, hash: r.hash })
+    await snapshot(after)
+  }
+  doc.settlement = { at: close, states }
+  fs.writeFileSync(file, JSON.stringify(doc, null, 2) + '\n')
+  console.log(`\nwritten: ${file}`)
+  await client.disconnect()
+}
+
+const verbs = { annotate, settle }
+const verb = verbs[process.argv[2]] ?? main
+verb().catch((e) => { console.error('FATAL', e); process.exit(1) })
