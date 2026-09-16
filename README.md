@@ -10,7 +10,7 @@
 [![Contribution](https://img.shields.io/badge/ripple%2Fexplorer-%231342-7c3aed?style=flat-square)](https://github.com/ripple/explorer/pull/1342)
 [![XLS-65 · XLS-66](https://img.shields.io/badge/XLS--65%20%C2%B7%20XLS--66-Lending%20Protocol-b54708?style=flat-square)](https://xls.xrpl.org/xls/XLS-0066-lending-protocol)
 
-**XRPL Lending Protocol Hackathon · Paris · 12-13 September 2026 · 🥈 second place**
+🥈 **Second place — XRPL Lending Protocol Hackathon ($1,000 + a Swell 2026 travel grant) · Paris, September 2026**
 
 **[Open the app](https://patapim-gamma.vercel.app)** · **[Video demo](https://youtu.be/rl5IiE9Bn8A)** · **[Jury deck](./docs/PATAPIM-DECK.pdf)** · **[Developer report](./DEVELOPER-REPORT.md)** · **[One-pager](./docs/ONE-PAGER.en.md)** · **[En français](./docs/ONE-PAGER.fr.md)**
 
@@ -27,6 +27,13 @@ figure in the app is read from the validated ledger.
 > holdings. On chain, for regulated securities, that market does not exist yet, and every primitive
 > it needs already shipped.
 
+> 🥈 **Second place at the XRPL Lending Protocol Hackathon, Paris, 12-13 September 2026.**
+> A curated 36-hour event organised by DeVinci Blockchain and sponsored by Ripple, built on the
+> freshly merged XLS-65 and XLS-66 amendments: 14 projects and 45 builders, judged by Ripple's
+> developer relations and product teams on the quality of the developer feedback first. The prize:
+> $1,000, and for the two top teams a full travel grant and a pass to Ripple Swell, New York,
+> 27-29 October 2026.
+
 ## Table of contents
 
 - [Try it yourself](#try-it-yourself)
@@ -40,6 +47,7 @@ figure in the app is read from the validated ledger.
 - [Getting started](#getting-started)
 - [Contributing back](#contributing-back)
 - [Team](#team)
+- [License](#license)
 
 ## Try it yourself
 
@@ -298,4 +306,10 @@ Demonstration on XRPL Devnet with a fictitious security and a fictitious cash to
 institutions named in this repository are market context, not partners. The front end's art direction
 is adapted from a public reference study whose provenance is recorded in `docs/reference/`.
 
-MIT licence, see [`LICENSE`](./LICENSE).
+## License
+
+[MIT](./LICENSE) © 2026 Sofiane Ben Taleb and Armand Séchon.
+
+<div align="center">
+<sub>Built for the XRPL Lending Protocol Hackathon, Paris · September 2026 · Track 2, closed-ended vaults</sub>
+</div>
