@@ -2,6 +2,8 @@
 
 **XRPL Lending Protocol Hackathon, Paris, septembre 2026 · Track 2, vaults à terme fixe · XRPL Devnet public**
 
+*Rédigé pour la soumission du 13 septembre 2026. Les chiffres et les phases des fonds sont ceux de ce jour-là ; les fonds continuent de tourner sur le Devnet et l'app lit leur phase en direct.*
+
 App : https://patapim-gamma.vercel.app · Vidéo : https://youtu.be/rl5IiE9Bn8A · Code : https://github.com/gamween/patapim · Équipe : Sofiane Ben Taleb (@gamween), Armand Séchon (@STOOOKEEE)
 
 ## Le problème

@@ -10,7 +10,7 @@
 [![Contribution](https://img.shields.io/badge/ripple%2Fexplorer-%231342-7c3aed?style=flat-square)](https://github.com/ripple/explorer/pull/1342)
 [![XLS-65 · XLS-66](https://img.shields.io/badge/XLS--65%20%C2%B7%20XLS--66-Lending%20Protocol-b54708?style=flat-square)](https://xls.xrpl.org/xls/XLS-0066-lending-protocol)
 
-**XRPL Lending Protocol Hackathon · Paris · 12-13 September 2026**
+**XRPL Lending Protocol Hackathon · Paris · 12-13 September 2026 · 🥈 second place**
 
 **[Open the app](https://patapim-gamma.vercel.app)** · **[Video demo](https://youtu.be/rl5IiE9Bn8A)** · **[Jury deck](./docs/PATAPIM-DECK.pdf)** · **[Developer report](./DEVELOPER-REPORT.md)** · **[One-pager](./docs/ONE-PAGER.en.md)** · **[En français](./docs/ONE-PAGER.fr.md)**
 
@@ -43,15 +43,30 @@ figure in the app is read from the validated ledger.
 
 ## Try it yourself
 
-The app is deployed at **https://patapim-gamma.vercel.app**. It opens **Fund I**, a fund in its term
-with one loan of securities out. The vault picker also lists **Fund II**, open for subscription until
-Wednesday 16 September 18:00 CEST. A video demo of the app is on [YouTube](https://youtu.be/rl5IiE9Bn8A).
+The app is deployed at **https://patapim-gamma.vercel.app**, and a video demo of it is on
+[YouTube](https://youtu.be/rl5IiE9Bn8A). It opens **Fund I**; the vault picker also lists **Fund II**,
+and any vault id can be typed in. Every figure is read from the validated ledger, and the phase shown
+is the ledger's, not the browser clock's.
 
-1. Open Fund II and choose **Connect Wallet** in the header, or go to the **Sign** tab.
-2. Connect a Xaman wallet on XRPL Devnet holding one of the two demo accounts in [`docs/DEMO-ACCOUNTS.md`](./docs/DEMO-ACCOUNTS.md); the team shares their keys with judges on request.
-3. Sign a `VaultDeposit`. The investor with a credential gets `tesSUCCESS` and a position; the one
-   without gets `tecNO_AUTH`, refused by the permissioned domain. The same deposit into Fund I gets
-   `tecEXPIRED`: its subscription period is over.
+The two funds were provisioned for the event in two different phases, so that the jury could see a
+fund in its term and a fund open for subscription at the same time, and sign into the second one.
+A closed-ended vault's dates are immutable, so both have moved on since:
+
+| | Fund I | Fund II |
+|---|---|---|
+| During the event | in term: one loan of 2,000,000 TBL out, deposits refused `tecEXPIRED` | open for subscription: the demo investor with a credential deposited, `tesSUCCESS`; the one without was refused, `tecNO_AUTH` |
+| Since 16 September 2026, 16:00 UTC | in redemption. The borrower never returned the securities: the loan is past its grace period, and the fund matured with 2,000,000 TBL still out, the illiquidity at maturity that the third finding below describes | in term until 16 December 2026: deposits and withdrawals refused, lending open |
+
+The signatures made during the event, through the app's own relay, are in
+[`docs/evidence/fund-offering.json`](./docs/evidence/fund-offering.json) and
+[`docs/evidence/fund-term.json`](./docs/evidence/fund-term.json). To replay the eligibility demo on a
+fresh pair of funds, `node scripts/standing.mjs` provisions them in about eight minutes; the two demo
+investor accounts are described in [`docs/DEMO-ACCOUNTS.md`](./docs/DEMO-ACCOUNTS.md).
+
+1. Open a fund and choose **Connect Wallet** in the header, or go to the **Sign** tab.
+2. Connect a Xaman wallet on XRPL Devnet, or paste a Devnet key into the demo-key signer.
+3. Sign a `VaultDeposit` or a `VaultWithdraw`. The ledger answers according to the fund's phase and
+   the account's credential, and the app shows the result with its explorer link.
 
 The wallet connection is XRPL Commons' [xrpl-connect](https://github.com/XRPL-Commons/xrpl-connect),
 themed to the app. The wallet signs; the server only relays the signed transaction to XRPL Devnet and
@@ -165,7 +180,7 @@ against the ledger by `node scripts/gen-onchain-inventory.mjs`.
 | `VaultDeposit` | the subscription window has closed, the phase gate fires | `tecEXPIRED` | [`E4F68FB0`](https://devnet.xrpl.org/transactions/E4F68FB08B8DDA19E962A7B3A90485CF94CD3168C688D776000EC1ADBDEB9D7C) |
 | `VaultWithdraw` | capital is locked for the term, the second phase gate | `tecTOO_SOON` | [`32077697`](https://devnet.xrpl.org/transactions/32077697369163583D1D1BD43F18325D6608A70EC2814A49EDA60DDF38F44CAF) |
 | `LoanSet` | the loan of securities, agent signs, borrower counter-signs | `tesSUCCESS` | [`DDD61141`](https://devnet.xrpl.org/transactions/DDD611413B8354071CB27DD291652E01424C52D82901611CC6DE042036972C12) |
-| `EscrowCreate` | the borrower posts XRP in escrow to the agent, reclaimable after CancelAfter | `tesSUCCESS` | [`05F9AF64`](https://devnet.xrpl.org/transactions/05F9AF64190D7FAB70DB730F03921928CE2BF71B5656F2D0CA54C99571F0D936) |
+| `EscrowCreate` | the borrower posts collateral in escrow to the agent, reclaimable after CancelAfter: XRP on this run, USDX on the standing funds | `tesSUCCESS` | [`05F9AF64`](https://devnet.xrpl.org/transactions/05F9AF64190D7FAB70DB730F03921928CE2BF71B5656F2D0CA54C99571F0D936) |
 | `LoanPay` | the borrower returns the securities with the interest, in full | `tesSUCCESS` | [`71DE04C6`](https://devnet.xrpl.org/transactions/71DE04C60FBC85F87CCC6283CDAA5985DF18DFF5A9DDE90694805B77927978C4) |
 | `EscrowCancel` | the borrower recovers the collateral after CancelAfter | `tesSUCCESS` | [`7CE7D679`](https://devnet.xrpl.org/transactions/7CE7D67939902D50FA93B691C081CAE1D81299852AB56B266320A634789611A4) |
 | `LoanSet` | new lending refused once redemption opens, the third phase gate | `tecEXPIRED` | [`3C01AF18`](https://devnet.xrpl.org/transactions/3C01AF182E2D99FBEE493459B61E381D8B90A1BDA13A2A118CA338CBA8E43FFD) |
@@ -176,7 +191,7 @@ against the ledger by `node scripts/gen-onchain-inventory.mjs`.
 XLS-65 and XLS-66 transactions used, and where: `VaultCreate`, `VaultDeposit`, `VaultWithdraw`,
 `VaultSet`, `LoanBrokerSet`, `LoanBrokerCoverDeposit`, `LoanSet`, `LoanPay` above and in the standing
 funds; `LoanManage` impair and default in the default arcs; `VaultClawback` and
-`LoanBrokerCoverWithdraw` in `scripts/experiments/`. The Loaded primitives
+`LoanBrokerCoverWithdraw` in `scripts/experiments/`. The primitives of the Loaded flavour
 alongside them: `MPTokenIssuanceCreate`, `MPTokenAuthorize`, `CredentialCreate`, `CredentialAccept`,
 `PermissionedDomainSet`, `OracleSet`, `EscrowCreate` with an MPT amount, `EscrowCancel`.
 
@@ -192,11 +207,11 @@ is open rippled pull request #6383, `tfVaultDonate`, behind `LendingProtocolV1_2
 The XRP Ledger has no contract addresses: what a contract address names elsewhere is a ledger object
 id here. The explorer's vault page shows the vault, its loan broker and its loans together.
 
-| | Fund I, in term | Fund II, open for subscription |
+| | Fund I | Fund II |
 |---|---|---|
 | Vault | [`B5EC8B2C…4730`](https://devnet.xrpl.org/vault/B5EC8B2CFF11828C7A3B2552FD14F370659D1CB6857547A3A720E568E1F14730) | [`B8286CD5…4530`](https://devnet.xrpl.org/vault/B8286CD54ED120116C66C4B3F8663E6E06E7A593A9395B84497894A586A74530) |
 | Loan broker | `22731477DB5E866A4FEB929A99091B09C686BE098A63F40F88D2D98C737A6AD5` | `3D4E887081C40BC126D26C6E2FD2883476CBBC023C194A0AF941A6770FFFBEBA` |
-| Loan | `F9B11DDA5EFA85457CB17F89EFC99C813B155B41A19A6E2A67242EDB2A596D1F` | none, lending opens after subscription |
+| Loan | `F9B11DDA5EFA85457CB17F89EFC99C813B155B41A19A6E2A67242EDB2A596D1F`, unpaid | none during the event |
 | Vault shares, MPT | `00000001FB4ECA99A091C2574B7A586C58ECDB41E83357FD` | `000000019E4ED3A9645729D633558E005BBF860311912687` |
 | Subscription closes | 12 September 2026, 22:04 UTC | 16 September 2026, 16:00 UTC |
 | Redemption opens | 16 September 2026, 16:00 UTC | 16 December 2026, 17:00 UTC |
@@ -228,18 +243,20 @@ scripts/              the ledger work
   read-vault.mjs      the read path, and the calls it takes
   experiments/        what we fired at the ledger to establish the findings
 web/                  the app: Next.js; server routes read the ledger and relay signed transactions
+  README.md           routes, environment, wallets, structure and tests
   lib/wallet-manager.ts  xrpl-connect on Devnet, and what each wallet can sign
   lib/finance.ts      every lending metric the dashboard shows, with its definition
 docs/
+  PATAPIM-DECK.pdf    the jury deck, ten slides
   ON-CHAIN.md         every account and object we created, with explorer links
-  DEMO-ACCOUNTS.md    the two demo investor accounts and what the ledger answers them
+  DEMO-ACCOUNTS.md    the two demo investor accounts and what the ledger answered them
   ONE-PAGER.en.md     the product on one page, and ONE-PAGER.fr.md in French
+  CONTRIBUTION-explorer-search.md  the pull request to the XRPL Explorer, with prior art
   evidence/           transaction hashes per run, machine readable
   research/           the sourced notes behind the report and the lending conventions
-  review/             the adversarial reviews of our own submission, including the external audit
-  feedback/           the running friction log
+  feedback/           the friction log the report was written from
+  reference/          where the front end's art direction comes from
 DEVELOPER-REPORT.md   the deliverable: three pages, every claim with a hash, a file or a pull request
-SUBMISSION.md         the deliverable checklist
 ```
 
 ## Getting started

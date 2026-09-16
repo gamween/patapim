@@ -1,5 +1,4 @@
-# XRPL DevEx Capture: local capture data, machine-specific hook paths and
-# agent skill links (installed per developer, never committed)
+# Local agent state, and the buffer of the event's DevEx capture hook (per developer, never committed)
 .xrpl-devex/
 .claude/settings.local.json
 .claude/skills/
